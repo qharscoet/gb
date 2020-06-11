@@ -10,26 +10,36 @@ CPU::CPU(char* memory)
 :pc(0x100), sp(0xFFFF)
 {
 	this->memory = memory;
+
+	write_r8_register(r8_name::H, 1);
+	write_r8_register(r8_name::L, 2);
+
+	uint16_t mabite = read_r16_register(r16_name::HL);
+	int a = 4;
 }
 
 CPU::~CPU()
 {
 }
 
-void CPU::ld(r8_name r1, r8_name r2)
+void CPU::write_r8_register(r8_name r, uint8_t value)
 {
-	registers[static_cast<uint8_t>(r1)] = registers[ static_cast<uint8_t>(r2)];
+	registers[static_cast<uint8_t>(r)] = value;
 }
 
-
-void CPU::ld(r8_name r1, r16_name r2)
+uint8_t CPU::read_r8_register(r8_name r)
 {
-	registers[static_cast<uint8_t>(r1)] = memory[(uint16_t)registers[static_cast<uint8_t>(r2)]];
+	return registers[static_cast<uint8_t>(r)];
 }
 
-void CPU::ld(r16_name r1, r8_name r2)
+uint16_t CPU::read_r16_register(r16_name r)
 {
-	 memory[(uint16_t)registers[static_cast<uint8_t>(r2)]] = registers[static_cast<uint8_t>(r1)];
+	return ((uint16_t*)registers)[static_cast<uint8_t>(r)];
+}
+
+uint8_t CPU::read_8_bit_from_memory(uint16_t addr)
+{
+	return memory[addr];
 }
 
 uint16_t CPU::read_16_bit_from_memory(uint16_t addr)
@@ -40,12 +50,48 @@ uint16_t CPU::read_16_bit_from_memory(uint16_t addr)
 	return (uint16_t)(msb << 8) | (uint16_t)(lsb);
 }
 
+void CPU::write_8_bits_to_memory(uint16_t addr, uint8_t value)
+{
+	memory[addr] = value;
+}
+
+void CPU::ld(r8_name r, uint8_t value)
+{
+	write_r8_register(r, value);
+}
+
+void CPU::ld(r8_name r1, r8_name r2)
+{
+	// registers[static_cast<uint8_t>(r1)] = registers[static_cast<uint8_t>(r2)];
+	write_r8_register(r1, read_r8_register(r2));
+}
+
+
+void CPU::ld(r8_name r1, r16_name r2)
+{
+	write_r8_register(r1, read_8_bit_from_memory(read_r16_register(r2)));
+	//registers[static_cast<uint8_t>(r1)] =  memory[(uint16_t)registers[static_cast<uint8_t>(r2)]];
+}
+
+void CPU::ld(r16_name r1, r8_name r2)
+{
+	write_8_bits_to_memory(read_r16_register(r1), read_r8_register(r2));
+	//memory[(uint16_t)registers[static_cast<uint8_t>(r1)]] = registers[static_cast<uint8_t>(r2)];
+}
+
+
 void CPU::step()
 {
 	uint8_t opcode = memory[pc++];
 
 	//handle instruction
 	switch(opcode) {
+		case 0x06: ld(r8_name::B, read_8_bit_from_memory(pc++)); break;
+		case 0x0E: ld(r8_name::C, read_8_bit_from_memory(pc++)); break;
+		case 0x16: ld(r8_name::D, read_8_bit_from_memory(pc++)); break;
+		case 0x1E: ld(r8_name::E, read_8_bit_from_memory(pc++)); break;
+		case 0x26: ld(r8_name::H, read_8_bit_from_memory(pc++)); break;
+		case 0x2E: ld(r8_name::L, read_8_bit_from_memory(pc++)); break;
 		case 0x40: ld(r8_name::B,r8_name::B);	break;
 		case 0x41: ld(r8_name::B,r8_name::C);	break;
 		case 0x42: ld(r8_name::B,r8_name::D);	break;
