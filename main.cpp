@@ -11,7 +11,14 @@ int main(int argc, char const *argv[])
 
 	if(argc > 1) {
 		if(!emu.load_rom(argv[1]))
+		{
 			std::cout << "Error opening file " << argv[1] << std::endl;
+		}
+		else
+		{
+			emu.start();
+		}
+
 	} else {
 		std::cout << "please indicate rom file" << std::endl;
 	}

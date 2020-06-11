@@ -3,21 +3,36 @@
 class CPU
 {
 private:
-	uint8_t registers[8]; //registers A F B C D E H L
-	uint16_t sp;
-	uint16_t pc;
-
-	uint8_t flags;
-
-public:
-	enum class register_name {
+	enum class r8_name: char {
 		A, F, B, C, D, E, H, L
+	};
+
+	enum class r16_name: char{
+		AF, BC = 2, DE = 4, HL = 6
 	};
 
 	enum class flags_name {
 		Z, N, H, C
 	};
 
-	CPU(/* args */);
+	uint8_t registers[8]; //registers A F B C D E H L
+	uint16_t sp;
+	uint16_t pc;
+
+	uint8_t flags;
+
+	char* memory;
+
+	void ld(r8_name r1, r8_name r2);
+	void ld(r8_name r1, r16_name r2);
+	void ld(r16_name r1, r8_name r2);
+	uint16_t read_16_bit_from_memory(uint16_t addr);
+
+public:
+
+	CPU();
+	CPU(char* memory);
 	~CPU();
+
+	void step();
 };

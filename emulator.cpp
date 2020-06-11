@@ -6,6 +6,7 @@
 Emulator::Emulator(/* args */)
 {
 	std::memset(mmap, 0, 0x1000);
+	cpu = CPU(mmap);
 }
 
 Emulator::~Emulator()
@@ -27,5 +28,12 @@ bool Emulator::load_rom(std::string filename)
 		return true;
 	} else {
 		return false;
+	}
+}
+
+void Emulator::start()
+{
+	while(true){
+		cpu.step();
 	}
 }
