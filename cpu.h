@@ -2,14 +2,16 @@
 
 #include "memory.h"
 
+typedef uint16_t a16;
+
 class CPU
 {
 private:
-	enum class r8_name: char {
+	enum class r8: char {
 		A, F, B, C, D, E, H, L
 	};
 
-	enum class r16_name: char{
+	enum class r16: char{
 		AF, BC, DE, HL
 	};
 
@@ -26,17 +28,19 @@ private:
 	Memory* memory;
 	//char *memory;
 
-	void write_r8_register(r8_name r, uint8_t value);
-	uint8_t read_r8_register(r8_name r);
-	uint16_t read_r16_register(r16_name r);
-	uint8_t read_8_bit_from_memory(uint16_t addr);
-	uint16_t read_16_bit_from_memory(uint16_t addr);
-	void write_8_bits_to_memory(uint16_t addr, uint8_t value);
+	void write_r8(r8 r, uint8_t value);
+	uint8_t read_r8(r8 r);
+	uint16_t read_r16(r16 r);
 
-	void ld(r8_name r1, uint8_t value);
-	void ld(r8_name r1, r8_name r2);
-	void ld(r8_name r1, r16_name r2);
-	void ld(r16_name r1, r8_name r2);
+	uint8_t read_pc8();
+	uint16_t read_pc16();
+
+	void ld(r8 r1, uint8_t value);
+	void ld(r8 r1, r8 r2);
+	void ld(r8 r1, r16 r2);
+	void ld(r16 r1, r8 r2);
+	void ld(r8 r, a16 addr);  // addr is a pointer
+	void ld(a16 addr, r8 r);
 
 public:
 
