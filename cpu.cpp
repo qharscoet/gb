@@ -16,10 +16,6 @@ CPU::~CPU()
 {
 }
 
-void CPU::write_r8(r8 r, uint8_t value)
-{
-	registers[static_cast<uint8_t>(r)] = value;
-}
 
 uint8_t CPU::read_r8(r8 r)
 {
@@ -29,6 +25,16 @@ uint8_t CPU::read_r8(r8 r)
 uint16_t CPU::read_r16(r16 r)
 {
 	return ((uint16_t*)registers)[static_cast<uint8_t>(r)];
+}
+
+void CPU::write_r8(r8 r, uint8_t value)
+{
+	registers[static_cast<uint8_t>(r)] = value;
+}
+
+void CPU::write_r16(r16 r, uint16_t value)
+{
+	((uint16_t*)registers)[static_cast<uint16_t>(r)] = value;
 }
 
 uint8_t CPU::read_pc8()
@@ -48,6 +54,7 @@ void CPU::step()
 {
 	uint8_t opcode = memory->read_8bits(pc++);
 
+	// instructions list : http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 	//handle instruction
 	switch(opcode) {
 		// LD direct load
@@ -66,9 +73,29 @@ void CPU::step()
 		case 0x3E:	ld(r8::A, read_pc8());	break;
 
 		// LD n,A
-		case 0x02: ld(r16::BC, r8::A);		break;
-		case 0x12: ld(r16::DE, r8::A);		break;
-		case 0xEA: ld(read_pc16(), r8::A);	break;
+		case 0x02:	ld(r16::BC, r8::A);		break;
+		case 0x12:	ld(r16::DE, r8::A);		break;
+		case 0xEA:	ld(read_pc16(), r8::A);	break;
+
+		//LD A,(C)
+		case 0xF2:	ld(r8::A, (a16)(0xFF00 + read_r8(r8::C))); break;
+
+		// LD (C), A
+		case 0xE2:	ld((a16)(0xFF00 + read_r8(r8::C)), r8::A); break;
+
+		// LD A, (HLD) or LD A,(HL-) or LDD A, (HL)
+		case 0x3A:	ldd(r8::A,r16::HL);		break;
+
+		// LD (HLD), A or LD (HL-), A or LDD (HL), A
+		case 0x32:	ldd(r16::HL, r8::A);	break;
+
+		// Same with HL+
+		case 0x2A:	ldi(r8::A, r16::HL);	break;
+		case 0x22:	ldi(r16::HL, r8::A);	break;
+
+		// LDH (n), A
+		case 0xE0:	ld(r8::A, (a16)(0xFF00 + read_pc8()));	break;
+		case 0xF0:	ld((a16)(0xFF00 + read_pc8()), r8::A);	break;
 
 
 		// LD r1,r2
