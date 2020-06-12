@@ -6,7 +6,7 @@ CPU::CPU(/* args */)
 {
 }
 
-CPU::CPU(char* memory)
+CPU::CPU(Memory* memory)
 :pc(0x100), sp(0xFFFF)
 {
 	this->memory = memory;
@@ -37,24 +37,6 @@ uint16_t CPU::read_r16_register(r16_name r)
 	return ((uint16_t*)registers)[static_cast<uint8_t>(r)];
 }
 
-uint8_t CPU::read_8_bit_from_memory(uint16_t addr)
-{
-	return memory[addr];
-}
-
-uint16_t CPU::read_16_bit_from_memory(uint16_t addr)
-{
-	uint8_t lsb = memory[addr++];
-	uint8_t msb = memory[addr++];
-
-	return (uint16_t)(msb << 8) | (uint16_t)(lsb);
-}
-
-void CPU::write_8_bits_to_memory(uint16_t addr, uint8_t value)
-{
-	memory[addr] = value;
-}
-
 void CPU::ld(r8_name r, uint8_t value)
 {
 	write_r8_register(r, value);
@@ -69,29 +51,28 @@ void CPU::ld(r8_name r1, r8_name r2)
 
 void CPU::ld(r8_name r1, r16_name r2)
 {
-	write_r8_register(r1, read_8_bit_from_memory(read_r16_register(r2)));
+	write_r8_register(r1, memory->read_8bits(read_r16_register(r2)));
 	//registers[static_cast<uint8_t>(r1)] =  memory[(uint16_t)registers[static_cast<uint8_t>(r2)]];
 }
 
 void CPU::ld(r16_name r1, r8_name r2)
 {
-	write_8_bits_to_memory(read_r16_register(r1), read_r8_register(r2));
+	memory->write_8bits(read_r16_register(r1), read_r8_register(r2));
 	//memory[(uint16_t)registers[static_cast<uint8_t>(r1)]] = registers[static_cast<uint8_t>(r2)];
 }
 
-
 void CPU::step()
 {
-	uint8_t opcode = memory[pc++];
+	uint8_t opcode = memory->read_8bits(pc++);
 
 	//handle instruction
 	switch(opcode) {
-		case 0x06: ld(r8_name::B, read_8_bit_from_memory(pc++)); break;
-		case 0x0E: ld(r8_name::C, read_8_bit_from_memory(pc++)); break;
-		case 0x16: ld(r8_name::D, read_8_bit_from_memory(pc++)); break;
-		case 0x1E: ld(r8_name::E, read_8_bit_from_memory(pc++)); break;
-		case 0x26: ld(r8_name::H, read_8_bit_from_memory(pc++)); break;
-		case 0x2E: ld(r8_name::L, read_8_bit_from_memory(pc++)); break;
+		case 0x06: ld(r8_name::B, memory->read_8bits(pc++)); break;
+		case 0x0E: ld(r8_name::C, memory->read_8bits(pc++)); break;
+		case 0x16: ld(r8_name::D, memory->read_8bits(pc++)); break;
+		case 0x1E: ld(r8_name::E, memory->read_8bits(pc++)); break;
+		case 0x26: ld(r8_name::H, memory->read_8bits(pc++)); break;
+		case 0x2E: ld(r8_name::L, memory->read_8bits(pc++)); break;
 		case 0x40: ld(r8_name::B,r8_name::B);	break;
 		case 0x41: ld(r8_name::B,r8_name::C);	break;
 		case 0x42: ld(r8_name::B,r8_name::D);	break;
@@ -157,7 +138,7 @@ void CPU::step()
 		case 0x7F: ld(r8_name::A,r8_name::A);	break;
 
 		case 0xC3:
-			pc = read_16_bit_from_memory(pc);
+			pc = memory->read_16bits(pc);
 			break;
 		default:
 			break;

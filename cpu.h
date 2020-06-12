@@ -1,5 +1,7 @@
 #include <cstdint>
 
+#include "memory.h"
+
 class CPU
 {
 private:
@@ -21,7 +23,8 @@ private:
 
 	uint8_t flags;
 
-	char* memory;
+	Memory* memory;
+	//char *memory;
 
 	void write_r8_register(r8_name r, uint8_t value);
 	uint8_t read_r8_register(r8_name r);
@@ -38,7 +41,7 @@ private:
 public:
 
 	CPU();
-	CPU(char* memory);
+	CPU(Memory* memory);
 	~CPU();
 
 	void step();

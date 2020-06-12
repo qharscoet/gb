@@ -5,7 +5,7 @@
 class Emulator
 {
 private:
-	char mmap[0x10000]; //64Ko memory map
+	Memory memory; //64Ko memory map
 	CPU cpu;
 	// GPU gpu;
 public:

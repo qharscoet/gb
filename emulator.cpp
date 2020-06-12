@@ -5,8 +5,7 @@
 
 Emulator::Emulator(/* args */)
 {
-	std::memset(mmap, 0, 0x1000);
-	cpu = CPU(mmap);
+	cpu = CPU(&memory);
 }
 
 Emulator::~Emulator()
@@ -22,7 +21,7 @@ bool Emulator::load_rom(std::string filename)
 	file.open(filename, std::ios::in | std::ios::binary);
 
 	if(file.is_open()){
-		file.read(mmap, 0x8000);
+		memory.load_content(file);
 		file.close();
 
 		return true;
