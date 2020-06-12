@@ -2,13 +2,27 @@
 #include <cstdint>
 
 CPU::CPU(/* args */)
-:pc(0x100), sp(0xFFFF)
 {
+	sp = registers + 4;
+	*sp = 0xFFFF;
+
+	pc = registers + 5;
+	*pc = 0x100;
+
+	flags = ((uint8_t*)registers) + 1;
+
 }
 
 CPU::CPU(Memory* memory)
-:pc(0x100), sp(0xFFFF)
 {
+	sp = registers + 4;
+	*sp = 0xFFFF;
+
+	pc = registers + 5;
+	*pc = 0x100;
+
+	flags = ((uint8_t*)registers) + 1;
+
 	this->memory = memory;
 }
 
@@ -19,7 +33,7 @@ CPU::~CPU()
 
 uint8_t CPU::read_r8(r8 r)
 {
-	return registers[static_cast<uint8_t>(r)];
+	return ((uint8_t*)registers)[static_cast<uint8_t>(r)];
 }
 
 uint16_t CPU::read_r16(r16 r)
@@ -29,34 +43,54 @@ uint16_t CPU::read_r16(r16 r)
 
 void CPU::write_r8(r8 r, uint8_t value)
 {
-	registers[static_cast<uint8_t>(r)] = value;
+	((uint8_t*)registers)[static_cast<uint8_t>(r)] = value;
 }
 
 void CPU::write_r16(r16 r, uint16_t value)
 {
-	((uint16_t*)registers)[static_cast<uint16_t>(r)] = value;
+	((uint16_t*)registers)[static_cast<uint8_t>(r)] = value;
 }
 
 uint8_t CPU::read_pc8()
 {
-	return memory->read_8bits(pc++);
+	return memory->read_8bits((*pc)++);
 }
 
 uint16_t CPU::read_pc16()
 {
-	uint16_t ret = memory->read_16bits(pc);
-	pc += 2;
+	uint16_t ret = memory->read_16bits(*pc);
+	*pc += 2;
 
 	return ret;
 }
 
+void CPU::set_flag(flag_id f)
+{
+	uint8_t bit = static_cast<uint8_t>(f);
+	(*flags) |= (1 << bit);
+}
+void CPU::reset_flag(flag_id f)
+{
+	uint8_t bit = static_cast<uint8_t>(f);
+	(*flags) &= ~(1 << bit);
+}
+
+bool CPU::get_flag(flag_id f)
+{
+	uint8_t bit = static_cast<uint8_t>(f);
+	return (*flags) & (1 << bit);
+}
+
 void CPU::step()
 {
-	uint8_t opcode = memory->read_8bits(pc++);
+	uint8_t opcode = read_pc8();
 
 	// instructions list : http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 	//handle instruction
 	switch(opcode) {
+
+		/*  8 Bits Load  */
+
 		// LD direct load
 		case 0x06:	ld(r8::B, read_pc8());	break;
 		case 0x0E:	ld(r8::C, read_pc8());	break;
@@ -96,7 +130,6 @@ void CPU::step()
 		// LDH (n), A
 		case 0xE0:	ld(r8::A, (a16)(0xFF00 + read_pc8()));	break;
 		case 0xF0:	ld((a16)(0xFF00 + read_pc8()), r8::A);	break;
-
 
 		// LD r1,r2
 		case 0x40: 	ld(r8::B,r8::B);		break;
@@ -163,8 +196,17 @@ void CPU::step()
 		case 0x7E: 	ld(r8::A,r16::HL);		break;
 		case 0x7F: 	ld(r8::A,r8::A);		break;
 
+		/* 16-bits load */
+		case 0x01:	ld(r16::BC, read_pc16());	break;
+		case 0x11:	ld(r16::DE, read_pc16());	break;
+		case 0x21:	ld(r16::HL, read_pc16());	break;
+		case 0x31:	ld(r16::SP, read_pc16());	break;
+		case 0xF9:	ld(r16::SP, r16::HL);		break;
+
+
+
 		case 0xC3:
-			pc = memory->read_16bits(pc); pc+=2;
+			*pc = read_pc16();
 			break;
 		default:
 			break;

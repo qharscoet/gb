@@ -46,6 +46,31 @@ void CPU::ld(a16 addr, r8 r)
 	memory->write_8bits(addr, read_r8(r));
 }
 
+
+// 16 bits load
+void CPU::ld(r16 r, uint16_t value)
+{
+	write_r16(r, value);
+}
+
+void CPU::ld(r16 r1, r16 r2)
+{
+	write_r16(r1, read_r16(r2));
+}
+
+
+
+
+void CPU::ldhl(r16 r, int8_t n)
+{
+	int8_t val = read_r16(r) + n;
+	write_r16(r16::HL, val);
+
+	reset_flag(flag_id::Z);
+	reset_flag(flag_id::N);
+
+}
+
 void CPU::ldd(r8 r1, r16 r2)
 {
 	ld(r1, r2);
