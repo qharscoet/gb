@@ -58,16 +58,21 @@ void CPU::ld(r16 r1, r16 r2)
 	write_r16(r1, read_r16(r2));
 }
 
+void CPU::ld(uint16_t addr, r16 r )
+{
+	memory->write_16bits(addr, read_r16(r));
+}
 
 
 
 void CPU::ldhl(r16 r, int8_t n)
 {
-	int8_t val = read_r16(r) + n;
+	int16_t val = read_r16(r) + n;
 	write_r16(r16::HL, val);
 
 	reset_flag(flag_id::Z);
 	reset_flag(flag_id::N);
+	//TODO: wtf carry and half carry
 
 }
 
@@ -93,4 +98,19 @@ void CPU::ldi(r16 r1, r8 r2)
 {
 	ld(r1,r2);
 	inc(r1);
+}
+
+void CPU::push(r16 r)
+{
+	//TODO : check if correct behavior
+	dec(r16::SP);
+	memory->write_16bits(read_r16(r16::SP), read_r16(r));
+	dec(r16::SP);
+}
+
+void CPU::pop(r16 r)
+{
+	write_r16(r, memory->read_16bits(read_r16(r16::SP)));
+	inc(r16::SP);
+	inc(r16::SP);
 }

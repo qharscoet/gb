@@ -3,10 +3,10 @@
 
 CPU::CPU(/* args */)
 {
-	sp = registers + 4;
+	sp = &registers[4];
 	*sp = 0xFFFF;
 
-	pc = registers + 5;
+	pc = &registers[5];
 	*pc = 0x100;
 
 	flags = ((uint8_t*)registers) + 1;
@@ -15,11 +15,11 @@ CPU::CPU(/* args */)
 
 CPU::CPU(Memory* memory)
 {
-	sp = registers + 4;
+	sp = &registers[4];
 	*sp = 0xFFFF;
 
-	pc = registers + 5;
-	*pc = 0x100;
+	pc = &registers[5];
+	*pc = 0x45FB;
 
 	flags = ((uint8_t*)registers) + 1;
 
@@ -53,7 +53,10 @@ void CPU::write_r16(r16 r, uint16_t value)
 
 uint8_t CPU::read_pc8()
 {
-	return memory->read_8bits((*pc)++);
+	uint8_t ret = memory->read_8bits((*pc));
+	(*pc)++;
+
+	return ret;
 }
 
 uint16_t CPU::read_pc16()
@@ -202,7 +205,18 @@ void CPU::step()
 		case 0x21:	ld(r16::HL, read_pc16());	break;
 		case 0x31:	ld(r16::SP, read_pc16());	break;
 		case 0xF9:	ld(r16::SP, r16::HL);		break;
+		case 0xF8:	ldhl(r16::SP, read_pc8());	break;
+		case 0x08:	ld(read_pc16(), r16::SP);	break;
 
+		case 0xF5:	push(r16::AF);	break;
+		case 0xC5:	push(r16::BC);	break;
+		case 0xD5:	push(r16::DE);	break;
+		case 0xE5:	push(r16::HL);	break;
+
+		case 0xF1:	pop(r16::AF);	break;
+		case 0xC1:	pop(r16::BC);	break;
+		case 0xD1:	pop(r16::DE);	break;
+		case 0xE1:	pop(r16::HL);	break;
 
 
 		case 0xC3:

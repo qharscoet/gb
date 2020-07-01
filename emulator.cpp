@@ -4,8 +4,9 @@
 #include <fstream>
 
 Emulator::Emulator(/* args */)
+:cpu(&memory)
 {
-	cpu = CPU(&memory);
+
 }
 
 Emulator::~Emulator()

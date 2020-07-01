@@ -59,11 +59,15 @@ private:
 	void ld(r16 r, uint16_t value);
 	void ld(r16 r1, r16 r2);
 	void ldhl(r16 r, int8_t n);
+	void ld(uint16_t addr, r16 r);
 
 	void ldd(r8 r1, r16 r2);
 	void ldd(r16 r1, r8 r2);
 	void ldi(r8 r1, r16 r2);
 	void ldi(r16 r1, r8 r2);
+
+	void push(r16 r);
+	void pop(r16 r);
 
 
 public:
