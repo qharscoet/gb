@@ -114,3 +114,34 @@ void CPU::pop(r16 r)
 	inc(r16::SP);
 	inc(r16::SP);
 }
+
+void CPU::add(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	reset_flag(flag_id::N);
+
+	if((uint16_t)(r_val + val) & 0x100)
+		set_flag(flag_id::C);
+
+	if(((r_val & 0xf) + (val & 0xf)) & 0x10)
+		set_flag(flag_id::H);
+
+
+	r_val += val;
+
+	if(r_val == 0)
+		set_flag(flag_id::Z);
+
+	write_r8(r, val);
+}
+
+void CPU::add(r8 r1, r8 r2)
+{
+	add(r1, read_r8(r2));
+}
+
+void CPU::add(r8 r1, r16 r2)
+{
+	add(r1, memory->read_8bits(read_r16(r2)));
+}

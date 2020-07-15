@@ -69,6 +69,9 @@ private:
 	void push(r16 r);
 	void pop(r16 r);
 
+	void add(r8 r, uint8_t val);
+	void add(r8 r1, r8 r2);
+	void add(r8 r1, r16 r2);
 
 public:
 

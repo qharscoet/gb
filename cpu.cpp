@@ -219,6 +219,16 @@ void CPU::step()
 		case 0xE1:	pop(r16::HL);	break;
 
 
+		/* 8bit ALU */
+		case 0x87:	add(r8::A, r8::A);	break;
+		case 0x80:	add(r8::A, r8::B);	break;
+		case 0x81:	add(r8::A, r8::C);	break;
+		case 0x82:	add(r8::A, r8::D);	break;
+		case 0x83:	add(r8::A, r8::E);	break;
+		case 0x84:	add(r8::A, r8::H);	break;
+		case 0x85:	add(r8::A, r8::L);	break;
+
+
 		case 0xC3:
 			*pc = read_pc16();
 			break;
