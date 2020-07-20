@@ -190,3 +190,76 @@ void CPU::subc(r8 r1, r8 r2)
 
 	sub(r1, val);
 }
+
+void CPU::band(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	r_val &= val;
+
+	if (r_val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	set_flag(flag_id::H);
+	reset_flag(flag_id::C);
+}
+
+void CPU::band(r8 r, r8 r2)
+{
+	band(r, read_r8(r2));
+}
+
+void CPU::band(r8 r, r16 r2)
+{
+	band(r, memory->read_8bits(read_r16(r2)));
+}
+
+
+void CPU::bor(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	r_val |= val;
+
+	if (r_val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+	reset_flag(flag_id::C);
+}
+
+void CPU::bor(r8 r, r8 r2)
+{
+	bor(r, read_r8(r2));
+}
+
+void CPU::bor(r8 r, r16 r2)
+{
+	bor(r, memory->read_8bits(read_r16(r2)));
+}
+
+void CPU::bxor(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	r_val ^= val;
+
+	if (r_val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+	reset_flag(flag_id::C);
+}
+
+void CPU::bxor(r8 r, r8 r2)
+{
+	bxor(r, read_r8(r2));
+}
+
+void CPU::bxor(r8 r, r16 r2)
+{
+	bxor(r, memory->read_8bits(read_r16(r2)));
+}

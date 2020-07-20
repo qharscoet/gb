@@ -240,6 +240,36 @@ void CPU::step()
 		case 0x96:	sub(r8::A, r16::HL);	break;
 		case 0xD6:	sub(r8::A, read_pc8());	break;
 
+		case 0xA7:	band(r8::A, r8::A);		break;
+		case 0xA0:	band(r8::A, r8::B);		break;
+		case 0xA1:	band(r8::A, r8::C);		break;
+		case 0xA2:	band(r8::A, r8::D);		break;
+		case 0xA3:	band(r8::A, r8::E);		break;
+		case 0xA4:	band(r8::A, r8::H);		break;
+		case 0xA5:	band(r8::A, r8::L);		break;
+		case 0xA6:	band(r8::A, r16::HL);	break;
+		case 0xE6:	band(r8::A, read_pc8());break;
+
+		case 0xB7:	bor(r8::A, r8::A);		break;
+		case 0xB0:	bor(r8::A, r8::B);		break;
+		case 0xB1:	bor(r8::A, r8::C);		break;
+		case 0xB2:	bor(r8::A, r8::D);		break;
+		case 0xB3:	bor(r8::A, r8::E);		break;
+		case 0xB4:	bor(r8::A, r8::H);		break;
+		case 0xB5:	bor(r8::A, r8::L);		break;
+		case 0xB6:	bor(r8::A, r16::HL);	break;
+		case 0xF6:	bor(r8::A, read_pc8());	break;
+
+		case 0xAF:	bxor(r8::A, r8::A);		break;
+		case 0xA8:	bxor(r8::A, r8::B);		break;
+		case 0xA9:	bxor(r8::A, r8::C);		break;
+		case 0xAA:	bxor(r8::A, r8::D);		break;
+		case 0xAB:	bxor(r8::A, r8::E);		break;
+		case 0xAC:	bxor(r8::A, r8::H);		break;
+		case 0xAD:	bxor(r8::A, r8::L);		break;
+		case 0xAE:	bxor(r8::A, r16::HL);	break;
+		case 0xEE:	bxor(r8::A, read_pc8());break;
+
 
 		case 0xC3:
 			*pc = read_pc16();

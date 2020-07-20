@@ -70,6 +70,9 @@ private:
 	void pop(r16 r);
 
 	// 8 bits ALU
+	/* TODO : use only one function and put the right read in the switch call ?
+		Less code but maybe more difficult to optimise later
+	*/
 	void add(r8 r, uint8_t val);
 	void add(r8 r1, r8 r2);
 	void add(r8 r1, r16 r2);
@@ -79,6 +82,23 @@ private:
 	void sub(r8 r1, r8 r2);
 	void sub(r8 r1, r16 r2);
 	void subc(r8 r1, r8 r2);
+
+	// binary AND
+	void band(r8 r, uint8_t val);
+	void band(r8 r, r8 r2);
+	void band(r8 r, r16 r2);
+
+	// binary OR
+
+	void bor(r8 r, uint8_t val);
+	void bor(r8 r, r8 r2);
+	void bor(r8 r, r16 r2);
+
+	// binary xOR
+
+	void bxor(r8 r, uint8_t val);
+	void bxor(r8 r, r8 r2);
+	void bxor(r8 r, r16 r2);
 
 
 
