@@ -121,16 +121,15 @@ void CPU::add(r8 r, uint8_t val)
 
 	reset_flag(flag_id::N);
 
-	if((uint16_t)(r_val + val) & 0x100)
+	if ((uint16_t)(r_val + val) & 0x100)
 		set_flag(flag_id::C);
 
-	if(((r_val & 0xf) + (val & 0xf)) & 0x10)
+	if (((r_val & 0xf) + (val & 0xf)) & 0x10)
 		set_flag(flag_id::H);
-
 
 	r_val += val;
 
-	if(r_val == 0)
+	if (r_val == 0)
 		set_flag(flag_id::Z);
 
 	write_r8(r, val);
@@ -144,4 +143,50 @@ void CPU::add(r8 r1, r8 r2)
 void CPU::add(r8 r1, r16 r2)
 {
 	add(r1, memory->read_8bits(read_r16(r2)));
+}
+
+void CPU::addc(r8 r1, r8 r2)
+{
+	/* TODO : cast uint8 to uint16 to handle overflow ? Set flags from the potential +1 ? */
+	uint8_t r_val = read_r8(r2);
+	r_val += get_flag(flag_id::C);
+	add(r1, r_val);
+}
+
+void CPU::sub(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	reset_flag(flag_id::N);
+
+	if (r_val > val)
+		set_flag(flag_id::C);
+
+	if ((r_val & 0xf) > (val & 0xf))
+		set_flag(flag_id::H);
+
+	r_val -= val;
+
+	if (r_val == 0)
+		set_flag(flag_id::Z);
+
+	write_r8(r, val);
+}
+
+void CPU::sub(r8 r1, r8 r2)
+{
+	sub(r1, read_r8(r2));
+}
+
+void CPU::sub(r8 r1, r16 r2)
+{
+	sub(r1, memory->read_8bits(read_r16(r2)));
+}
+
+void CPU::subc(r8 r1, r8 r2)
+{
+	uint8_t val = read_r8(r2);
+	val += get_flag(flag_id::C);
+
+	sub(r1, val);
 }

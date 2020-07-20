@@ -69,9 +69,18 @@ private:
 	void push(r16 r);
 	void pop(r16 r);
 
+	// 8 bits ALU
 	void add(r8 r, uint8_t val);
 	void add(r8 r1, r8 r2);
 	void add(r8 r1, r16 r2);
+	void addc(r8 r1, r8 r2);
+
+	void sub(r8 r, uint8_t val);
+	void sub(r8 r1, r8 r2);
+	void sub(r8 r1, r16 r2);
+	void subc(r8 r1, r8 r2);
+
+
 
 public:
 

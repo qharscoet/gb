@@ -220,13 +220,25 @@ void CPU::step()
 
 
 		/* 8bit ALU */
-		case 0x87:	add(r8::A, r8::A);	break;
-		case 0x80:	add(r8::A, r8::B);	break;
-		case 0x81:	add(r8::A, r8::C);	break;
-		case 0x82:	add(r8::A, r8::D);	break;
-		case 0x83:	add(r8::A, r8::E);	break;
-		case 0x84:	add(r8::A, r8::H);	break;
-		case 0x85:	add(r8::A, r8::L);	break;
+		case 0x87:	add(r8::A, r8::A);		break;
+		case 0x80:	add(r8::A, r8::B);		break;
+		case 0x81:	add(r8::A, r8::C);		break;
+		case 0x82:	add(r8::A, r8::D);		break;
+		case 0x83:	add(r8::A, r8::E);		break;
+		case 0x84:	add(r8::A, r8::H);		break;
+		case 0x85:	add(r8::A, r8::L);		break;
+		case 0x86:	add(r8::A, r16::HL);	break;
+		case 0xC6:	add(r8::A, read_pc8());	break;
+
+		case 0x97:	sub(r8::A, r8::A);		break;
+		case 0x90:	sub(r8::A, r8::B);		break;
+		case 0x91:	sub(r8::A, r8::C);		break;
+		case 0x92:	sub(r8::A, r8::D);		break;
+		case 0x93:	sub(r8::A, r8::E);		break;
+		case 0x94:	sub(r8::A, r8::H);		break;
+		case 0x95:	sub(r8::A, r8::L);		break;
+		case 0x96:	sub(r8::A, r16::HL);	break;
+		case 0xD6:	sub(r8::A, read_pc8());	break;
 
 
 		case 0xC3:
