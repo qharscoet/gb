@@ -1,9 +1,41 @@
 #include "cpu.h"
 
+void CPU::inc(r8 r)
+{
+	uint8_t r_val = read_r8(r);
+
+	if(r_val + 1 == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+
+	//Check for overflow on bit 3
+	if (((r_val & 0x7) + 1) & 0x8)
+		set_flag(flag_id::H);
+
+	write_r8(r, r_val + 1);
+}
+
 void CPU::inc(r16 r)
 {
 	write_r16(r, read_r16(r) + 1);
 }
+
+void CPU::dec(r8 r)
+{
+	uint8_t r_val = read_r8(r);
+
+	if (r_val - 1 == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+
+	if ((r_val & 0xf) < 1)
+		set_flag(flag_id::H);
+
+	write_r8(r, r_val - 1);
+}
+
 
 void CPU::dec(r16 r)
 {
@@ -159,10 +191,10 @@ void CPU::sub(r8 r, uint8_t val)
 
 	reset_flag(flag_id::N);
 
-	if (r_val > val)
+	if (r_val < val)
 		set_flag(flag_id::C);
 
-	if ((r_val & 0xf) > (val & 0xf))
+	if ((r_val & 0xf) < (val & 0xf))
 		set_flag(flag_id::H);
 
 	r_val -= val;
@@ -262,4 +294,30 @@ void CPU::bxor(r8 r, r8 r2)
 void CPU::bxor(r8 r, r16 r2)
 {
 	bxor(r, memory->read_8bits(read_r16(r2)));
+}
+
+void CPU::cp(r8 r, uint8_t val)
+{
+	uint8_t r_val = read_r8(r);
+
+	if( r_val == val)
+		set_flag(flag_id::Z);
+
+	set_flag(flag_id::N);
+
+	if(r_val < val)
+		set_flag(flag_id::C);
+
+	if ((r_val & 0xf) < (val & 0xf))
+		set_flag(flag_id::H);
+}
+
+void CPU::cp(r8 r, r8 r2)
+{
+	cp(r, read_r8(r2));
+}
+
+void CPU::cp(r8 r, r16 r2)
+{
+	cp(r, memory->read_8bits(read_r16(r2)));
 }

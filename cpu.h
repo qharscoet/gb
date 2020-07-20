@@ -44,8 +44,12 @@ private:
 	void reset_flag(flag_id f);
 	bool get_flag(flag_id f);
 
-	void inc(r16 r);
+	void dec(r8 r);
 	void dec(r16 r);
+
+	void inc(r8 r);
+	void inc(r16 r);
+	void incp(r16 r); //Increment memory at address stored in r
 
 	// 8 bits ld
 	void ld(r8 r1, uint8_t value);
@@ -99,6 +103,10 @@ private:
 	void bxor(r8 r, uint8_t val);
 	void bxor(r8 r, r8 r2);
 	void bxor(r8 r, r16 r2);
+
+	void cp(r8 r, uint8_t val);
+	void cp(r8 r, r8 r2);
+	void cp(r8 r, r16 r2);
 
 
 

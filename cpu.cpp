@@ -270,6 +270,25 @@ void CPU::step()
 		case 0xAE:	bxor(r8::A, r16::HL);	break;
 		case 0xEE:	bxor(r8::A, read_pc8());break;
 
+		case 0xBF:	cp(r8::A, r8::A);		break;
+		case 0xB8:	cp(r8::A, r8::B);		break;
+		case 0xB9:	cp(r8::A, r8::C);		break;
+		case 0xBA:	cp(r8::A, r8::D);		break;
+		case 0xBB:	cp(r8::A, r8::E);		break;
+		case 0xBC:	cp(r8::A, r8::H);		break;
+		case 0xBD:	cp(r8::A, r8::L);		break;
+		case 0xBE:	cp(r8::A, r16::HL);		break;
+		case 0xFE:	cp(r8::A, read_pc8());	break;
+
+		case 0x3C:	inc(r8::A);		break;
+		case 0x04:	inc(r8::B);		break;
+		case 0x0C:	inc(r8::C);		break;
+		case 0x14:	inc(r8::D);		break;
+		case 0x1C:	inc(r8::E);		break;
+		case 0x24:	inc(r8::H);		break;
+		case 0x2C:	inc(r8::L);		break;
+		//case 0x34:	incp(r16::HL);	break;
+
 
 		case 0xC3:
 			*pc = read_pc16();
