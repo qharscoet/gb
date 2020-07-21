@@ -44,9 +44,12 @@ private:
 	void reset_flag(flag_id f);
 	bool get_flag(flag_id f);
 
+	void set_dec_flags(uint8_t val);
 	void dec(r8 r);
 	void dec(r16 r);
+	void decp(r16 r);
 
+	void set_inc_flags(uint8_t val);
 	void inc(r8 r);
 	void inc(r16 r);
 	void incp(r16 r); //Increment memory at address stored in r

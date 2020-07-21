@@ -287,7 +287,16 @@ void CPU::step()
 		case 0x1C:	inc(r8::E);		break;
 		case 0x24:	inc(r8::H);		break;
 		case 0x2C:	inc(r8::L);		break;
-		//case 0x34:	incp(r16::HL);	break;
+		case 0x34:	incp(r16::HL);	break;
+
+		case 0x3D:	dec(r8::A);		break;
+		case 0x05:	dec(r8::B);		break;
+		case 0x0D:	dec(r8::C);		break;
+		case 0x15:	dec(r8::D);		break;
+		case 0x1D:	dec(r8::E);		break;
+		case 0x25:	dec(r8::H);		break;
+		case 0x2D:	dec(r8::L);		break;
+		case 0x35:	decp(r16::HL);	break;
 
 
 		case 0xC3:

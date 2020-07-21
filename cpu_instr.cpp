@@ -1,19 +1,35 @@
 #include "cpu.h"
 
-void CPU::inc(r8 r)
+void CPU::set_inc_flags(uint8_t val)
 {
-	uint8_t r_val = read_r8(r);
+	//uint8_t val = read_r8(r);
 
-	if(r_val + 1 == 0)
+	if(val + 1 == 0)
 		set_flag(flag_id::Z);
 
 	reset_flag(flag_id::N);
 
 	//Check for overflow on bit 3
-	if (((r_val & 0x7) + 1) & 0x8)
+	if (((val & 0x7) + 1) & 0x8)
 		set_flag(flag_id::H);
 
-	write_r8(r, r_val + 1);
+	//write_r8(r, val + 1);
+}
+
+// TODO: refactor this with proper parameter management
+void CPU::inc(r8 r)
+{
+	uint8_t val = read_r8(r);
+	set_inc_flags(val);
+	write_r8(r, val +1 );
+}
+
+void CPU::incp(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(read_r16(r));
+	set_inc_flags(val);
+	memory->write_8bits(addr, val +1);
 }
 
 void CPU::inc(r16 r)
@@ -21,21 +37,33 @@ void CPU::inc(r16 r)
 	write_r16(r, read_r16(r) + 1);
 }
 
-void CPU::dec(r8 r)
+void CPU::set_dec_flags(uint8_t val)
 {
-	uint8_t r_val = read_r8(r);
 
-	if (r_val - 1 == 0)
+	if (val - 1 == 0)
 		set_flag(flag_id::Z);
 
 	reset_flag(flag_id::N);
 
-	if ((r_val & 0xf) < 1)
+	if ((val & 0xf) < 1)
 		set_flag(flag_id::H);
 
-	write_r8(r, r_val - 1);
 }
 
+void CPU::dec(r8 r)
+{
+	uint8_t val = read_r8(r);
+	set_dec_flags(val);
+	write_r8(r, val - 1);
+}
+
+void CPU::decp(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(read_r16(r));
+	set_dec_flags(val);
+	memory->write_8bits(addr, val - 1);
+}
 
 void CPU::dec(r16 r)
 {
