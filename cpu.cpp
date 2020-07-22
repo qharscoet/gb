@@ -298,6 +298,25 @@ void CPU::step()
 		case 0x2D:	dec(r8::L);		break;
 		case 0x35:	decp(r16::HL);	break;
 
+		//16 bits ALU
+
+		case 0x09:	add(r16::HL, r16::BC);	break;
+		case 0x19:	add(r16::HL, r16::DE);	break;
+		case 0x29:	add(r16::HL, r16::HL);	break;
+		case 0x39:	add(r16::HL, r16::SP);	break;
+
+		case 0xE8:	add(r16::SP, read_pc8());	break;
+
+		case 0x03:	inc(r16::BC);	break;
+		case 0x13:	inc(r16::DE);	break;
+		case 0x23:	inc(r16::HL);	break;
+		case 0x33:	inc(r16::SP);	break;
+
+		case 0x0B:	dec(r16::BC);	break;
+		case 0x1B:	dec(r16::DE);	break;
+		case 0x2B:	dec(r16::HL);	break;
+		case 0x3B:	dec(r16::SP);	break;
+
 
 		case 0xC3:
 			*pc = read_pc16();

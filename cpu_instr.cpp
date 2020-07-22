@@ -349,3 +349,28 @@ void CPU::cp(r8 r, r16 r2)
 {
 	cp(r, memory->read_8bits(read_r16(r2)));
 }
+
+
+// 16 bits ALU
+
+void CPU::add(r16 r, uint16_t val)
+{
+	uint16_t r_val = read_r16(r);
+
+	reset_flag(flag_id::N);
+
+	if ((uint32_t)(r_val + val) & 0x10000)
+		set_flag(flag_id::C);
+
+	if (((r_val & 0xfff) + (val & 0xfff)) & 0x1000)
+		set_flag(flag_id::H);
+
+	r_val += val;
+
+	write_r16(r, r_val);
+}
+
+void CPU::add(r16 r1, r16 r2)
+{
+	add(r1, read_r16(r2));
+}

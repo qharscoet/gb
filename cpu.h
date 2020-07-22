@@ -111,6 +111,10 @@ private:
 	void cp(r8 r, r8 r2);
 	void cp(r8 r, r16 r2);
 
+	// 16bit ALU
+	void add(r16 r, uint16_t val);
+	void add(r16 r1, r16 r2);
+
 
 
 public:
