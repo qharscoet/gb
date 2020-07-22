@@ -115,6 +115,16 @@ private:
 	void add(r16 r, uint16_t val);
 	void add(r16 r1, r16 r2);
 
+	//Misc
+	uint8_t swap(uint8_t val);
+	void swap(r8 r);
+	void swap(r16 r);
+
+	void daa();
+	void cpl();
+	void ccf();
+	void scf();
+
 
 
 public:

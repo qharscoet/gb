@@ -217,7 +217,7 @@ void CPU::sub(r8 r, uint8_t val)
 {
 	uint8_t r_val = read_r8(r);
 
-	reset_flag(flag_id::N);
+	set_flag(flag_id::N);
 
 	if (r_val < val)
 		set_flag(flag_id::C);
@@ -373,4 +373,102 @@ void CPU::add(r16 r, uint16_t val)
 void CPU::add(r16 r1, r16 r2)
 {
 	add(r1, read_r16(r2));
+}
+
+
+uint8_t CPU::swap(uint8_t val)
+{
+	uint8_t lsb = val & 0xff;
+	val = (val >> 4) | (lsb >> 4);
+
+	if(val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+	reset_flag(flag_id::C);
+
+	return val;
+}
+
+void CPU::swap(r8 r)
+{
+	write_r8(r, swap(read_r8(r)));
+}
+
+void CPU::swap(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	memory->write_8bits(addr, swap(val));
+}
+
+
+void CPU::daa()
+{
+	uint8_t val = read_r8(r8::A);
+	uint8_t lsb = val & 0xf;
+	uint8_t msb = (val & 0xf0) >> 4;
+
+	//TODO: test if correct behavior
+	if(get_flag(flag_id::N)) // if last op was add
+	{
+		if(lsb > 9 || get_flag(flag_id::H))
+		{
+			val += 0x6;
+		}
+
+		if(msb > 9 || get_flag(flag_id::C))
+		{
+			val += 0x60;
+			set_flag(flag_id::C);
+		}
+	} else
+	{
+		if(get_flag(flag_id::C))
+		{
+			val -= 0x60;
+			set_flag(flag_id::C);
+		}
+		if(get_flag(flag_id::H))
+		{
+			val -= 0x6;
+		}
+	}
+
+	if(val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::H);
+
+	write_r8(r8::A, val);
+}
+
+void CPU::cpl()
+{
+	uint8_t val = read_r8(r8::A);
+	val = ~val;
+	write_r8(r8::A, val);
+
+	set_flag(flag_id::N);
+	set_flag(flag_id::H);
+}
+
+void CPU::ccf()
+{
+	if( get_flag(flag_id::C))
+	{
+		reset_flag(flag_id::C);
+	}
+	else
+	{
+		set_flag(flag_id::C);
+	}
+}
+
+void CPU::scf()
+{
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+	set_flag(flag_id::C);
 }

@@ -317,6 +317,33 @@ void CPU::step()
 		case 0x2B:	dec(r16::HL);	break;
 		case 0x3B:	dec(r16::SP);	break;
 
+		// Misc
+
+		case 0x27:	daa();	break;
+		case 0x2F:	cpl();	break;
+		case 0x3F:	ccf();	break;
+		case 0x37:	scf();	break;
+		case 0x00:	/*NOP*/	break;
+
+
+
+		case 0xCB: {
+			uint8_t opcode2 = read_pc8();
+			switch(opcode2)
+			{
+				case 0x37:	swap(r8::A);	break;
+				case 0x30:	swap(r8::B);	break;
+				case 0x31:	swap(r8::C);	break;
+				case 0x32:	swap(r8::D);	break;
+				case 0x33:	swap(r8::E);	break;
+				case 0x34:	swap(r8::H);	break;
+				case 0x35:	swap(r8::L);	break;
+				case 0x36:	swap(r16::HL);	break;
+				default: break;
+			}
+			}
+			break;
+
 
 		case 0xC3:
 			*pc = read_pc16();
