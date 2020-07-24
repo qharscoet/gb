@@ -1,5 +1,7 @@
 #include "cpu.h"
 
+#define GET_BIT(c, bit) (c & (1 << bit))
+
 void CPU::set_inc_flags(uint8_t val)
 {
 	//uint8_t val = read_r8(r);
@@ -491,4 +493,128 @@ void CPU::di()
 void CPU::ei()
 {
 	ime = true;
+}
+
+
+/* Rotate and shifts */
+
+uint8_t CPU::rotate(uint8_t val, bool left, bool carry)
+{
+	bool dropped_bit = left ? GET_BIT(val, 7) : GET_BIT(val, 0) ;
+	bool new_bit0 = carry ? dropped_bit : get_flag(flag_id::C);
+
+	if (dropped_bit)
+		set_flag(flag_id::C);
+	else
+		reset_flag(flag_id::C);
+
+	if(left)
+		val = (val << 1) | new_bit0;
+	else
+		val = (val >> 1) | (new_bit0 << 7);
+
+	return val;
+
+}
+
+void CPU::rotate_a(bool left, bool carry)
+{
+	uint8_t val = rotate(read_r8(r8::A), left, carry);
+
+	reset_flag(flag_id::Z);
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+
+	write_r8(r8::A, val);
+}
+
+void CPU::rotate_r(r8 r, bool left, bool carry)
+{
+	uint8_t val = rotate(read_r8(r), left, carry);
+
+	if (val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+
+	write_r8(r, val);
+}
+
+void CPU::rotate_p(uint16_t addr, bool left, bool carry)
+{
+	uint8_t val = memory->read_8bits(addr);
+	val = rotate(val, left, carry);
+
+	if (val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+
+	memory->write_8bits(addr, val);
+}
+
+
+void CPU::rlca()
+{
+	rotate_a(true, true);
+}
+
+void CPU::rla()
+{
+	rotate_a(true, false);
+}
+
+void CPU::rrca()
+{
+	rotate_a(false, true);
+
+}
+
+void CPU::rra()
+{
+	rotate_a(false, false);
+}
+
+void CPU::rlc(r8 r)
+{
+	rotate_r(r, true, true);
+}
+
+void CPU::rl(r8 r)
+{
+	rotate_r(r, true, false);
+}
+
+void CPU::rrc(r8 r)
+{
+	rotate_r(r, false, true);
+}
+
+void CPU::rr(r8 r)
+{
+	rotate_r(r, false, false);
+}
+
+
+
+void CPU::rlc(r16 r)
+{
+	rotate_p(read_r16(r), true, true);
+}
+
+void CPU::rl(r16 r)
+{
+	rotate_p(read_r16(r), true, false);
+}
+
+void CPU::rrc(r16 r)
+{
+	rotate_p(read_r16(r), false, true);
+}
+
+void CPU::rr(r16 r)
+{
+	rotate_p(read_r16(r), false, false);
 }

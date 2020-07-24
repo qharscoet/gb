@@ -133,6 +133,25 @@ private:
 	void ei();
 
 
+	//Rotate and shifts
+	uint8_t rotate(uint8_t val, bool left, bool carry);
+	void rotate_a(bool left, bool carry);
+	void rotate_r(r8 r, bool left, bool carry);
+	void rotate_p(uint16_t addr, bool left, bool carry);
+	void rlca();
+	void rla();
+	void rrca();
+	void rra();
+	void rlc(r8 r);
+	void rl(r8 r);
+	void rrc(r8 r);
+	void rr(r8 r);
+	void rlc(r16 r);
+	void rl(r16 r);
+	void rrc(r16 r);
+	void rr(r16 r);
+
+
 
 public:
 

@@ -333,6 +333,13 @@ void CPU::step()
 		case 0xFB:	ei();	break;
 		//TODO : case 10 00 => STOP
 
+		// Roates and shift
+
+		case 0x07:	rlca();	break;
+		case 0x17:	rla();	break;
+		case 0x0F:	rrca();	break;
+		case 0x1F:	rra();	break;
+
 
 
 		case 0xCB: {
@@ -347,6 +354,45 @@ void CPU::step()
 				case 0x34:	swap(r8::H);	break;
 				case 0x35:	swap(r8::L);	break;
 				case 0x36:	swap(r16::HL);	break;
+
+				//TODO : refactor all of this calls
+				case 0x07:	rlc(r8::A);		break;
+				case 0x00:	rlc(r8::B);		break;
+				case 0x01:	rlc(r8::C);		break;
+				case 0x02:	rlc(r8::D);		break;
+				case 0x03:	rlc(r8::E);		break;
+				case 0x04:	rlc(r8::H);		break;
+				case 0x05:	rlc(r8::L);		break;
+				case 0x06:	rlc(r16::HL);	break;
+
+				case 0x17:	rl(r8::A);		break;
+				case 0x10:	rl(r8::B);		break;
+				case 0x11:	rl(r8::C);		break;
+				case 0x12:	rl(r8::D);		break;
+				case 0x13:	rl(r8::E);		break;
+				case 0x14:	rl(r8::H);		break;
+				case 0x15:	rl(r8::L);		break;
+				case 0x16:	rl(r16::HL);	break;
+
+				case 0x0F:	rrc(r8::A);		break;
+				case 0x08:	rrc(r8::B);		break;
+				case 0x09:	rrc(r8::C);		break;
+				case 0x0A:	rrc(r8::D);		break;
+				case 0x0B:	rrc(r8::E);		break;
+				case 0x0C:	rrc(r8::H);		break;
+				case 0x0D:	rrc(r8::L);		break;
+				case 0x0E:	rrc(r16::HL);	break;
+
+				case 0x1F:	rr(r8::A);		break;
+				case 0x18:	rr(r8::B);		break;
+				case 0x19:	rr(r8::C);		break;
+				case 0x1A:	rr(r8::D);		break;
+				case 0x1B:	rr(r8::E);		break;
+				case 0x1C:	rr(r8::H);		break;
+				case 0x1D:	rr(r8::L);		break;
+				case 0x1E:	rr(r16::HL);	break;
+
+
 				default: break;
 			}
 			}
