@@ -472,3 +472,23 @@ void CPU::scf()
 	reset_flag(flag_id::H);
 	set_flag(flag_id::C);
 }
+
+void CPU::halt()
+{
+	//TODO
+}
+
+void CPU::stop()
+{
+	//TODO
+}
+
+void CPU::di()
+{
+	ime = false;
+}
+
+void CPU::ei()
+{
+	ime = true;
+}

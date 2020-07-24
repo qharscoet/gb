@@ -29,6 +29,8 @@ private:
 
 	uint8_t* flags;
 
+	bool ime;
+
 	Memory* memory;
 	//char *memory;
 
@@ -124,6 +126,11 @@ private:
 	void cpl();
 	void ccf();
 	void scf();
+
+	void halt();
+	void stop();
+	void di();
+	void ei();
 
 
 

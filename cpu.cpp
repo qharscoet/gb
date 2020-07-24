@@ -11,6 +11,8 @@ CPU::CPU(/* args */)
 
 	flags = ((uint8_t*)registers) + 1;
 
+	ime = true;
+
 }
 
 CPU::CPU(Memory* memory)
@@ -22,6 +24,8 @@ CPU::CPU(Memory* memory)
 	*pc = 0x45FB;
 
 	flags = ((uint8_t*)registers) + 1;
+
+	ime = true;
 
 	this->memory = memory;
 }
@@ -324,6 +328,10 @@ void CPU::step()
 		case 0x3F:	ccf();	break;
 		case 0x37:	scf();	break;
 		case 0x00:	/*NOP*/	break;
+		case 0x76:	halt();	break;
+		case 0xF3:	di();	break;
+		case 0xFB:	ei();	break;
+		//TODO : case 10 00 => STOP
 
 
 
