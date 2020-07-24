@@ -1,3 +1,6 @@
+#ifndef _CPU_H_
+#define _CPU_H_
+
 #include <cstdint>
 
 #include "memory.h"
@@ -119,8 +122,9 @@ private:
 
 	//Misc
 	uint8_t swap(uint8_t val);
-	void swap(r8 r);
-	void swap(r16 r);
+
+	template<CPU::r8 r> void swap();
+	template<CPU::r16 r>void swap();
 
 	void daa();
 	void cpl();
@@ -151,8 +155,6 @@ private:
 	void rrc(r16 r);
 	void rr(r16 r);
 
-
-
 public:
 
 	CPU();
@@ -161,3 +163,5 @@ public:
 
 	void step();
 };
+
+#endif

@@ -393,12 +393,14 @@ uint8_t CPU::swap(uint8_t val)
 	return val;
 }
 
-void CPU::swap(r8 r)
+template<CPU::r8 r>
+void CPU::swap()
 {
 	write_r8(r, swap(read_r8(r)));
 }
 
-void CPU::swap(r16 r)
+template<CPU::r16 r>
+void CPU::swap()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);
@@ -618,3 +620,14 @@ void CPU::rr(r16 r)
 {
 	rotate_p(read_r16(r), false, false);
 }
+
+
+
+template void CPU::swap<CPU::r8::A>();
+template void CPU::swap<CPU::r8::B>();
+template void CPU::swap<CPU::r8::C>();
+template void CPU::swap<CPU::r8::D>();
+template void CPU::swap<CPU::r8::E>();
+template void CPU::swap<CPU::r8::H>();
+template void CPU::swap<CPU::r8::L>();
+template void CPU::swap<CPU::r16::HL>();
