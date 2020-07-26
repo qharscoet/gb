@@ -1,5 +1,7 @@
 #include "cpu.h"
+#include "extended_set.h"
 #include <cstdint>
+#include <functional>
 
 CPU::CPU(/* args */)
 {
@@ -346,14 +348,16 @@ void CPU::step()
 			uint8_t opcode2 = read_pc8();
 			switch(opcode2)
 			{
-				case 0x37:	swap<r8::A>();	break;
-				case 0x30:	swap<r8::B>();	break;
-				case 0x31:	swap<r8::C>();	break;
-				case 0x32:	swap<r8::D>();	break;
-				case 0x33:	swap<r8::E>();	break;
-				case 0x34:	swap<r8::H>();	break;
-				case 0x35:	swap<r8::L>();	break;
-				case 0x36:	swap<r16::HL>();	break;
+				case 0x37:
+				case 0x30:
+				case 0x31:
+				case 0x32:
+				case 0x33:
+				case 0x34:
+				case 0x35:
+				case 0x36:
+					std::invoke(extended_set[opcode2], *this);
+					break;
 
 				//TODO : refactor all of this calls
 				case 0x07:	rlc(r8::A);		break;

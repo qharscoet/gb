@@ -155,6 +155,9 @@ private:
 	void rrc(r16 r);
 	void rr(r16 r);
 
+	typedef void (CPU::*CPU_func)();
+	static CPU_func extended_set[256];
+
 public:
 
 	CPU();
