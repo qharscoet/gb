@@ -622,6 +622,74 @@ void CPU::rr(r16 r)
 }
 
 
+uint8_t  CPU::shift(uint8_t val, bool left, bool arithmetic)
+{
+	bool last_bit = left ?  GET_BIT(val, 7) : GET_BIT(val, 0);
+
+	if(left)
+	{
+		val <<= 1;
+	} else {
+		if(arithmetic) {
+			//Hack to keep the msb by using the fact that g++ keeps the sign when shifting
+			val = (uint8_t)((int8_t)val >> 1);
+		} else {
+			val >>= 1;
+		}
+	}
+
+	if (last_bit)
+		set_flag(flag_id::C);
+	else
+		reset_flag(flag_id::C);
+
+	if (val == 0)
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
+}
+
+void CPU::sla(r8 r)
+{
+	write_r8(r, shift(read_r8(r), true, true));
+}
+
+void CPU::sra(r8 r)
+{
+	write_r8(r, shift(read_r8(r), false, true));
+}
+
+void CPU::srl(r8 r)
+{
+	write_r8(r, shift(read_r8(r), false, false));
+}
+
+void CPU::sla(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, true, true);
+	memory->write_8bits(addr, val);
+}
+
+void CPU::sra(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, false, true);
+	memory->write_8bits(addr, val);
+}
+
+void CPU::srl(r16 r)
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, false, false);
+	memory->write_8bits(addr, val);
+}
+
+
 
 template void CPU::swap<CPU::r8::A>();
 template void CPU::swap<CPU::r8::B>();

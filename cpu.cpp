@@ -396,6 +396,33 @@ void CPU::step()
 				case 0x1D:	rr(r8::L);		break;
 				case 0x1E:	rr(r16::HL);	break;
 
+				case 0x27:	sla(r8::A);		break;
+				case 0x20:	sla(r8::B);		break;
+				case 0x21:	sla(r8::C);		break;
+				case 0x22:	sla(r8::D);		break;
+				case 0x23:	sla(r8::E);		break;
+				case 0x24:	sla(r8::H);		break;
+				case 0x25:	sla(r8::L);		break;
+				case 0x26:	sla(r16::HL);	break;
+
+				case 0x2F:	sra(r8::A);		break;
+				case 0x28:	sra(r8::B);		break;
+				case 0x29:	sra(r8::C);		break;
+				case 0x2A:	sra(r8::D);		break;
+				case 0x2B:	sra(r8::E);		break;
+				case 0x2C:	sra(r8::H);		break;
+				case 0x2D:	sra(r8::L);		break;
+				case 0x2E:	sra(r16::HL);	break;
+
+				case 0x3F:	srl(r8::A);		break;
+				case 0x38:	srl(r8::B);		break;
+				case 0x39:	srl(r8::C);		break;
+				case 0x3A:	srl(r8::D);		break;
+				case 0x3B:	srl(r8::E);		break;
+				case 0x3C:	srl(r8::H);		break;
+				case 0x3D:	srl(r8::L);		break;
+				case 0x3E:	srl(r16::HL);	break;
+
 
 				default: break;
 			}

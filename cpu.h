@@ -155,6 +155,14 @@ private:
 	void rrc(r16 r);
 	void rr(r16 r);
 
+	uint8_t shift(uint8_t val, bool left, bool arithmetic);
+	void sla(r8 r);
+	void sra(r8 r);
+	void srl(r8 r);
+	void sla(r16 r);
+	void sra(r16 r);
+	void srl(r16 r);
+
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];
 
