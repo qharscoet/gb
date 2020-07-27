@@ -373,19 +373,8 @@ void CPU::step()
 
 
 
-		case 0xCB: {
-			uint8_t opcode2 = read_pc8();
-			if(opcode2 < 0x40) {
-				std::invoke(extended_set[opcode2], *this);
-			} else  {
-				switch(opcode2)
-				{
-					default:
-						break;
-				}
-			}
-
-			}
+		case 0xCB:
+			std::invoke(extended_set[read_pc8()], *this);
 			break;
 
 

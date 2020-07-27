@@ -709,6 +709,17 @@ void CPU::srl()
 	memory->write_8bits(addr, val);
 }
 
+void CPU::bit(uint8_t val, uint8_t b)
+{
+	if(GET_BIT(val, b))
+		reset_flag(flag_id::Z);
+	else
+		set_flag(flag_id::Z);
+
+	reset_flag(flag_id::N);
+	set_flag(flag_id::H);
+}
+
 #define GEN_TEMPLATES(name) \
  	template void CPU::name<CPU::r8::A>(); \
 	template void CPU::name<CPU::r8::B>(); \

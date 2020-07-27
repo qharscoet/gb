@@ -8,6 +8,16 @@
 
 typedef uint16_t a16;
 
+inline uint8_t set_bit(uint8_t val, uint8_t b)
+{
+	return val | (1 << b);
+}
+
+inline uint8_t res_bit(uint8_t val, uint8_t b)
+{
+	return val & ~(1 << b);
+}
+
 class CPU
 {
 private:
@@ -171,6 +181,17 @@ private:
 	template<CPU::r16 r> void sra();
 	template<CPU::r16 r> void srl();
 
+	void bit(uint8_t val, uint8_t b);
+	template<CPU::r8 r, uint8_t b> void bit();
+	template<CPU::r16 r, uint8_t b> void bit();
+
+
+	template<CPU::r8 r, uint8_t b> void set();
+	template<CPU::r16 r, uint8_t b> void set();
+
+	template<CPU::r8 r, uint8_t b> void res();
+	template<CPU::r16 r, uint8_t b> void res();
+
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];
 
@@ -182,5 +203,47 @@ public:
 
 	void step();
 };
+
+template <CPU::r8 r, uint8_t b>
+void CPU::bit()
+{
+	bit(read_r8(r), b);
+}
+
+template <CPU::r16 r, uint8_t b>
+void CPU::bit()
+{
+	bit(memory->read_8bits(read_r16(r)), b);
+}
+
+
+template <CPU::r8 r, uint8_t b>
+void CPU::set()
+{
+	write_r8(r, set_bit(read_r8(r), b));
+}
+
+template <CPU::r16 r, uint8_t b>
+void CPU::set()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	memory->write_8bits(addr, set_bit(val, b));
+}
+
+
+template <CPU::r8 r, uint8_t b>
+void CPU::res()
+{
+	write_r8(r, res_bit(read_r8(r), b));
+}
+
+template <CPU::r16 r, uint8_t b>
+void CPU::res()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	memory->write_8bits(addr, res_bit(val, b));
+}
 
 #endif
