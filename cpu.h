@@ -216,6 +216,9 @@ private:
 	void callnc();
 	void callc();
 
+	//Restart
+	void rst(uint8_t n)
+
 
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];

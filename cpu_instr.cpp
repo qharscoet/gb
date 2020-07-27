@@ -848,6 +848,12 @@ void CPU::callc()
 	}
 }
 
+void CPU::rst(uint8_t n)
+{
+	*sp -= 2;
+	memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+	*pc = n;
+}
 
 
 
