@@ -855,6 +855,46 @@ void CPU::rst(uint8_t n)
 	*pc = n;
 }
 
+void CPU::ret()
+{
+	*pc = memory->read_16bits(read_r16(r16::SP));
+	*sp += 2;
+}
+
+void CPU::retnz()
+{
+	if(!get_flag(flag_id::Z))
+		ret();
+
+}
+
+void CPU::retz()
+{
+	if(get_flag(flag_id::Z))
+		ret();
+
+}
+
+void CPU::retnc()
+{
+	if(!get_flag(flag_id::C))
+		ret();
+
+}
+
+void CPU::retc()
+{
+	if(get_flag(flag_id::C))
+		ret();
+
+}
+
+void CPU::reti()
+{
+	ret();
+	ime = true;
+}
+
 
 
 

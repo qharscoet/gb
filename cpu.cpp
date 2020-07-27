@@ -407,6 +407,14 @@ void CPU::step()
 		case 0xF7:	rst(0x30);	break;
 		case 0xFF:	rst(0x38);	break;
 
+		//Returns
+		case 0xC9:	ret();		break;
+		case 0xC0:	retnz();	break;
+		case 0xC8:	retz();		break;
+		case 0xD0:	retnc();	break;
+		case 0xD8:	retc();		break;
+		case 0xD9:	reti();		break;
+
 		default:
 			break;
 	}

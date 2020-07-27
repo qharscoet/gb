@@ -217,7 +217,15 @@ private:
 	void callc();
 
 	//Restart
-	void rst(uint8_t n)
+	void rst(uint8_t n);
+
+	//Returns
+	void ret();
+	void retnz();
+	void retz();
+	void retnc();
+	void retc();
+	void reti();
 
 
 	typedef void (CPU::*CPU_func)();
