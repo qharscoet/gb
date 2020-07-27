@@ -181,16 +181,33 @@ private:
 	template<CPU::r16 r> void sra();
 	template<CPU::r16 r> void srl();
 
+	//Bit Ops
 	void bit(uint8_t val, uint8_t b);
 	template<CPU::r8 r, uint8_t b> void bit();
 	template<CPU::r16 r, uint8_t b> void bit();
-
 
 	template<CPU::r8 r, uint8_t b> void set();
 	template<CPU::r16 r, uint8_t b> void set();
 
 	template<CPU::r8 r, uint8_t b> void res();
 	template<CPU::r16 r, uint8_t b> void res();
+
+	// Jumps
+
+	void jp();
+	void jnz();
+	void jz();
+	void jnc();
+	void jc();
+
+	void jhl();
+
+	void jr();
+	void jrnz();
+	void jrz();
+	void jrnc();
+	void jrc();
+
 
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];

@@ -371,16 +371,24 @@ void CPU::step()
 		case 0x0F:	rrca();	break;
 		case 0x1F:	rra();	break;
 
-
-
+		// Extended set
 		case 0xCB:
 			std::invoke(extended_set[read_pc8()], *this);
 			break;
 
+		//Jumps
+		case 0xC3:	jp();	 break;
+		case 0xC2:	jnz();	 break;
+		case 0xCA:	jz();	 break;
+		case 0xD2:	jnc();	 break;
+		case 0xDA:	jc();	 break;
 
-		case 0xC3:
-			*pc = read_pc16();
-			break;
+		case 0xE9:	jhl();	 break;
+		case 0x18:	jr();	 break;
+		case 0x20:	jrnz();	 break;
+		case 0x28:	jrz();	 break;
+		case 0x30:	jrnc();	 break;
+		case 0x38:	jrc();	 break;
 		default:
 			break;
 	}

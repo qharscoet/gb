@@ -720,6 +720,80 @@ void CPU::bit(uint8_t val, uint8_t b)
 	set_flag(flag_id::H);
 }
 
+void CPU::jp()
+{
+	*pc = read_pc16();
+}
+
+void CPU::jnz()
+{
+	uint16_t nn = read_pc16();
+	if(!get_flag(flag_id::Z))
+		*pc = nn;
+}
+
+void CPU::jz()
+{
+	uint16_t nn = read_pc16();
+	if(get_flag(flag_id::Z))
+		*pc = nn;
+}
+
+void CPU::jnc()
+{
+	uint16_t nn = read_pc16();
+	if(!get_flag(flag_id::C))
+		*pc = nn;
+}
+
+void CPU::jc()
+{
+	uint16_t nn = read_pc16();
+	if(get_flag(flag_id::C))
+		*pc = nn;
+}
+
+void CPU::jhl()
+{
+	*pc = read_r16(r16::HL);
+}
+
+void CPU::jr()
+{
+	int8_t e = read_pc8();
+	*pc += e;
+}
+
+void CPU::jrnz()
+{
+	int8_t e = read_pc8();
+	if(!get_flag(flag_id::Z))
+		*pc += e
+}
+
+void CPU::jrz()
+{
+	int8_t e = read_pc8();
+	if(get_flag(flag_id::Z))
+		*pc += e
+}
+
+void CPU::jrnc()
+{
+	int8_t e = read_pc8();
+	if(!get_flag(flag_id::C))
+		*pc += e
+}
+
+void CPU::jrc()
+{
+	int8_t e = read_pc8();
+	if(get_flag(flag_id::C))
+		*pc += e
+}
+
+
+
 #define GEN_TEMPLATES(name) \
  	template void CPU::name<CPU::r8::A>(); \
 	template void CPU::name<CPU::r8::B>(); \
