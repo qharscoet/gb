@@ -407,6 +407,13 @@ void CPU::swap()
 	memory->write_8bits(addr, swap(val));
 }
 
+// template<std::variant<CPU::r8, CPU::r16> p>
+// void CPU::swap()
+// {
+// 	write_8bits(p, swap(read_8bits(p)));
+// }
+
+
 
 void CPU::daa()
 {
@@ -579,44 +586,51 @@ void CPU::rra()
 	rotate_a(false, false);
 }
 
-void CPU::rlc(r8 r)
+template<CPU::r8 r>
+void CPU::rlc()
 {
 	rotate_r(r, true, true);
 }
 
-void CPU::rl(r8 r)
+template <CPU::r8 r>
+void CPU::rl()
 {
 	rotate_r(r, true, false);
 }
 
-void CPU::rrc(r8 r)
+template <CPU::r8 r>
+void CPU::rrc()
 {
 	rotate_r(r, false, true);
 }
 
-void CPU::rr(r8 r)
+template <CPU::r8 r>
+void CPU::rr()
 {
 	rotate_r(r, false, false);
 }
 
 
-
-void CPU::rlc(r16 r)
+template <CPU::r16 r>
+void CPU::rlc()
 {
 	rotate_p(read_r16(r), true, true);
 }
 
-void CPU::rl(r16 r)
+template <CPU::r16 r>
+void CPU::rl()
 {
 	rotate_p(read_r16(r), true, false);
 }
 
-void CPU::rrc(r16 r)
+template <CPU::r16 r>
+void CPU::rrc()
 {
 	rotate_p(read_r16(r), false, true);
 }
 
-void CPU::rr(r16 r)
+template <CPU::r16 r>
+void CPU::rr()
 {
 	rotate_p(read_r16(r), false, false);
 }
@@ -650,22 +664,26 @@ uint8_t  CPU::shift(uint8_t val, bool left, bool arithmetic)
 	reset_flag(flag_id::H);
 }
 
-void CPU::sla(r8 r)
+template <CPU::r8 r>
+void CPU::sla()
 {
 	write_r8(r, shift(read_r8(r), true, true));
 }
 
-void CPU::sra(r8 r)
+template <CPU::r8 r>
+void CPU::sra()
 {
 	write_r8(r, shift(read_r8(r), false, true));
 }
 
-void CPU::srl(r8 r)
+template <CPU::r8 r>
+void CPU::srl()
 {
 	write_r8(r, shift(read_r8(r), false, false));
 }
 
-void CPU::sla(r16 r)
+template <CPU::r16 r>
+void CPU::sla()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);
@@ -673,7 +691,8 @@ void CPU::sla(r16 r)
 	memory->write_8bits(addr, val);
 }
 
-void CPU::sra(r16 r)
+template <CPU::r16 r>
+void CPU::sra()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);
@@ -681,7 +700,8 @@ void CPU::sra(r16 r)
 	memory->write_8bits(addr, val);
 }
 
-void CPU::srl(r16 r)
+template <CPU::r16 r>
+void CPU::srl()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);
@@ -689,13 +709,22 @@ void CPU::srl(r16 r)
 	memory->write_8bits(addr, val);
 }
 
+#define GEN_TEMPLATES(name) \
+ 	template void CPU::name<CPU::r8::A>(); \
+	template void CPU::name<CPU::r8::B>(); \
+	template void CPU::name<CPU::r8::C>(); \
+	template void CPU::name<CPU::r8::D>(); \
+	template void CPU::name<CPU::r8::E>(); \
+	template void CPU::name<CPU::r8::H>(); \
+	template void CPU::name<CPU::r8::L>(); \
+	template void CPU::name<CPU::r16::HL>();
 
 
-template void CPU::swap<CPU::r8::A>();
-template void CPU::swap<CPU::r8::B>();
-template void CPU::swap<CPU::r8::C>();
-template void CPU::swap<CPU::r8::D>();
-template void CPU::swap<CPU::r8::E>();
-template void CPU::swap<CPU::r8::H>();
-template void CPU::swap<CPU::r8::L>();
-template void CPU::swap<CPU::r16::HL>();
+GEN_TEMPLATES(swap)
+GEN_TEMPLATES(rlc)
+GEN_TEMPLATES(rl)
+GEN_TEMPLATES(rrc)
+GEN_TEMPLATES(rr)
+GEN_TEMPLATES(sla)
+GEN_TEMPLATES(sra)
+GEN_TEMPLATES(srl)

@@ -2,6 +2,7 @@
 #define _CPU_H_
 
 #include <cstdint>
+#include <variant>
 
 #include "memory.h"
 
@@ -17,6 +18,9 @@ private:
 	enum class r16: uint8_t{
 		AF, BC, DE, HL, SP, PC
 	};
+
+
+	using Param8bits = std::variant<r8, r16>;
 
 	enum class flag_id: uint8_t {
 		Z, N, H, C
@@ -44,6 +48,9 @@ private:
 
 	uint8_t read_pc8();
 	uint16_t read_pc16();
+
+	uint8_t read_8bits(Param8bits p);
+	void write_8bits(Param8bits p, uint8_t val);
 
 	void set_flag(flag_id f);
 	void reset_flag(flag_id f);
@@ -125,6 +132,7 @@ private:
 
 	template<CPU::r8 r> void swap();
 	template<CPU::r16 r>void swap();
+	//template<CPU::Param8bits p> void swap();
 
 	void daa();
 	void cpl();
@@ -146,22 +154,22 @@ private:
 	void rla();
 	void rrca();
 	void rra();
-	void rlc(r8 r);
-	void rl(r8 r);
-	void rrc(r8 r);
-	void rr(r8 r);
-	void rlc(r16 r);
-	void rl(r16 r);
-	void rrc(r16 r);
-	void rr(r16 r);
+	template<CPU::r8 r> void rlc();
+	template<CPU::r8 r> void rl();
+	template<CPU::r8 r> void rrc();
+	template<CPU::r8 r> void rr();
+	template<CPU::r16 r> void rlc();
+	template<CPU::r16 r> void rl();
+	template<CPU::r16 r> void rrc();
+	template<CPU::r16 r> void rr();
 
 	uint8_t shift(uint8_t val, bool left, bool arithmetic);
-	void sla(r8 r);
-	void sra(r8 r);
-	void srl(r8 r);
-	void sla(r16 r);
-	void sra(r16 r);
-	void srl(r16 r);
+	template<CPU::r8 r> void sla();
+	template<CPU::r8 r> void sra();
+	template<CPU::r8 r> void srl();
+	template<CPU::r16 r> void sla();
+	template<CPU::r16 r> void sra();
+	template<CPU::r16 r> void srl();
 
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];

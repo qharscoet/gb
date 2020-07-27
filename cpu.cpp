@@ -57,6 +57,35 @@ void CPU::write_r16(r16 r, uint16_t value)
 	((uint16_t*)registers)[static_cast<uint8_t>(r)] = value;
 }
 
+
+uint8_t CPU::read_8bits(Param8bits p)
+{
+	uint8_t val = 0;
+
+	if(std::holds_alternative<r8>(p))
+	{
+		val = read_r8(std::get<r8>(p));
+	} else if (std::holds_alternative<r16>(p))
+	{
+		val = memory->read_8bits(read_r16(std::get<r16>(p)));
+	}
+
+	return val;
+}
+
+
+void CPU::write_8bits(Param8bits p, uint8_t value)
+{
+	if(std::holds_alternative<r8>(p))
+	{
+		write_r8(std::get<r8>(p), value);
+	} else if (std::holds_alternative<r16>(p))
+	{
+		memory->write_8bits(read_r16(std::get<r16>(p)), value);
+	}
+}
+
+
 uint8_t CPU::read_pc8()
 {
 	uint8_t ret = memory->read_8bits((*pc));
@@ -346,86 +375,16 @@ void CPU::step()
 
 		case 0xCB: {
 			uint8_t opcode2 = read_pc8();
-			switch(opcode2)
-			{
-				case 0x37:
-				case 0x30:
-				case 0x31:
-				case 0x32:
-				case 0x33:
-				case 0x34:
-				case 0x35:
-				case 0x36:
-					std::invoke(extended_set[opcode2], *this);
-					break;
-
-				//TODO : refactor all of this calls
-				case 0x07:	rlc(r8::A);		break;
-				case 0x00:	rlc(r8::B);		break;
-				case 0x01:	rlc(r8::C);		break;
-				case 0x02:	rlc(r8::D);		break;
-				case 0x03:	rlc(r8::E);		break;
-				case 0x04:	rlc(r8::H);		break;
-				case 0x05:	rlc(r8::L);		break;
-				case 0x06:	rlc(r16::HL);	break;
-
-				case 0x17:	rl(r8::A);		break;
-				case 0x10:	rl(r8::B);		break;
-				case 0x11:	rl(r8::C);		break;
-				case 0x12:	rl(r8::D);		break;
-				case 0x13:	rl(r8::E);		break;
-				case 0x14:	rl(r8::H);		break;
-				case 0x15:	rl(r8::L);		break;
-				case 0x16:	rl(r16::HL);	break;
-
-				case 0x0F:	rrc(r8::A);		break;
-				case 0x08:	rrc(r8::B);		break;
-				case 0x09:	rrc(r8::C);		break;
-				case 0x0A:	rrc(r8::D);		break;
-				case 0x0B:	rrc(r8::E);		break;
-				case 0x0C:	rrc(r8::H);		break;
-				case 0x0D:	rrc(r8::L);		break;
-				case 0x0E:	rrc(r16::HL);	break;
-
-				case 0x1F:	rr(r8::A);		break;
-				case 0x18:	rr(r8::B);		break;
-				case 0x19:	rr(r8::C);		break;
-				case 0x1A:	rr(r8::D);		break;
-				case 0x1B:	rr(r8::E);		break;
-				case 0x1C:	rr(r8::H);		break;
-				case 0x1D:	rr(r8::L);		break;
-				case 0x1E:	rr(r16::HL);	break;
-
-				case 0x27:	sla(r8::A);		break;
-				case 0x20:	sla(r8::B);		break;
-				case 0x21:	sla(r8::C);		break;
-				case 0x22:	sla(r8::D);		break;
-				case 0x23:	sla(r8::E);		break;
-				case 0x24:	sla(r8::H);		break;
-				case 0x25:	sla(r8::L);		break;
-				case 0x26:	sla(r16::HL);	break;
-
-				case 0x2F:	sra(r8::A);		break;
-				case 0x28:	sra(r8::B);		break;
-				case 0x29:	sra(r8::C);		break;
-				case 0x2A:	sra(r8::D);		break;
-				case 0x2B:	sra(r8::E);		break;
-				case 0x2C:	sra(r8::H);		break;
-				case 0x2D:	sra(r8::L);		break;
-				case 0x2E:	sra(r16::HL);	break;
-
-				case 0x3F:	srl(r8::A);		break;
-				case 0x38:	srl(r8::B);		break;
-				case 0x39:	srl(r8::C);		break;
-				case 0x3A:	srl(r8::D);		break;
-				case 0x3B:	srl(r8::E);		break;
-				case 0x3C:	srl(r8::H);		break;
-				case 0x3D:	srl(r8::L);		break;
-				case 0x3E:	srl(r16::HL);	break;
-
-
-				default: break;
+			if(opcode2 < 0x40) {
+				std::invoke(extended_set[opcode2], *this);
+			} else  {
+				switch(opcode2)
+				{
+					default:
+						break;
+				}
 			}
+
 			}
 			break;
 
