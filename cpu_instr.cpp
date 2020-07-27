@@ -470,11 +470,13 @@ void CPU::ccf()
 	if( get_flag(flag_id::C))
 	{
 		reset_flag(flag_id::C);
-	}
-	else
+	} else
 	{
 		set_flag(flag_id::C);
 	}
+
+	reset_flag(flag_id::N);
+	reset_flag(flag_id::H);
 }
 
 void CPU::scf()
@@ -501,7 +503,7 @@ void CPU::di()
 
 void CPU::ei()
 {
-	ime = true;
+	ime_scheduled = true;
 }
 
 

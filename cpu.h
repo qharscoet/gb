@@ -47,6 +47,7 @@ private:
 	uint8_t* flags;
 
 	bool ime;
+	bool ime_scheduled;
 
 	Memory* memory;
 	//char *memory;
