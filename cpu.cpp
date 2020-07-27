@@ -389,6 +389,13 @@ void CPU::step()
 		case 0x28:	jrz();	 break;
 		case 0x30:	jrnc();	 break;
 		case 0x38:	jrc();	 break;
+
+		//Calls
+		case 0xCD:	call();	break;
+		case 0xC4:	callnz();	break;
+		case 0xCC:	callz();	break;
+		case 0xD4:	callnc();	break;
+		case 0xDC:	callc();	break;
 		default:
 			break;
 	}

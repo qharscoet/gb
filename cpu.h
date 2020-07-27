@@ -209,6 +209,13 @@ private:
 	void jrnc();
 	void jrc();
 
+	//Calls
+	void call();
+	void callnz();
+	void callz();
+	void callnc();
+	void callc();
+
 
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];

@@ -34,5 +34,10 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)
 {
-	*((uint16_t *)(mmap + addr)) = value;
+	uint8_t msb = (value >> 8);
+	uint8_t lsb = (value & 0xFF);
+
+	mmap[addr] = lsb;
+	mmap[addr + 1] = msb;
+	//*((uint16_t *)(mmap + addr)) = value;
 }

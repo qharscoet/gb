@@ -166,8 +166,8 @@ void CPU::push(r16 r)
 {
 	//TODO : check if correct behavior
 	dec(r16::SP);
-	memory->write_16bits(read_r16(r16::SP), read_r16(r));
 	dec(r16::SP);
+	memory->write_16bits(read_r16(r16::SP), read_r16(r));
 }
 
 void CPU::pop(r16 r)
@@ -770,29 +770,85 @@ void CPU::jrnz()
 {
 	int8_t e = read_pc8();
 	if(!get_flag(flag_id::Z))
-		*pc += e
+		*pc += e;
 }
 
 void CPU::jrz()
 {
 	int8_t e = read_pc8();
 	if(get_flag(flag_id::Z))
-		*pc += e
+		*pc += e;
 }
 
 void CPU::jrnc()
 {
 	int8_t e = read_pc8();
 	if(!get_flag(flag_id::C))
-		*pc += e
+		*pc += e;
 }
 
 void CPU::jrc()
 {
 	int8_t e = read_pc8();
 	if(get_flag(flag_id::C))
-		*pc += e
+		*pc += e;
 }
+
+//Calls
+
+void CPU::call()
+{
+	uint16_t addr = read_pc16();
+	*sp -= 2;
+	memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+	*pc = addr;
+}
+
+void CPU::callnz()
+{
+	uint16_t addr = read_pc16();
+	if(!get_flag(flag_id::Z))
+	{
+		*sp -= 2;
+		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		*pc = addr;
+	}
+}
+
+void CPU::callz()
+{
+	uint16_t addr = read_pc16();
+	if(get_flag(flag_id::Z))
+	{
+		*sp -= 2;
+		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		*pc = addr;
+	}
+}
+
+void CPU::callnc()
+{
+	uint16_t addr = read_pc16();
+	if(!get_flag(flag_id::C))
+	{
+		*sp -= 2;
+		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		*pc = addr;
+	}
+}
+
+void CPU::callc()
+{
+	uint16_t addr = read_pc16();
+	if(get_flag(flag_id::C))
+	{
+		*sp -= 2;
+		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		*pc = addr;
+	}
+}
+
+
 
 
 
