@@ -377,8 +377,8 @@ void CPU::add(r16 r1, r16 r2)
 
 uint8_t CPU::swap(uint8_t val)
 {
-	uint8_t lsb = val & 0xff;
-	val = (val >> 4) | (lsb >> 4);
+	uint8_t lsb = val & 0xf;
+	val = (lsb << 4) | (val >> 4);
 
 	set_flag(flag_id::Z,val == 0);
 
