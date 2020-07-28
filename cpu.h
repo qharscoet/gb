@@ -230,9 +230,11 @@ private:
 	void retc();
 	void reti();
 
+	static uint8_t instructions_cycles[256];
 
 	typedef void (CPU::*CPU_func)();
 	static CPU_func extended_set[256];
+	static uint8_t extended_cycles[256];
 
 public:
 
