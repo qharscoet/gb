@@ -33,7 +33,7 @@ private:
 	using Param8bits = std::variant<r8, r16>;
 
 	enum class flag_id: uint8_t {
-		Z, N, H, C
+		Z = 7 , N = 6, H = 5, C = 4,
 	};
 
 	// uint8_t registers[8]; //registers A F B C D E H L
@@ -66,6 +66,7 @@ private:
 	void write_8bits(Param8bits p, uint8_t val);
 
 	void set_flag(flag_id f);
+	inline void set_flag(flag_id f, bool b);
 	void reset_flag(flag_id f);
 	bool get_flag(flag_id f);
 
@@ -241,6 +242,14 @@ public:
 
 	void step();
 };
+
+inline void CPU::set_flag(flag_id f, bool b)
+{
+	if (b)
+		set_flag(f);
+	else
+		reset_flag(f);
+}
 
 template <CPU::r8 r, uint8_t b>
 void CPU::bit()

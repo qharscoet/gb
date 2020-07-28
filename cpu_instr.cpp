@@ -6,10 +6,7 @@ void CPU::set_inc_flags(uint8_t val)
 {
 	//uint8_t val = read_r8(r);
 
-	if((uint8_t)(val + 1) == 0)
-		set_flag(flag_id::Z);
-	else
-		reset_flag(flag_id::Z);
+	set_flag(flag_id::Z, (uint8_t)(val + 1) == 0);
 
 	reset_flag(flag_id::N);
 
@@ -44,10 +41,7 @@ void CPU::inc(r16 r)
 void CPU::set_dec_flags(uint8_t val)
 {
 
-	if (val - 1 == 0)
-		set_flag(flag_id::Z);
-	else
-		reset_flag(flag_id::Z);
+	set_flag(flag_id::Z,val - 1 == 0);
 
 	reset_flag(flag_id::N);
 
@@ -133,13 +127,20 @@ void CPU::ld(uint16_t addr, r16 r )
 
 void CPU::ldhl(r16 r, int8_t n)
 {
-	int16_t val = read_r16(r) + n;
-	write_r16(r16::HL, val);
+	int16_t val = read_r16(r);
+
 
 	reset_flag(flag_id::Z);
 	reset_flag(flag_id::N);
-	//TODO: wtf carry and half carry
 
+	if ((uint32_t)(val + n) & 0x10000)
+		set_flag(flag_id::C);
+
+	if (((val & 0xfff) + (n & 0xfff)) & 0x1000)
+		set_flag(flag_id::H);
+
+
+	write_r16(r16::HL, val + n);
 }
 
 void CPU::ldd(r8 r1, r16 r2)
@@ -187,16 +188,15 @@ void CPU::add(r8 r, uint8_t val)
 
 	reset_flag(flag_id::N);
 
-	if ((uint16_t)(r_val + val) & 0x100)
-		set_flag(flag_id::C);
+	bool carry = (uint16_t)(r_val + val) & 0x100;
+	set_flag(flag_id::C, carry);
 
-	if (((r_val & 0xf) + (val & 0xf)) & 0x10)
-		set_flag(flag_id::H);
+	bool half_carry = ((r_val & 0xf) + (val & 0xf)) & 0x10;
+	set_flag(flag_id::H, half_carry);
 
 	r_val += val;
 
-	if (r_val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, val == 0);
 
 	write_r8(r, val);
 }
@@ -225,16 +225,15 @@ void CPU::sub(r8 r, uint8_t val)
 
 	set_flag(flag_id::N);
 
-	if (r_val < val)
-		set_flag(flag_id::C);
+	//carry
+	set_flag(flag_id::C,r_val < val);
 
-	if ((r_val & 0xf) < (val & 0xf))
-		set_flag(flag_id::H);
+	//half_carry
+	set_flag(flag_id::H, (r_val & 0xf) < (val & 0xf));
 
 	r_val -= val;
 
-	if (r_val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, r_val == 0);
 
 	write_r8(r, val);
 }
@@ -263,8 +262,7 @@ void CPU::band(r8 r, uint8_t val)
 
 	r_val &= val;
 
-	if (r_val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, r_val == 0);
 
 	reset_flag(flag_id::N);
 	set_flag(flag_id::H);
@@ -288,8 +286,7 @@ void CPU::bor(r8 r, uint8_t val)
 
 	r_val |= val;
 
-	if (r_val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, r_val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
@@ -312,8 +309,7 @@ void CPU::bxor(r8 r, uint8_t val)
 
 	r_val ^= val;
 
-	if (r_val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, r_val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
@@ -334,16 +330,13 @@ void CPU::cp(r8 r, uint8_t val)
 {
 	uint8_t r_val = read_r8(r);
 
-	if( r_val == val)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, r_val == val);
 
 	set_flag(flag_id::N);
 
-	if(r_val < val)
-		set_flag(flag_id::C);
+	set_flag(flag_id::C, r_val < val);
 
-	if ((r_val & 0xf) < (val & 0xf))
-		set_flag(flag_id::H);
+	set_flag(flag_id::H, (r_val & 0xf) < (val & 0xf) );
 }
 
 void CPU::cp(r8 r, r8 r2)
@@ -365,11 +358,11 @@ void CPU::add(r16 r, uint16_t val)
 
 	reset_flag(flag_id::N);
 
-	if ((uint32_t)(r_val + val) & 0x10000)
-		set_flag(flag_id::C);
+	bool carry = (uint32_t)(r_val + val) & 0x10000;
+	set_flag(flag_id::C, carry);
 
-	if (((r_val & 0xfff) + (val & 0xfff)) & 0x1000)
-		set_flag(flag_id::H);
+	bool half_carry = ((r_val & 0xfff) + (val & 0xfff)) & 0x1000;
+	set_flag(flag_id::H, half_carry);
 
 	r_val += val;
 
@@ -387,8 +380,7 @@ uint8_t CPU::swap(uint8_t val)
 	uint8_t lsb = val & 0xff;
 	val = (val >> 4) | (lsb >> 4);
 
-	if(val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z,val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
@@ -451,8 +443,7 @@ void CPU::daa()
 		}
 	}
 
-	if(val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, val == 0);
 
 	reset_flag(flag_id::H);
 
@@ -518,10 +509,7 @@ uint8_t CPU::rotate(uint8_t val, bool left, bool carry)
 	bool dropped_bit = left ? GET_BIT(val, 7) : GET_BIT(val, 0) ;
 	bool new_bit0 = carry ? dropped_bit : get_flag(flag_id::C);
 
-	if (dropped_bit)
-		set_flag(flag_id::C);
-	else
-		reset_flag(flag_id::C);
+	set_flag(flag_id::C, dropped_bit);
 
 	if(left)
 		val = (val << 1) | new_bit0;
@@ -547,8 +535,7 @@ void CPU::rotate_r(r8 r, bool left, bool carry)
 {
 	uint8_t val = rotate(read_r8(r), left, carry);
 
-	if (val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
@@ -561,8 +548,7 @@ void CPU::rotate_p(uint16_t addr, bool left, bool carry)
 	uint8_t val = memory->read_8bits(addr);
 	val = rotate(val, left, carry);
 
-	if (val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
@@ -658,13 +644,9 @@ uint8_t  CPU::shift(uint8_t val, bool left, bool arithmetic)
 		}
 	}
 
-	if (last_bit)
-		set_flag(flag_id::C);
-	else
-		reset_flag(flag_id::C);
+	set_flag(flag_id::C, last_bit);
 
-	if (val == 0)
-		set_flag(flag_id::Z);
+	set_flag(flag_id::Z, val == 0);
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
