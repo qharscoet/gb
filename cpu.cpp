@@ -6,7 +6,7 @@
 CPU::CPU(/* args */)
 {
 	sp = &registers[4];
-	*sp = 0xFFFF;
+	*sp = 0xFFFE;
 
 	pc = &registers[5];
 	*pc = 0x100;
@@ -15,25 +15,77 @@ CPU::CPU(/* args */)
 
 	ime = true;
 
+	init();
+
 }
 
 CPU::CPU(Memory* memory)
 {
 	sp = &registers[4];
-	*sp = 0xFFFF;
+	*sp = 0xFFFE;
 
 	pc = &registers[5];
-	*pc = 0x45FB;
+	*pc = 0x100; //0x45FB;
 
 	flags = ((uint8_t*)registers) + 1;
 
 	ime = true;
 
 	this->memory = memory;
+
+	init();
 }
 
 CPU::~CPU()
 {
+}
+
+void CPU::init()
+{
+	memset(registers, 0, 12);
+	write_r8(r8::A, 0x01);
+	write_r8(r8::F, 0xB0);
+	// write_r8(r8::B, 0x00);
+	// write_r8(r8::C, 0x13);
+	write_r16(r16::BC, 0x0013);
+	write_r16(r16::DE, 0x00D8);
+	write_r16(r16::HL, 0x014D);
+	write_r16(r16::SP, 0xFFFE);
+
+	//TODO : refactor pc/sp
+	*pc = 0x100;
+
+	memory->write_8bits(0xFF05, 0x00);
+	memory->write_8bits(0xFF06, 0x00);
+	memory->write_8bits(0xFF07, 0x00);
+	memory->write_8bits(0xFF10, 0x80);
+	memory->write_8bits(0xFF11, 0xBF);
+	memory->write_8bits(0xFF12, 0xF3);
+	memory->write_8bits(0xFF14, 0xBF);
+	memory->write_8bits(0xFF16, 0x3F);
+	memory->write_8bits(0xFF17, 0x00);
+	memory->write_8bits(0xFF19, 0xBF);
+	memory->write_8bits(0xFF1A, 0x7F);
+	memory->write_8bits(0xFF1B, 0xFF);
+	memory->write_8bits(0xFF1C, 0x9F);
+	memory->write_8bits(0xFF1E, 0xBF);
+	memory->write_8bits(0xFF20, 0xFF);
+	memory->write_8bits(0xFF21, 0x00);
+	memory->write_8bits(0xFF22, 0x00);
+	memory->write_8bits(0xFF23, 0xBF);
+	memory->write_8bits(0xFF24, 0x77);
+	memory->write_8bits(0xFF25, 0xF3);
+	memory->write_8bits(0xFF26, 0xF1);
+	memory->write_8bits(0xFF40, 0x91);
+	memory->write_8bits(0xFF42, 0x00);
+	memory->write_8bits(0xFF43, 0x00);
+	memory->write_8bits(0xFF45, 0x00);
+	memory->write_8bits(0xFF47, 0xFC);
+	memory->write_8bits(0xFF48, 0xFF);
+	memory->write_8bits(0xFF49, 0xFF);
+	memory->write_8bits(0xFF4A, 0x00);
+	memory->write_8bits(0xFF4B, 0x00);
+	memory->write_8bits(0xFFFF, 0x00);
 }
 
 
@@ -44,7 +96,9 @@ uint8_t CPU::read_r8(r8 r)
 
 uint16_t CPU::read_r16(r16 r)
 {
-	return ((uint16_t*)registers)[static_cast<uint8_t>(r)];
+	// For some reason compiler stored uint16 in reverse byte order;
+	uint16_t value = ((uint16_t*)registers)[static_cast<uint8_t>(r)];
+	return ((value & 0xFF) << 8)| (value >> 8);;
 }
 
 void CPU::write_r8(r8 r, uint8_t value)
@@ -54,7 +108,7 @@ void CPU::write_r8(r8 r, uint8_t value)
 
 void CPU::write_r16(r16 r, uint16_t value)
 {
-	((uint16_t*)registers)[static_cast<uint8_t>(r)] = value;
+	((uint16_t*)registers)[static_cast<uint8_t>(r)] = ((value & 0xFF) << 8)| (value >> 8);
 }
 
 

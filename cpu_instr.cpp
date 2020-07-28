@@ -6,8 +6,10 @@ void CPU::set_inc_flags(uint8_t val)
 {
 	//uint8_t val = read_r8(r);
 
-	if(val + 1 == 0)
+	if((uint8_t)(val + 1) == 0)
 		set_flag(flag_id::Z);
+	else
+		reset_flag(flag_id::Z);
 
 	reset_flag(flag_id::N);
 
@@ -44,6 +46,8 @@ void CPU::set_dec_flags(uint8_t val)
 
 	if (val - 1 == 0)
 		set_flag(flag_id::Z);
+	else
+		reset_flag(flag_id::Z);
 
 	reset_flag(flag_id::N);
 
@@ -799,8 +803,9 @@ void CPU::jrc()
 void CPU::call()
 {
 	uint16_t addr = read_pc16();
-	*sp -= 2;
-	memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+	dec(r16::SP);
+	dec(r16::SP);
+	memory->write_16bits(read_r16(r16::SP), *pc);
 	*pc = addr;
 }
 
@@ -809,8 +814,9 @@ void CPU::callnz()
 	uint16_t addr = read_pc16();
 	if(!get_flag(flag_id::Z))
 	{
-		*sp -= 2;
-		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		dec(r16::SP);
+		dec(r16::SP);
+		memory->write_16bits(read_r16(r16::SP), *pc);
 		*pc = addr;
 	}
 }
@@ -820,8 +826,9 @@ void CPU::callz()
 	uint16_t addr = read_pc16();
 	if(get_flag(flag_id::Z))
 	{
-		*sp -= 2;
-		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		dec(r16::SP);
+		dec(r16::SP);
+		memory->write_16bits(read_r16(r16::SP), *pc);
 		*pc = addr;
 	}
 }
@@ -831,8 +838,9 @@ void CPU::callnc()
 	uint16_t addr = read_pc16();
 	if(!get_flag(flag_id::C))
 	{
-		*sp -= 2;
-		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		dec(r16::SP);
+		dec(r16::SP);
+		memory->write_16bits(read_r16(r16::SP), *pc);
 		*pc = addr;
 	}
 }
@@ -842,23 +850,26 @@ void CPU::callc()
 	uint16_t addr = read_pc16();
 	if(get_flag(flag_id::C))
 	{
-		*sp -= 2;
-		memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+		dec(r16::SP);
+		dec(r16::SP);
+		memory->write_16bits(read_r16(r16::SP), *pc);
 		*pc = addr;
 	}
 }
 
 void CPU::rst(uint8_t n)
 {
-	*sp -= 2;
-	memory->write_16bits(read_r16(r16::SP), read_r16(r16::PC));
+	dec(r16::SP);
+	dec(r16::SP);
+	memory->write_16bits(read_r16(r16::SP), *pc);
 	*pc = n;
 }
 
 void CPU::ret()
 {
 	*pc = memory->read_16bits(read_r16(r16::SP));
-	*sp += 2;
+	inc(r16::SP);
+	inc(r16::SP);
 }
 
 void CPU::retnz()

@@ -52,6 +52,8 @@ private:
 	Memory* memory;
 	//char *memory;
 
+	void init();
+
 	uint8_t read_r8(r8 r);
 	uint16_t read_r16(r16 r);
 	void write_r8(r8 r, uint8_t value);
