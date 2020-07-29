@@ -198,7 +198,7 @@ void CPU::add(r8 r, uint8_t val)
 
 	set_flag(flag_id::Z, val == 0);
 
-	write_r8(r, val);
+	write_r8(r, r_val);
 }
 
 void CPU::add(r8 r1, r8 r2)
@@ -235,7 +235,7 @@ void CPU::sub(r8 r, uint8_t val)
 
 	set_flag(flag_id::Z, r_val == 0);
 
-	write_r8(r, val);
+	write_r8(r, r_val);
 }
 
 void CPU::sub(r8 r1, r8 r2)
