@@ -4,7 +4,7 @@
 #include <fstream>
 
 Emulator::Emulator(/* args */)
-:cpu(&memory)
+:cpu(&memory), gpu(&memory)
 {
 
 }
@@ -39,4 +39,5 @@ void Emulator::start()
 void Emulator::step()
 {
 	cpu.step();
+	gpu.step();
 }

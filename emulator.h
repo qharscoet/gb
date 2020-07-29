@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "gpu.h"
 
 
 #include <string>
@@ -8,7 +9,7 @@ class Emulator
 private:
 	Memory memory; //64Ko memory map
 	CPU cpu;
-	// GPU gpu;
+	GPU gpu;
 public:
 	Emulator(/* args */);
 	~Emulator();

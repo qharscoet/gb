@@ -1,3 +1,6 @@
+#ifndef _MEMORY_H_
+#define _MEMORY_H_
+
 #include <cstdint>
 #include <cstring>
 
@@ -24,3 +27,5 @@ public:
 	void write_8bits(uint16_t addr, uint8_t value);
 	void write_16bits(uint16_t addr, uint16_t value);
 };
+
+#endif
