@@ -21,6 +21,9 @@ inline uint8_t res_bit(uint8_t val, uint8_t b)
 class CPU
 {
 private:
+
+	static const int CLOCKSPEED = 4194304;
+
 	enum class r8: uint8_t {
 		A, F, B, C, D, E, H, L
 	};
@@ -49,10 +52,17 @@ private:
 	bool ime;
 	bool ime_scheduled;
 
+	//Timers
+	uint8_t divider_cycle_count;
+	uint16_t timer_cycle_count;
+
 	Memory* memory;
 	//char *memory;
 
 	void init();
+	uint8_t execute();
+	void step_divider(uint8_t cycles);
+	void step_timers(uint8_t cycles);
 
 	uint8_t read_r8(r8 r);
 	uint16_t read_r16(r16 r);

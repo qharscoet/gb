@@ -175,7 +175,70 @@ bool CPU::get_flag(flag_id f)
 
 void CPU::step()
 {
+	uint8_t cycles = 0;
+	cycles = execute();
+	//TODO: check if we need to do *4 because values;
+	step_divider(cycles);
+	step_timers(cycles);
+}
+
+void CPU::step_divider(uint8_t cycles)
+{
+	const uint16_t DIVIDER =  0xFF04;
+
+	/* If uint8t overflow it will be inferior to initial value
+	/	count is uint8 because the divider is incremented at 16384 Hz
+	/ http://bgb.bircd.org/pandocs.htm#timeranddividerregisters
+	*/
+	if ( (uint8_t)(divider_cycle_count + cycles) < divider_cycle_count)
+	{
+		uint8_t value = memory->read_8bits(DIVIDER);
+		memory->write_8bits(DIVIDER, value + 1);
+	}
+
+	divider_cycle_count += cycles;
+}
+
+void CPU::step_timers(uint8_t cycles)
+{
+	const uint16_t TIMA =  0xFF05;
+	const uint16_t TMA =  0xFF06;
+	const uint16_t TAC =  0xFF07;
+
+	uint8_t tac_val = memory->read_8bits(TAC);
+	if(tac_val & 0x4)
+	{
+		// Frequency depends on the last 2 bits of TAC
+		uint8_t fq_bits = tac_val & 0x3;
+		//static const uint16_t fq[4] = { 1024, 16, 64, 256 };
+		static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
+
+		//We mask the timer to simulate an "overflow" of specific values
+		if((timer_cycle_count + cycles) & fq_mask[fq_bits] < (timer_cycle_count & fq_mask[fq_bits])  )
+		{
+			uint8_t value = memory->read_8bits(TIMA);
+
+			if(value == 255)
+			{
+				memory->write_8bits(TIMA, memory->read_8bits(TMA));
+				//TODO: Interrupt
+				//TODO: timing to check if TMA is written at the same time
+			} else
+			{
+				memory->write_8bits(TIMA, value + 1);
+			}
+		}
+
+		timer_cycle_count += cycles;
+	}
+
+
+}
+
+uint8_t CPU::execute()
+{
 	uint8_t opcode = read_pc8();
+	uint8_t cycles = instructions_cycles[opcode];
 
 	// instructions list : http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 	//handle instruction
@@ -426,8 +489,11 @@ void CPU::step()
 		case 0x1F:	rra();	break;
 
 		// Extended set
-		case 0xCB:
-			std::invoke(extended_set[read_pc8()], *this);
+		case 0xCB: {
+				uint8_t cb_opcode = read_pc8();
+				cycles = extended_cycles[cb_opcode];
+				std::invoke(extended_set[cb_opcode], *this);
+			}
 			break;
 
 		//Jumps
@@ -472,6 +538,8 @@ void CPU::step()
 		default:
 			break;
 	}
+
+	return cycles;
 }
 
 // https://ia803208.us.archive.org/9/items/GameBoyProgManVer1.1/GameBoyProgManVer1.1.pdf
