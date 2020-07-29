@@ -173,6 +173,17 @@ bool CPU::get_flag(flag_id f)
 	return (*flags) & (1 << bit);
 }
 
+void CPU::request_interrupt(interrupt_id id)
+{
+	const uint16_t IF = 0xFF0F;
+	uint8_t bit = static_cast<uint8_t>(id);
+	uint8_t if_val = memory->read_8bits(IF);
+
+	if_val |= (1 << bit);
+
+	memory->write_8bits(IF, if_val);
+}
+
 void CPU::step()
 {
 	uint8_t cycles = 0;
@@ -180,6 +191,7 @@ void CPU::step()
 	//TODO: check if we need to do *4 because values;
 	step_divider(cycles);
 	step_timers(cycles);
+	step_interrupts();
 }
 
 void CPU::step_divider(uint8_t cycles)
@@ -221,7 +233,7 @@ void CPU::step_timers(uint8_t cycles)
 			if(value == 255)
 			{
 				memory->write_8bits(TIMA, memory->read_8bits(TMA));
-				//TODO: Interrupt
+				request_interrupt(interrupt_id::TIMER);
 				//TODO: timing to check if TMA is written at the same time
 			} else
 			{
@@ -231,14 +243,46 @@ void CPU::step_timers(uint8_t cycles)
 
 		timer_cycle_count += cycles;
 	}
+}
 
+void CPU::step_interrupts()
+{
+	// If master enable is set
+	const uint16_t IE = 0xFFFF;
+	const uint16_t IF = 0xFF0F;
+	if(ime)
+	{
+		static const uint16_t jp_addr[5] = { 0x40, 0x48, 0x50, 0x58, 0x60};
+		uint8_t ie_val = memory->read_8bits(IE);
+		uint8_t if_val = memory->read_8bits(IF);
 
+		for(uint8_t i = 0; i < 5 && ime; i++)
+		{
+			if((if_val & (1 << i)) && (ie_val & (1 << i)))
+			{
+				ime = false;
+				if_val &= ~(1 << i);
+				memory->write_8bits(IF, if_val);
+
+				call_addr(jp_addr[i]);
+
+			}
+		}
+	}
 }
 
 uint8_t CPU::execute()
 {
 	uint8_t opcode = read_pc8();
 	uint8_t cycles = instructions_cycles[opcode];
+
+	bool ime_enable = false;
+	if(ime_scheduled)
+	{
+		ime_enable = true;
+		ime_scheduled = false;
+	}
+
 
 	// instructions list : http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 	//handle instruction
@@ -538,6 +582,9 @@ uint8_t CPU::execute()
 		default:
 			break;
 	}
+
+	if(ime_enable)
+		ime = true;
 
 	return cycles;
 }

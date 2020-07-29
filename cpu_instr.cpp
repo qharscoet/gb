@@ -782,13 +782,18 @@ void CPU::jrc()
 
 //Calls
 
-void CPU::call()
+void CPU::call_addr(uint16_t addr)
 {
-	uint16_t addr = read_pc16();
 	dec(r16::SP);
 	dec(r16::SP);
 	memory->write_16bits(read_r16(r16::SP), *pc);
 	*pc = addr;
+}
+
+void CPU::call()
+{
+	uint16_t addr = read_pc16();
+	call_addr(addr);
 }
 
 void CPU::callnz()
@@ -796,10 +801,7 @@ void CPU::callnz()
 	uint16_t addr = read_pc16();
 	if(!get_flag(flag_id::Z))
 	{
-		dec(r16::SP);
-		dec(r16::SP);
-		memory->write_16bits(read_r16(r16::SP), *pc);
-		*pc = addr;
+		call_addr(addr);
 	}
 }
 
@@ -808,10 +810,7 @@ void CPU::callz()
 	uint16_t addr = read_pc16();
 	if(get_flag(flag_id::Z))
 	{
-		dec(r16::SP);
-		dec(r16::SP);
-		memory->write_16bits(read_r16(r16::SP), *pc);
-		*pc = addr;
+		call_addr(addr);
 	}
 }
 
@@ -820,10 +819,7 @@ void CPU::callnc()
 	uint16_t addr = read_pc16();
 	if(!get_flag(flag_id::C))
 	{
-		dec(r16::SP);
-		dec(r16::SP);
-		memory->write_16bits(read_r16(r16::SP), *pc);
-		*pc = addr;
+		call_addr(addr);
 	}
 }
 
@@ -832,10 +828,7 @@ void CPU::callc()
 	uint16_t addr = read_pc16();
 	if(get_flag(flag_id::C))
 	{
-		dec(r16::SP);
-		dec(r16::SP);
-		memory->write_16bits(read_r16(r16::SP), *pc);
-		*pc = addr;
+		call_addr(addr);
 	}
 }
 

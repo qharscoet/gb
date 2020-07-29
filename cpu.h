@@ -39,6 +39,10 @@ private:
 		Z = 7 , N = 6, H = 5, C = 4,
 	};
 
+	enum class interrupt_id: uint8_t {
+		VBLANK = 0, LCDC, TIMER, IO, JOYPAD
+	};
+
 	// uint8_t registers[8]; //registers A F B C D E H L
 	// uint16_t sp;
 	// uint16_t pc;
@@ -63,6 +67,7 @@ private:
 	uint8_t execute();
 	void step_divider(uint8_t cycles);
 	void step_timers(uint8_t cycles);
+	void step_interrupts();
 
 	uint8_t read_r8(r8 r);
 	uint16_t read_r16(r16 r);
@@ -74,6 +79,8 @@ private:
 
 	uint8_t read_8bits(Param8bits p);
 	void write_8bits(Param8bits p, uint8_t val);
+
+	void request_interrupt(interrupt_id id);
 
 	void set_flag(flag_id f);
 	inline void set_flag(flag_id f, bool b);
@@ -223,6 +230,7 @@ private:
 	void jrc();
 
 	//Calls
+	void call_addr(uint16_t addr);
 	void call();
 	void callnz();
 	void callz();
