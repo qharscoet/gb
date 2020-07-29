@@ -9,6 +9,13 @@ Memory::~Memory()
 {
 }
 
+void Memory::DMATransfer(uint8_t src)
+{
+	uint16_t addr  = src << 8;
+	memcpy(mmap + 0xFE00, mmap + addr, 160);
+	//TODO : check for timings and stuff
+}
+
 void Memory::load_content(std::istream &file)
 {
 	file.read(mmap, 0x8000);
@@ -30,6 +37,9 @@ uint16_t Memory::read_16bits(uint16_t addr)
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
 	mmap[addr] = value;
+
+	if(addr == 0xFF46)
+		DMATransfer(value);
 }
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)

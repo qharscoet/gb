@@ -10,6 +10,8 @@ class Memory
 private:
 	char mmap[MEMSIZE];
 
+	void DMATransfer(uint8_t src);
+
 public:
 	Memory(/* args */);
 	~Memory();
