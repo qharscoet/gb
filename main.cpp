@@ -2,12 +2,15 @@
 #include <iostream>
 
 #include "emulator.h"
+#include "display.h"
 
 
 int main(int argc, char const *argv[])
 {
 	Emulator emu;
+	Display display;
 	emu.init();
+	display.init();
 
 	if(argc > 1) {
 		if(!emu.load_rom(argv[1]))
@@ -16,7 +19,14 @@ int main(int argc, char const *argv[])
 		}
 		else
 		{
-			emu.start();
+			//emu.start();
+			while(display.handle_events())
+			{
+				emu.step();
+				display.clear();
+				display.update();
+				display.render();
+			}
 		}
 
 	} else {
@@ -24,5 +34,7 @@ int main(int argc, char const *argv[])
 	}
 
 	std::cout << "COUCOU" << std::endl;
+
+	display.free();
 	return 0;
 }

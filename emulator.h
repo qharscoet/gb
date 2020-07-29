@@ -1,5 +1,6 @@
 #include "cpu.h"
 
+
 #include <string>
 
 class Emulator
@@ -15,4 +16,5 @@ public:
 	void init();
 	bool load_rom(std::string filename);
 	void start();
+	void step();
 };

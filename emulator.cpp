@@ -33,7 +33,10 @@ bool Emulator::load_rom(std::string filename)
 
 void Emulator::start()
 {
-	while(true){
-		cpu.step();
-	}
+
+}
+
+void Emulator::step()
+{
+	cpu.step();
 }
