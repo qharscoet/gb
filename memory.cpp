@@ -36,10 +36,13 @@ uint16_t Memory::read_16bits(uint16_t addr)
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
+	//if(addr == 0xFF40 && disabling && we are in vblank WE CANT IT MAY DAMAGE THE HARDWARE
 	mmap[addr] = value;
 
+	//If we write to FF46 we trigger DMA
 	if(addr == 0xFF46)
 		DMATransfer(value);
+
 }
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)
@@ -50,4 +53,15 @@ void Memory::write_16bits(uint16_t addr, uint16_t value)
 	mmap[addr] = lsb;
 	mmap[addr + 1] = msb;
 	//*((uint16_t *)(mmap + addr)) = value;
+}
+
+void Memory::request_interrupt(interrupt_id id)
+{
+	const uint16_t IF = 0xFF0F;
+	uint8_t bit = static_cast<uint8_t>(id);
+	uint8_t if_val = read_8bits(IF);
+
+	if_val |= (1 << bit);
+
+	write_8bits(IF, if_val);
 }

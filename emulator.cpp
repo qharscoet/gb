@@ -38,6 +38,6 @@ void Emulator::start()
 
 void Emulator::step()
 {
-	cpu.step();
-	gpu.step();
+	uint8_t cycles = cpu.step();
+	gpu.step(cycles);
 }

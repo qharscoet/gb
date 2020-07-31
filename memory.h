@@ -16,6 +16,15 @@ private:
 	void DMATransfer(uint8_t src);
 
 public:
+	enum class interrupt_id : uint8_t
+	{
+		VBLANK = 0,
+		STAT,
+		TIMER,
+		IO,
+		JOYPAD
+	};
+
 	Memory(/* args */);
 	~Memory();
 
@@ -26,6 +35,8 @@ public:
 
 	void write_8bits(uint16_t addr, uint8_t value);
 	void write_16bits(uint16_t addr, uint16_t value);
+
+	void request_interrupt(interrupt_id id);
 };
 
 #endif

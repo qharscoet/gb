@@ -173,18 +173,7 @@ bool CPU::get_flag(flag_id f)
 	return (*flags) & (1 << bit);
 }
 
-void CPU::request_interrupt(interrupt_id id)
-{
-	const uint16_t IF = 0xFF0F;
-	uint8_t bit = static_cast<uint8_t>(id);
-	uint8_t if_val = memory->read_8bits(IF);
-
-	if_val |= (1 << bit);
-
-	memory->write_8bits(IF, if_val);
-}
-
-void CPU::step()
+uint8_t CPU::step()
 {
 	uint8_t cycles = 0;
 	cycles = execute();
@@ -192,6 +181,8 @@ void CPU::step()
 	step_divider(cycles);
 	step_timers(cycles);
 	step_interrupts();
+
+	return cycles;
 }
 
 void CPU::step_divider(uint8_t cycles)
@@ -233,7 +224,7 @@ void CPU::step_timers(uint8_t cycles)
 			if(value == 255)
 			{
 				memory->write_8bits(TIMA, memory->read_8bits(TMA));
-				request_interrupt(interrupt_id::TIMER);
+				memory->request_interrupt(Memory::interrupt_id::TIMER);
 				//TODO: timing to check if TMA is written at the same time
 			} else
 			{
