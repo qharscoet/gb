@@ -23,8 +23,7 @@ int main(int argc, char const *argv[])
 			while(display.handle_events())
 			{
 				emu.step();
-				display.clear();
-				display.update();
+				display.update(emu.get_pixel_data());
 				display.render();
 			}
 		}

@@ -1,5 +1,8 @@
 #include "display.h"
 
+#define SCREEN_FPS 60
+#define TICKS_PER_FRAME 1000 / SCREEN_FPS
+
 Display::Display(/* args */)
 {
 }
@@ -34,6 +37,10 @@ int Display::init()
 		}
 
 		SDL_SetWindowTitle(sdlWindow, "My swaggy emulator");
+
+		SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, LCD_WIDTH, LCD_HEIGHT);
+
+		prev_time = curr_time = SDL_GetTicks();
 	}
 
 	return 1;
@@ -59,11 +66,28 @@ void Display::clear()
 	SDL_RenderClear(sdlRenderer);
 }
 
-void Display::update()
+void Display::update(uint8_t* pixels)
 {
-	SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
-	for (int i = 0; i < SCREEN_WIDTH; ++i)
-		SDL_RenderDrawPoint(sdlRenderer, i, i);
+	if ((curr_time = SDL_GetTicks()) - prev_time >= TICKS_PER_FRAME)
+	{
+		clear();
+		// SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
+		// for (int i = 0; i < SCREEN_WIDTH; ++i)
+		// 	SDL_RenderDrawPoint(sdlRenderer, i, i);
+		// uint32_t argb_pixels[LCD_WIDTH * LCD_HEIGHT];
+		for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++)
+		{
+			uint8_t pixval = pixels[i];
+			// argb_pixels[i] = (255 << 24) | (pixval << 16) | (pixval << 8) | pixval;
+			SDL_SetRenderDrawColor(sdlRenderer, pixval, pixval, pixval, 255);
+			SDL_RenderDrawPoint(sdlRenderer, i % LCD_WIDTH, i / LCD_WIDTH);
+		}
+
+		// SDL_UpdateTexture(sdlTexture, NULL, argb_pixels, 160 * sizeof(uint32_t));
+		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+
+		prev_time = curr_time;
+	}
 }
 
 void Display::render()

@@ -41,3 +41,8 @@ void Emulator::step()
 	uint8_t cycles = cpu.step();
 	gpu.step(cycles);
 }
+
+uint8_t* Emulator::get_pixel_data()
+{
+	return gpu.get_pixel_data();
+}

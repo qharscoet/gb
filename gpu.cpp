@@ -25,6 +25,10 @@ GPU::~GPU()
 {
 }
 
+uint8_t* GPU::get_pixel_data()
+{
+	return pixels[0];
+}
 
 
 void GPU::step(uint8_t cycles)
@@ -79,7 +83,7 @@ void GPU::step(uint8_t cycles)
 						req_int = true;
 				}
 
-				memory->write_8bits(LY, curr_line);
+				//memory->write_8bits(LY, curr_line);
 
 			}
 		break;
@@ -125,7 +129,7 @@ void GPU::step(uint8_t cycles)
 				draw_scanline(curr_line);
 
 				//We go into mode 0, Hblank
-				stat_val |= 0x0;
+				stat_val &= 0xFC0;
 				if (get_bit(stat_val, 3))
 					req_int = true;
 
@@ -169,4 +173,8 @@ void GPU::compareLYLYC()
 
 void GPU::draw_scanline(uint8_t line)
 {
+	for(int i = 0; i < LCD_WIDTH; i++)
+	{
+		pixels[line][i] = 128;
+	}
 }

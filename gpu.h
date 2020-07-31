@@ -25,6 +25,8 @@ public:
 	~GPU();
 
 	void step(uint8_t cycles);
+
+	uint8_t* get_pixel_data();
 };
 
 #endif

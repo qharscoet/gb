@@ -18,4 +18,6 @@ public:
 	bool load_rom(std::string filename);
 	void start();
 	void step();
+
+	uint8_t* get_pixel_data();
 };
