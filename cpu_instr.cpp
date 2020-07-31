@@ -716,28 +716,28 @@ void CPU::jp()
 void CPU::jnz()
 {
 	uint16_t nn = read_pc16();
-	if(!get_flag(flag_id::Z))
+	if (test_true = !get_flag(flag_id::Z))
 		*pc = nn;
 }
 
 void CPU::jz()
 {
 	uint16_t nn = read_pc16();
-	if(get_flag(flag_id::Z))
+	if (test_true = get_flag(flag_id::Z))
 		*pc = nn;
 }
 
 void CPU::jnc()
 {
 	uint16_t nn = read_pc16();
-	if(!get_flag(flag_id::C))
+	if (test_true = !get_flag(flag_id::C))
 		*pc = nn;
 }
 
 void CPU::jc()
 {
 	uint16_t nn = read_pc16();
-	if(get_flag(flag_id::C))
+	if (test_true = get_flag(flag_id::C))
 		*pc = nn;
 }
 
@@ -755,28 +755,28 @@ void CPU::jr()
 void CPU::jrnz()
 {
 	int8_t e = read_pc8();
-	if(!get_flag(flag_id::Z))
+	if (test_true = !get_flag(flag_id::Z))
 		*pc += e;
 }
 
 void CPU::jrz()
 {
 	int8_t e = read_pc8();
-	if(get_flag(flag_id::Z))
+	if (test_true = get_flag(flag_id::Z))
 		*pc += e;
 }
 
 void CPU::jrnc()
 {
 	int8_t e = read_pc8();
-	if(!get_flag(flag_id::C))
+	if (test_true = !get_flag(flag_id::C))
 		*pc += e;
 }
 
 void CPU::jrc()
 {
 	int8_t e = read_pc8();
-	if(get_flag(flag_id::C))
+	if (test_true = get_flag(flag_id::C))
 		*pc += e;
 }
 
@@ -799,7 +799,7 @@ void CPU::call()
 void CPU::callnz()
 {
 	uint16_t addr = read_pc16();
-	if(!get_flag(flag_id::Z))
+	if (test_true = !get_flag(flag_id::Z))
 	{
 		call_addr(addr);
 	}
@@ -808,7 +808,7 @@ void CPU::callnz()
 void CPU::callz()
 {
 	uint16_t addr = read_pc16();
-	if(get_flag(flag_id::Z))
+	if (test_true = get_flag(flag_id::Z))
 	{
 		call_addr(addr);
 	}
@@ -817,7 +817,7 @@ void CPU::callz()
 void CPU::callnc()
 {
 	uint16_t addr = read_pc16();
-	if(!get_flag(flag_id::C))
+	if (test_true = !get_flag(flag_id::C))
 	{
 		call_addr(addr);
 	}
@@ -826,7 +826,7 @@ void CPU::callnc()
 void CPU::callc()
 {
 	uint16_t addr = read_pc16();
-	if(get_flag(flag_id::C))
+	if (test_true = get_flag(flag_id::C))
 	{
 		call_addr(addr);
 	}
@@ -849,28 +849,28 @@ void CPU::ret()
 
 void CPU::retnz()
 {
-	if(!get_flag(flag_id::Z))
+	if(test_true = !get_flag(flag_id::Z))
 		ret();
 
 }
 
 void CPU::retz()
 {
-	if(get_flag(flag_id::Z))
+	if (test_true = get_flag(flag_id::Z))
 		ret();
 
 }
 
 void CPU::retnc()
 {
-	if(!get_flag(flag_id::C))
+	if (test_true = !get_flag(flag_id::C))
 		ret();
 
 }
 
 void CPU::retc()
 {
-	if(get_flag(flag_id::C))
+	if (test_true = get_flag(flag_id::C))
 		ret();
 
 }

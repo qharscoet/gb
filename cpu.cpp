@@ -586,6 +586,13 @@ uint8_t CPU::execute()
 	if(ime_enable)
 		ime = true;
 
+	// Only happens for conditionnal calls/jump, see table below
+	if(cycles > 10)
+	{
+		// We encoded the conditionnal as a decimal XY value
+		// TODO : encode as hex so we can bitshift ?
+		cycles = test_true ? cycles/10:cycles%10;
+	}
 	return cycles;
 }
 

@@ -53,6 +53,9 @@ private:
 
 	uint8_t* flags;
 
+	//Set to true if a jump/call/ret conditionnal instr has executed or not
+	bool test_true;
+
 	bool ime;
 	bool ime_scheduled;
 
