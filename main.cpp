@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <chrono>
 
 #include "emulator.h"
 #include "display.h"
@@ -22,9 +23,30 @@ int main(int argc, char const *argv[])
 			//emu.start();
 			while(display.handle_events())
 			{
+				std::chrono::duration<double, std::milli> t_emu, t_display, t_total;
+				auto total_start = std::chrono::steady_clock::now();
+				auto start = total_start;
+
 				emu.step();
+
+				auto end = std::chrono::steady_clock::now();
+				t_emu = end - start;
+
+				start = std::chrono::steady_clock::now();
+
 				display.update(emu.get_pixel_data());
-				display.render();
+				//display.render();
+
+				end = std::chrono::steady_clock::now();
+				t_display = end - start;
+
+				auto total_end = std::chrono::steady_clock::now();
+				t_total = total_end - total_start;
+
+				// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
+				// std::cout << " display time " << t_display.count() << " ms" << "\n";
+
+				// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 			}
 		}
 

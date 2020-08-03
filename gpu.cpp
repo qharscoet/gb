@@ -26,7 +26,7 @@ GPU::~GPU()
 {
 }
 
-uint8_t* GPU::get_pixel_data()
+uint32_t* GPU::get_pixel_data()
 {
 	return pixels[0];
 }
@@ -197,7 +197,7 @@ void GPU::draw_bg(uint8_t line)
 	//TODO : tests enabled bidule
 
 	uint16_t tile_data_bank_addr = 0;
-	bool use_unsigned = true; //get_bit(lcd_control, 4);
+	bool use_unsigned = get_bit(lcd_control, 4);
 	if(use_unsigned)
 	{
 		tile_data_bank_addr = 0x8000;
@@ -237,9 +237,9 @@ void GPU::draw_bg(uint8_t line)
 
 		uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
 
+		uint8_t col = colors[color_id];
 
-		pixels[line][i] = colors[color_id];
-
+		pixels[line][i] = (255 << 24) | (col << 16) | (col << 8) | col;
 	}
 
 }

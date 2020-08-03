@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#undef main
 #include <iostream>
 
 
@@ -15,7 +16,8 @@ private:
 	SDL_Renderer *sdlRenderer;
 	SDL_Window *sdlWindow;
 
-	uint32_t prev_time, curr_time;
+	uint32_t prev_time;
+	uint32_t curr_time;
 
 public:
 	Display(/* args */);
@@ -25,7 +27,7 @@ public:
 	void free();
 
 	void clear();
-	void update(uint8_t* pixels);
+	void update(uint32_t* pixels);
 	void render();
 
 	bool handle_events();

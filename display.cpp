@@ -38,7 +38,13 @@ int Display::init()
 
 		SDL_SetWindowTitle(sdlWindow, "My swaggy emulator");
 
-		SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, LCD_WIDTH, LCD_HEIGHT);
+		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH, LCD_HEIGHT);
+
+		if (sdlTexture == NULL)
+		{
+			std::cout << "Texture could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+			return 0;
+		}
 
 		prev_time = curr_time = SDL_GetTicks();
 	}
@@ -66,7 +72,7 @@ void Display::clear()
 	SDL_RenderClear(sdlRenderer);
 }
 
-void Display::update(uint8_t* pixels)
+void Display::update(uint32_t* pixels)
 {
 	if ((curr_time = SDL_GetTicks()) - prev_time >= TICKS_PER_FRAME)
 	{
@@ -74,19 +80,25 @@ void Display::update(uint8_t* pixels)
 		// SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
 		// for (int i = 0; i < SCREEN_WIDTH; ++i)
 		// 	SDL_RenderDrawPoint(sdlRenderer, i, i);
-		// uint32_t argb_pixels[LCD_WIDTH * LCD_HEIGHT];
-		for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++)
-		{
-			uint8_t pixval = pixels[i];
-			// argb_pixels[i] = (255 << 24) | (pixval << 16) | (pixval << 8) | pixval;
-			SDL_SetRenderDrawColor(sdlRenderer, pixval, pixval, pixval, 255);
-			SDL_RenderDrawPoint(sdlRenderer, i % LCD_WIDTH, i / LCD_WIDTH);
-		}
+		void* argb_pixels;
+		int pitch;
+		SDL_LockTexture(sdlTexture, NULL, &argb_pixels, &pitch);
+		// for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++)
+		// {
+		// 	((uint32_t *)argb_pixels)[i] = pixels[i]; //(255 << 24) | (pixval << 16) | (pixval << 8) | pixval;
+		// 	// SDL_SetRenderDrawColor(sdlRenderer, pixval, pixval, pixval, 255);
+		// 	// SDL_RenderDrawPoint(sdlRenderer, i % LCD_WIDTH, i / LCD_WIDTH);
+		// }
+		memcpy(argb_pixels, pixels, LCD_WIDTH * LCD_HEIGHT * sizeof(uint32_t));
 
 		// SDL_UpdateTexture(sdlTexture, NULL, argb_pixels, 160 * sizeof(uint32_t));
+		SDL_UnlockTexture(sdlTexture);
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 
 		prev_time = curr_time;
+		// std::cout << " FRAME -------------- \n";
+
+		render();
 	}
 }
 

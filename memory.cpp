@@ -21,6 +21,11 @@ void Memory::load_content(std::istream &file)
 	file.read(mmap, 0x8000);
 }
 
+void Memory::load_content(const uint8_t* data, uint32_t size)
+{
+	memcpy(mmap, data, size);
+}
+
 uint8_t Memory::read_8bits(uint16_t addr)
 {
 	return mmap[addr];

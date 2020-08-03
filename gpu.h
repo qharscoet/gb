@@ -14,7 +14,7 @@ private:
 	static const uint16_t LY = 0xFF44;
 
 
-	uint8_t pixels[LCD_HEIGHT][LCD_WIDTH];
+	uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t clock_counter;
 
 	Memory *memory;
@@ -32,7 +32,7 @@ public:
 
 	void step(uint8_t cycles);
 
-	uint8_t* get_pixel_data();
+	uint32_t* get_pixel_data();
 };
 
 #endif

@@ -53,7 +53,7 @@ void CPU::init()
 	write_r16(r16::SP, 0xFFFE);
 
 	//TODO : refactor pc/sp
-	*pc = 0x100;
+	*pc = 0x0100;
 
 	memory->write_8bits(0xFF05, 0x00);
 	memory->write_8bits(0xFF06, 0x00);

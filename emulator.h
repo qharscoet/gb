@@ -19,5 +19,5 @@ public:
 	void start();
 	void step();
 
-	uint8_t* get_pixel_data();
+	uint32_t* get_pixel_data();
 };
