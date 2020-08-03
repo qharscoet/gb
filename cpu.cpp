@@ -217,7 +217,7 @@ void CPU::step_timers(uint8_t cycles)
 		static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
 
 		//We mask the timer to simulate an "overflow" of specific values
-		if((timer_cycle_count + cycles) & fq_mask[fq_bits] < (timer_cycle_count & fq_mask[fq_bits])  )
+		if(((timer_cycle_count + cycles) & fq_mask[fq_bits]) < (timer_cycle_count & fq_mask[fq_bits])  )
 		{
 			uint8_t value = memory->read_8bits(TIMA);
 
@@ -318,8 +318,8 @@ uint8_t CPU::execute()
 		case 0x22:	ldi(r16::HL, r8::A);	break;
 
 		// LDH (n), A
-		case 0xE0:	ld(r8::A, (a16)(0xFF00 + read_pc8()));	break;
-		case 0xF0:	ld((a16)(0xFF00 + read_pc8()), r8::A);	break;
+		case 0xE0:	ld((a16)(0xFF00 + read_pc8()), r8::A);	break;
+		case 0xF0:	ld(r8::A, (a16)(0xFF00 + read_pc8()));	break;
 
 		// LD r1,r2
 		case 0x40: 	ld(r8::B,r8::B);		break;

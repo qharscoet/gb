@@ -159,7 +159,7 @@ private:
 	uint8_t swap(uint8_t val);
 
 	template<CPU::r8 r> void swap();
-	template<CPU::r16 r>void swap();
+	template<CPU::r16 r>void swap16();
 	//template<CPU::Param8bits p> void swap();
 
 	void daa();
@@ -186,29 +186,29 @@ private:
 	template<CPU::r8 r> void rl();
 	template<CPU::r8 r> void rrc();
 	template<CPU::r8 r> void rr();
-	template<CPU::r16 r> void rlc();
-	template<CPU::r16 r> void rl();
-	template<CPU::r16 r> void rrc();
-	template<CPU::r16 r> void rr();
+	template<CPU::r16 r> void rlc16();
+	template<CPU::r16 r> void rl16();
+	template<CPU::r16 r> void rrc16();
+	template<CPU::r16 r> void rr16();
 
 	uint8_t shift(uint8_t val, bool left, bool arithmetic);
 	template<CPU::r8 r> void sla();
 	template<CPU::r8 r> void sra();
 	template<CPU::r8 r> void srl();
-	template<CPU::r16 r> void sla();
-	template<CPU::r16 r> void sra();
-	template<CPU::r16 r> void srl();
+	template<CPU::r16 r> void sla16();
+	template<CPU::r16 r> void sra16();
+	template<CPU::r16 r> void srl16();
 
 	//Bit Ops
 	void bit(uint8_t val, uint8_t b);
 	template<CPU::r8 r, uint8_t b> void bit();
-	template<CPU::r16 r, uint8_t b> void bit();
+	template<CPU::r16 r, uint8_t b> void bit16();
 
 	template<CPU::r8 r, uint8_t b> void set();
-	template<CPU::r16 r, uint8_t b> void set();
+	template<CPU::r16 r, uint8_t b> void set16();
 
 	template<CPU::r8 r, uint8_t b> void res();
-	template<CPU::r16 r, uint8_t b> void res();
+	template<CPU::r16 r, uint8_t b> void res16();
 
 	// Jumps
 
@@ -247,7 +247,7 @@ private:
 
 	static uint8_t instructions_cycles[256];
 
-	typedef void (CPU::*CPU_func)();
+	using CPU_func = void (CPU::*)();
 	static CPU_func extended_set[256];
 	static uint8_t extended_cycles[256];
 
@@ -268,6 +268,113 @@ inline void CPU::set_flag(flag_id f, bool b)
 		reset_flag(f);
 }
 
+template <CPU::r8 r>
+void CPU::swap()
+{
+	write_r8(r, swap(read_r8(r)));
+}
+
+template <CPU::r16 r>
+void CPU::swap16()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	memory->write_8bits(addr, swap(val));
+}
+
+template <CPU::r8 r>
+void CPU::rlc()
+{
+	rotate_r(r, true, true);
+}
+
+template <CPU::r8 r>
+void CPU::rl()
+{
+	rotate_r(r, true, false);
+}
+
+template <CPU::r8 r>
+void CPU::rrc()
+{
+	rotate_r(r, false, true);
+}
+
+template <CPU::r8 r>
+void CPU::rr()
+{
+	rotate_r(r, false, false);
+}
+
+template <CPU::r16 r>
+void CPU::rlc16()
+{
+	rotate_p(read_r16(r), true, true);
+}
+
+template <CPU::r16 r>
+void CPU::rl16()
+{
+	rotate_p(read_r16(r), true, false);
+}
+
+template <CPU::r16 r>
+void CPU::rrc16()
+{
+	rotate_p(read_r16(r), false, true);
+}
+
+template <CPU::r16 r>
+void CPU::rr16()
+{
+	rotate_p(read_r16(r), false, false);
+}
+
+template <CPU::r8 r>
+void CPU::sla()
+{
+	write_r8(r, shift(read_r8(r), true, true));
+}
+
+template <CPU::r8 r>
+void CPU::sra()
+{
+	write_r8(r, shift(read_r8(r), false, true));
+}
+
+template <CPU::r8 r>
+void CPU::srl()
+{
+	write_r8(r, shift(read_r8(r), false, false));
+}
+
+template <CPU::r16 r>
+void CPU::sla16()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, true, true);
+	memory->write_8bits(addr, val);
+}
+
+template <CPU::r16 r>
+void CPU::sra16()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, false, true);
+	memory->write_8bits(addr, val);
+}
+
+template <CPU::r16 r>
+void CPU::srl16()
+{
+	uint16_t addr = read_r16(r);
+	uint8_t val = memory->read_8bits(addr);
+	val = shift(val, false, false);
+	memory->write_8bits(addr, val);
+}
+
 template <CPU::r8 r, uint8_t b>
 void CPU::bit()
 {
@@ -275,7 +382,7 @@ void CPU::bit()
 }
 
 template <CPU::r16 r, uint8_t b>
-void CPU::bit()
+void CPU::bit16()
 {
 	bit(memory->read_8bits(read_r16(r)), b);
 }
@@ -288,7 +395,7 @@ void CPU::set()
 }
 
 template <CPU::r16 r, uint8_t b>
-void CPU::set()
+void CPU::set16()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);
@@ -303,7 +410,7 @@ void CPU::res()
 }
 
 template <CPU::r16 r, uint8_t b>
-void CPU::res()
+void CPU::res16()
 {
 	uint16_t addr = read_r16(r);
 	uint8_t val = memory->read_8bits(addr);

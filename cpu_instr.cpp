@@ -267,6 +267,8 @@ void CPU::band(r8 r, uint8_t val)
 	reset_flag(flag_id::N);
 	set_flag(flag_id::H);
 	reset_flag(flag_id::C);
+
+	write_r8(r, r_val);
 }
 
 void CPU::band(r8 r, r8 r2)
@@ -291,6 +293,8 @@ void CPU::bor(r8 r, uint8_t val)
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
 	reset_flag(flag_id::C);
+
+	write_r8(r, r_val);
 }
 
 void CPU::bor(r8 r, r8 r2)
@@ -314,6 +318,8 @@ void CPU::bxor(r8 r, uint8_t val)
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
 	reset_flag(flag_id::C);
+
+	write_r8(r, r_val);
 }
 
 void CPU::bxor(r8 r, r8 r2)
@@ -389,19 +395,6 @@ uint8_t CPU::swap(uint8_t val)
 	return val;
 }
 
-template<CPU::r8 r>
-void CPU::swap()
-{
-	write_r8(r, swap(read_r8(r)));
-}
-
-template<CPU::r16 r>
-void CPU::swap()
-{
-	uint16_t addr = read_r16(r);
-	uint8_t val = memory->read_8bits(addr);
-	memory->write_8bits(addr, swap(val));
-}
 
 // template<std::variant<CPU::r8, CPU::r16> p>
 // void CPU::swap()
@@ -578,54 +571,6 @@ void CPU::rra()
 	rotate_a(false, false);
 }
 
-template<CPU::r8 r>
-void CPU::rlc()
-{
-	rotate_r(r, true, true);
-}
-
-template <CPU::r8 r>
-void CPU::rl()
-{
-	rotate_r(r, true, false);
-}
-
-template <CPU::r8 r>
-void CPU::rrc()
-{
-	rotate_r(r, false, true);
-}
-
-template <CPU::r8 r>
-void CPU::rr()
-{
-	rotate_r(r, false, false);
-}
-
-
-template <CPU::r16 r>
-void CPU::rlc()
-{
-	rotate_p(read_r16(r), true, true);
-}
-
-template <CPU::r16 r>
-void CPU::rl()
-{
-	rotate_p(read_r16(r), true, false);
-}
-
-template <CPU::r16 r>
-void CPU::rrc()
-{
-	rotate_p(read_r16(r), false, true);
-}
-
-template <CPU::r16 r>
-void CPU::rr()
-{
-	rotate_p(read_r16(r), false, false);
-}
 
 
 uint8_t  CPU::shift(uint8_t val, bool left, bool arithmetic)
@@ -650,51 +595,8 @@ uint8_t  CPU::shift(uint8_t val, bool left, bool arithmetic)
 
 	reset_flag(flag_id::N);
 	reset_flag(flag_id::H);
-}
 
-template <CPU::r8 r>
-void CPU::sla()
-{
-	write_r8(r, shift(read_r8(r), true, true));
-}
-
-template <CPU::r8 r>
-void CPU::sra()
-{
-	write_r8(r, shift(read_r8(r), false, true));
-}
-
-template <CPU::r8 r>
-void CPU::srl()
-{
-	write_r8(r, shift(read_r8(r), false, false));
-}
-
-template <CPU::r16 r>
-void CPU::sla()
-{
-	uint16_t addr = read_r16(r);
-	uint8_t val = memory->read_8bits(addr);
-	val = shift(val, true, true);
-	memory->write_8bits(addr, val);
-}
-
-template <CPU::r16 r>
-void CPU::sra()
-{
-	uint16_t addr = read_r16(r);
-	uint8_t val = memory->read_8bits(addr);
-	val = shift(val, false, true);
-	memory->write_8bits(addr, val);
-}
-
-template <CPU::r16 r>
-void CPU::srl()
-{
-	uint16_t addr = read_r16(r);
-	uint8_t val = memory->read_8bits(addr);
-	val = shift(val, false, false);
-	memory->write_8bits(addr, val);
+	return val;
 }
 
 void CPU::bit(uint8_t val, uint8_t b)
@@ -716,28 +618,28 @@ void CPU::jp()
 void CPU::jnz()
 {
 	uint16_t nn = read_pc16();
-	if (test_true = !get_flag(flag_id::Z))
+	if ((test_true = !get_flag(flag_id::Z)))
 		*pc = nn;
 }
 
 void CPU::jz()
 {
 	uint16_t nn = read_pc16();
-	if (test_true = get_flag(flag_id::Z))
+	if ((test_true = get_flag(flag_id::Z)))
 		*pc = nn;
 }
 
 void CPU::jnc()
 {
 	uint16_t nn = read_pc16();
-	if (test_true = !get_flag(flag_id::C))
+	if ((test_true = !get_flag(flag_id::C)))
 		*pc = nn;
 }
 
 void CPU::jc()
 {
 	uint16_t nn = read_pc16();
-	if (test_true = get_flag(flag_id::C))
+	if ((test_true = get_flag(flag_id::C)))
 		*pc = nn;
 }
 
@@ -755,28 +657,28 @@ void CPU::jr()
 void CPU::jrnz()
 {
 	int8_t e = read_pc8();
-	if (test_true = !get_flag(flag_id::Z))
+	if ((test_true = !get_flag(flag_id::Z)))
 		*pc += e;
 }
 
 void CPU::jrz()
 {
 	int8_t e = read_pc8();
-	if (test_true = get_flag(flag_id::Z))
+	if ((test_true = get_flag(flag_id::Z)))
 		*pc += e;
 }
 
 void CPU::jrnc()
 {
 	int8_t e = read_pc8();
-	if (test_true = !get_flag(flag_id::C))
+	if ((test_true = !get_flag(flag_id::C)))
 		*pc += e;
 }
 
 void CPU::jrc()
 {
 	int8_t e = read_pc8();
-	if (test_true = get_flag(flag_id::C))
+	if ((test_true = get_flag(flag_id::C)))
 		*pc += e;
 }
 
@@ -799,7 +701,7 @@ void CPU::call()
 void CPU::callnz()
 {
 	uint16_t addr = read_pc16();
-	if (test_true = !get_flag(flag_id::Z))
+	if ((test_true = !get_flag(flag_id::Z)))
 	{
 		call_addr(addr);
 	}
@@ -808,7 +710,7 @@ void CPU::callnz()
 void CPU::callz()
 {
 	uint16_t addr = read_pc16();
-	if (test_true = get_flag(flag_id::Z))
+	if ((test_true = get_flag(flag_id::Z)))
 	{
 		call_addr(addr);
 	}
@@ -817,7 +719,7 @@ void CPU::callz()
 void CPU::callnc()
 {
 	uint16_t addr = read_pc16();
-	if (test_true = !get_flag(flag_id::C))
+	if ((test_true = !get_flag(flag_id::C)))
 	{
 		call_addr(addr);
 	}
@@ -826,7 +728,7 @@ void CPU::callnc()
 void CPU::callc()
 {
 	uint16_t addr = read_pc16();
-	if (test_true = get_flag(flag_id::C))
+	if ((test_true = get_flag(flag_id::C)))
 	{
 		call_addr(addr);
 	}
@@ -849,28 +751,28 @@ void CPU::ret()
 
 void CPU::retnz()
 {
-	if(test_true = !get_flag(flag_id::Z))
+	if((test_true = !get_flag(flag_id::Z)))
 		ret();
 
 }
 
 void CPU::retz()
 {
-	if (test_true = get_flag(flag_id::Z))
+	if ((test_true = get_flag(flag_id::Z)))
 		ret();
 
 }
 
 void CPU::retnc()
 {
-	if (test_true = !get_flag(flag_id::C))
+	if ((test_true = !get_flag(flag_id::C)))
 		ret();
 
 }
 
 void CPU::retc()
 {
-	if (test_true = get_flag(flag_id::C))
+	if ((test_true = get_flag(flag_id::C)))
 		ret();
 
 }
@@ -884,22 +786,22 @@ void CPU::reti()
 
 
 
-#define GEN_TEMPLATES(name) \
- 	template void CPU::name<CPU::r8::A>(); \
-	template void CPU::name<CPU::r8::B>(); \
-	template void CPU::name<CPU::r8::C>(); \
-	template void CPU::name<CPU::r8::D>(); \
-	template void CPU::name<CPU::r8::E>(); \
-	template void CPU::name<CPU::r8::H>(); \
-	template void CPU::name<CPU::r8::L>(); \
-	template void CPU::name<CPU::r16::HL>();
+// #define GEN_TEMPLATES(name) \
+//  	template void CPU::name<CPU::r8::A>(); \
+// 	template void CPU::name<CPU::r8::B>(); \
+// 	template void CPU::name<CPU::r8::C>(); \
+// 	template void CPU::name<CPU::r8::D>(); \
+// 	template void CPU::name<CPU::r8::E>(); \
+// 	template void CPU::name<CPU::r8::H>(); \
+// 	template void CPU::name<CPU::r8::L>(); \
+// 	template void CPU::name16<CPU::r16::HL>();
 
 
-GEN_TEMPLATES(swap)
-GEN_TEMPLATES(rlc)
-GEN_TEMPLATES(rl)
-GEN_TEMPLATES(rrc)
-GEN_TEMPLATES(rr)
-GEN_TEMPLATES(sla)
-GEN_TEMPLATES(sra)
-GEN_TEMPLATES(srl)
+// GEN_TEMPLATES(swap)
+// GEN_TEMPLATES(rlc)
+// GEN_TEMPLATES(rl)
+// GEN_TEMPLATES(rrc)
+// GEN_TEMPLATES(rr)
+// GEN_TEMPLATES(sla)
+// GEN_TEMPLATES(sra)
+// GEN_TEMPLATES(srl)

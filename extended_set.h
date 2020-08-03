@@ -1,31 +1,32 @@
 #ifndef _EXTENDED_SET_H_
 #define _EXTENDED_SET_H_
 
-using CPU_func = void (CPU::*)();
+
+using CPU_func = void (CPU::*)(void);
 
 #define SWAP(id) (&CPU::swap<CPU::r8::id>)
-#define SWAP16(id) (&CPU::swap<CPU::r16::id>)
+#define SWAP16(id) (&CPU::swap16<CPU::r16::id>)
 #define RLC(id) (&CPU::rlc<CPU::r8::id>)
-#define RLC16(id) (&CPU::rlc<CPU::r16::id>)
+#define RLC16(id) (&CPU::rlc16<CPU::r16::id>)
 #define RL(id) (&CPU::rl<CPU::r8::id>)
-#define RL16(id) (&CPU::rl<CPU::r16::id>)
+#define RL16(id) (&CPU::rl16<CPU::r16::id>)
 #define RRC(id) (&CPU::rrc<CPU::r8::id>)
-#define RRC16(id) (&CPU::rrc<CPU::r16::id>)
+#define RRC16(id) (&CPU::rrc16<CPU::r16::id>)
 #define RR(id) (&CPU::rr<CPU::r8::id>)
-#define RR16(id) (&CPU::rr<CPU::r16::id>)
+#define RR16(id) (&CPU::rr16<CPU::r16::id>)
 #define SLA(id) (&CPU::sla<CPU::r8::id>)
-#define SLA16(id) (&CPU::sla<CPU::r16::id>)
+#define SLA16(id) (&CPU::sla16<CPU::r16::id>)
 #define SRA(id) (&CPU::sra<CPU::r8::id>)
-#define SRA16(id) (&CPU::sra<CPU::r16::id>)
+#define SRA16(id) (&CPU::sra16<CPU::r16::id>)
 #define SRL(id) (&CPU::sra<CPU::r8::id>)
-#define SRL16(id) (&CPU::sra<CPU::r16::id>)
+#define SRL16(id) (&CPU::sra16<CPU::r16::id>)
 
 #define BIT(id, b) (&CPU::bit<CPU::r8::id, b>)
-#define BIT16(id, b) (&CPU::bit<CPU::r16::id, b>)
+#define BIT16(id, b) (&CPU::bit16<CPU::r16::id, b>)
 #define SET(id, b) (&CPU::set<CPU::r8::id, b>)
-#define SET16(id, b) (&CPU::set<CPU::r16::id, b>)
+#define SET16(id, b) (&CPU::set16<CPU::r16::id, b>)
 #define RES(id, b) (&CPU::res<CPU::r8::id, b>)
-#define RES16(id, b) (&CPU::res<CPU::r16::id, b>)
+#define RES16(id, b) (&CPU::res16<CPU::r16::id, b>)
 
 
 CPU_func CPU::extended_set[256] = {
