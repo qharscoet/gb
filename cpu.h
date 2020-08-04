@@ -56,8 +56,8 @@ private:
 	bool ime_scheduled;
 
 	//Timers
-	uint8_t divider_cycle_count;
-	uint16_t timer_cycle_count;
+	uint8_t divider_cycle_count = 0;
+	uint16_t timer_cycle_count = 0;
 
 	Memory* memory;
 	//char *memory;

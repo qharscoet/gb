@@ -184,8 +184,8 @@ uint8_t CPU::step()
 	uint8_t cycles = 0;
 	cycles = execute();
 	//TODO: check if we need to do *4 because values;
-	step_divider(cycles);
-	step_timers(cycles);
+	step_divider(cycles * 4);
+	step_timers(cycles * 4);
 	step_interrupts();
 
 	return cycles;
@@ -220,7 +220,8 @@ void CPU::step_timers(uint8_t cycles)
 		// Frequency depends on the last 2 bits of TAC
 		uint8_t fq_bits = tac_val & 0x3;
 		//static const uint16_t fq[4] = { 1024, 16, 64, 256 };
-		static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
+		// static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
+		static const uint16_t fq_mask[4] = { 0x3FF, 0xF, 0x3F, 0xFF };
 
 		//We mask the timer to simulate an "overflow" of specific values
 		if(((timer_cycle_count + cycles) & fq_mask[fq_bits]) < (timer_cycle_count & fq_mask[fq_bits])  )
