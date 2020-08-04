@@ -451,22 +451,19 @@ uint8_t CPU::swap(uint8_t val)
 void CPU::daa()
 {
 	uint8_t val = read_r8(r8::A);
-	uint8_t lsb = val & 0xf;
-	uint8_t msb = (val & 0xf0) >> 4;
 
-	//TODO: test if correct behavior
-	if(get_flag(flag_id::N)) // if last op was add
+	if(!get_flag(flag_id::N)) // if last op was add
 	{
-		if(lsb > 9 || get_flag(flag_id::H))
-		{
-			val += 0x6;
-		}
-
-		if(msb > 9 || get_flag(flag_id::C))
+		if (val > 0x99 || get_flag(flag_id::C))
 		{
 			val += 0x60;
 			set_flag(flag_id::C);
 		}
+		if((val & 0xf) > 9 || get_flag(flag_id::H))
+		{
+			val += 0x6;
+		}
+
 	} else
 	{
 		if(get_flag(flag_id::C))
