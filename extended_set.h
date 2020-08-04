@@ -18,8 +18,8 @@ using CPU_func = void (CPU::*)(void);
 #define SLA16(id) (&CPU::sla16<CPU::r16::id>)
 #define SRA(id) (&CPU::sra<CPU::r8::id>)
 #define SRA16(id) (&CPU::sra16<CPU::r16::id>)
-#define SRL(id) (&CPU::sra<CPU::r8::id>)
-#define SRL16(id) (&CPU::sra16<CPU::r16::id>)
+#define SRL(id) (&CPU::srl<CPU::r8::id>)
+#define SRL16(id) (&CPU::srl16<CPU::r16::id>)
 
 #define BIT(id, b) (&CPU::bit<CPU::r8::id, b>)
 #define BIT16(id, b) (&CPU::bit16<CPU::r16::id, b>)

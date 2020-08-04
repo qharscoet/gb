@@ -11,8 +11,7 @@ void CPU::set_inc_flags(uint8_t val)
 	reset_flag(flag_id::N);
 
 	//Check for overflow on bit 3
-	if (((val & 0x7) + 1) & 0x8)
-		set_flag(flag_id::H);
+	set_flag(flag_id::H, ((val & 0xF) + 1) & 0x10);
 
 	//write_r8(r, val + 1);
 }
@@ -43,11 +42,9 @@ void CPU::set_dec_flags(uint8_t val)
 
 	set_flag(flag_id::Z,val - 1 == 0);
 
-	reset_flag(flag_id::N);
+	set_flag(flag_id::N);
 
-	if ((val & 0xf) < 1)
-		set_flag(flag_id::H);
-
+	set_flag(flag_id::H, ((val - 1) & 0xf) == 0xf );
 }
 
 void CPU::dec(r8 r)
