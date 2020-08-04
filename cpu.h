@@ -101,6 +101,7 @@ private:
 	void ld(r16 r1, r8 r2);
 	void ld(r8 r, a16 addr);  // addr is a pointer
 	void ld(a16 addr, r8 r);
+	void ld(r16 r, uint8_t val);
 
 	// 16 bits ld
 	void ld(r16 r, uint16_t value);
@@ -120,14 +121,18 @@ private:
 	/* TODO : use only one function and put the right read in the switch call ?
 		Less code but maybe more difficult to optimise later
 	*/
-	void add(r8 r, uint8_t val);
+	void add(r8 r, uint8_t val, bool carry);
 	void add(r8 r1, r8 r2);
 	void add(r8 r1, r16 r2);
+	void addc(r8 r, uint8_t val);
+	void addc(r8 r1, r16 r2);
 	void addc(r8 r1, r8 r2);
 
-	void sub(r8 r, uint8_t val);
+	void sub(r8 r, uint8_t val, bool cflag);
 	void sub(r8 r1, r8 r2);
 	void sub(r8 r1, r16 r2);
+	void subc(r8 r, uint8_t val);
+	void subc(r8 r1, r16 r2);
 	void subc(r8 r1, r8 r2);
 
 	// binary AND

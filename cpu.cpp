@@ -383,6 +383,7 @@ uint8_t CPU::execute()
 		case 0x74: 	ld(r16::HL,r8::H);		break;
 		case 0x75: 	ld(r16::HL,r8::L);		break;
 		case 0x77: 	ld(r16::HL,r8::A);		break;
+		case 0x36:	ld(r16::HL, read_pc8());	break;
 		case 0x78: 	ld(r8::A,r8::B);		break;
 		case 0x79: 	ld(r8::A,r8::C);		break;
 		case 0x7A: 	ld(r8::A,r8::D);		break;
@@ -421,7 +422,17 @@ uint8_t CPU::execute()
 		case 0x84:	add(r8::A, r8::H);		break;
 		case 0x85:	add(r8::A, r8::L);		break;
 		case 0x86:	add(r8::A, r16::HL);	break;
-		case 0xC6:	add(r8::A, read_pc8());	break;
+		case 0xC6:	add(r8::A, read_pc8(), false);	break;
+
+		case 0x8F: addc(r8::A, r8::A);		break;
+		case 0x88: addc(r8::A, r8::B);		break;
+		case 0x89: addc(r8::A, r8::C);		break;
+		case 0x8A: addc(r8::A, r8::D);		break;
+		case 0x8B: addc(r8::A, r8::E);		break;
+		case 0x8C: addc(r8::A, r8::H);		break;
+		case 0x8D: addc(r8::A, r8::L);		break;
+		case 0x8E: addc(r8::A, r16::HL);	break;
+		case 0xCE: addc(r8::A, read_pc8());	break;
 
 		case 0x97:	sub(r8::A, r8::A);		break;
 		case 0x90:	sub(r8::A, r8::B);		break;
@@ -431,7 +442,17 @@ uint8_t CPU::execute()
 		case 0x94:	sub(r8::A, r8::H);		break;
 		case 0x95:	sub(r8::A, r8::L);		break;
 		case 0x96:	sub(r8::A, r16::HL);	break;
-		case 0xD6:	sub(r8::A, read_pc8());	break;
+		case 0xD6:	sub(r8::A, read_pc8(), false);	break;
+
+		case 0x9F: subc(r8::A, r8::A);		break;
+		case 0x98: subc(r8::A, r8::B);		break;
+		case 0x99: subc(r8::A, r8::C);		break;
+		case 0x9A: subc(r8::A, r8::D);		break;
+		case 0x9B: subc(r8::A, r8::E);		break;
+		case 0x9C: subc(r8::A, r8::H);		break;
+		case 0x9D: subc(r8::A, r8::L);		break;
+		case 0x9E: subc(r8::A, r16::HL);	break;
+		case 0xDE: subc(r8::A, read_pc8());	break;
 
 		case 0xA7:	band(r8::A, r8::A);		break;
 		case 0xA0:	band(r8::A, r8::B);		break;

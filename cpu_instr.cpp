@@ -94,6 +94,11 @@ void CPU::ld(r16 r1, r8 r2)
 	memory->write_8bits(read_r16(r1), read_r8(r2));
 }
 
+void CPU::ld(r16 r, uint8_t val)
+{
+	memory->write_8bits(read_r16(r), val);
+}
+
 // load value stored at addr in r
 void CPU::ld(r8 r, a16 addr)
 {
@@ -184,56 +189,64 @@ void CPU::pop(r16 r)
 	inc(r16::SP);
 }
 
-void CPU::add(r8 r, uint8_t val)
+void CPU::add(r8 r, uint8_t val, bool cflag)
 {
 	uint8_t r_val = read_r8(r);
 
 	reset_flag(flag_id::N);
 
-	bool carry = (uint16_t)(r_val + val) & 0x100;
+	bool carry = (uint16_t)(r_val + val + cflag) & 0x100;
 	set_flag(flag_id::C, carry);
 
-	bool half_carry = ((r_val & 0xf) + (val & 0xf)) & 0x10;
+	bool half_carry = ((r_val & 0xf) + (val & 0xf) + cflag) & 0x10;
 	set_flag(flag_id::H, half_carry);
 
-	r_val += val;
+	r_val += val + cflag;
 
-	set_flag(flag_id::Z, val == 0);
+	set_flag(flag_id::Z, r_val == 0);
 
 	write_r8(r, r_val);
 }
 
 void CPU::add(r8 r1, r8 r2)
 {
-	add(r1, read_r8(r2));
+	add(r1, read_r8(r2), false);
 }
 
 void CPU::add(r8 r1, r16 r2)
 {
-	add(r1, memory->read_8bits(read_r16(r2)));
+	add(r1, memory->read_8bits(read_r16(r2)), false);
+}
+
+void CPU::addc(r8 r, uint8_t val)
+{
+	/* TODO : cast uint8 to uint16 to handle overflow ? Set flags from the potential +1 ? */
+	add(r, val, get_flag(flag_id::C));
+}
+
+void CPU::addc(r8 r1, r16 r2)
+{
+	addc(r1, memory->read_8bits(read_r16(r2)));
 }
 
 void CPU::addc(r8 r1, r8 r2)
 {
-	/* TODO : cast uint8 to uint16 to handle overflow ? Set flags from the potential +1 ? */
-	uint8_t r_val = read_r8(r2);
-	r_val += get_flag(flag_id::C);
-	add(r1, r_val);
+	addc(r1, read_r8(r2));
 }
 
-void CPU::sub(r8 r, uint8_t val)
+void CPU::sub(r8 r, uint8_t val, bool cflag)
 {
 	uint8_t r_val = read_r8(r);
 
 	set_flag(flag_id::N);
 
 	//carry
-	set_flag(flag_id::C,r_val < val);
+	set_flag(flag_id::C,r_val - val - cflag < 0);
 
 	//half_carry
-	set_flag(flag_id::H, (r_val & 0xf) < (val & 0xf));
+	set_flag(flag_id::H, (r_val & 0xf) - (val & 0xf) - cflag < 0);
 
-	r_val -= val;
+	r_val -= (val + cflag);
 
 	set_flag(flag_id::Z, r_val == 0);
 
@@ -242,20 +255,27 @@ void CPU::sub(r8 r, uint8_t val)
 
 void CPU::sub(r8 r1, r8 r2)
 {
-	sub(r1, read_r8(r2));
+	sub(r1, read_r8(r2), false);
 }
 
 void CPU::sub(r8 r1, r16 r2)
 {
-	sub(r1, memory->read_8bits(read_r16(r2)));
+	sub(r1, memory->read_8bits(read_r16(r2)), false);
+}
+
+void CPU::subc(r8 r1, r16 r2)
+{
+	subc(r1, memory->read_8bits(read_r16(r2)));
+}
+
+void CPU::subc(r8 r, uint8_t val)
+{
+	sub(r, val, get_flag(flag_id::C));
 }
 
 void CPU::subc(r8 r1, r8 r2)
 {
-	uint8_t val = read_r8(r2);
-	val += get_flag(flag_id::C);
-
-	sub(r1, val);
+	subc(r1, read_r8(r2));
 }
 
 void CPU::band(r8 r, uint8_t val)
