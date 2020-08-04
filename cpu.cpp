@@ -248,29 +248,35 @@ void CPU::step_interrupts()
 	// If master enable is set
 	const uint16_t IE = 0xFFFF;
 	const uint16_t IF = 0xFF0F;
-	if(ime)
-	{
+
 		static const uint16_t jp_addr[5] = { 0x40, 0x48, 0x50, 0x58, 0x60};
 		uint8_t ie_val = memory->read_8bits(IE);
 		uint8_t if_val = memory->read_8bits(IF);
 
-		for(uint8_t i = 0; i < 5 && ime; i++)
+		for(uint8_t i = 0; i < 5; i++)
 		{
 			if((if_val & (1 << i)) && (ie_val & (1 << i)))
 			{
-				ime = false;
-				if_val &= ~(1 << i);
-				memory->write_8bits(IF, if_val);
+				if (ime)
+				{
+					ime = false;
+					if_val &= ~(1 << i);
+					memory->write_8bits(IF, if_val);
 
-				call_addr(jp_addr[i]);
+					call_addr(jp_addr[i]);
+				}
 
+				halted = false;
 			}
 		}
-	}
 }
 
 uint8_t CPU::execute()
 {
+	if(halted)
+		return 1;
+
+
 	uint8_t opcode = read_pc8();
 	uint8_t cycles = instructions_cycles[opcode];
 

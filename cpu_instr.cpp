@@ -520,7 +520,7 @@ void CPU::scf()
 
 void CPU::halt()
 {
-	//TODO
+	halted = true;
 }
 
 void CPU::stop()

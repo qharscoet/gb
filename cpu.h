@@ -55,6 +55,8 @@ private:
 	bool ime;
 	bool ime_scheduled;
 
+	bool halted = false;
+
 	//Timers
 	uint8_t divider_cycle_count = 0;
 	uint16_t timer_cycle_count = 0;
