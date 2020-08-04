@@ -103,11 +103,17 @@ uint16_t CPU::read_r16(r16 r)
 
 void CPU::write_r8(r8 r, uint8_t value)
 {
+	if(r == r8::F)
+		value &= 0xF0;
+
 	((uint8_t*)registers)[static_cast<uint8_t>(r)] = value;
 }
 
 void CPU::write_r16(r16 r, uint16_t value)
 {
+	if(r == r16::AF)
+		value &= 0xFFF0;
+
 	((uint16_t*)registers)[static_cast<uint8_t>(r)] = ((value & 0xFF) << 8)| (value >> 8);
 }
 
@@ -492,7 +498,7 @@ uint8_t CPU::execute()
 		case 0x29:	add(r16::HL, r16::HL);	break;
 		case 0x39:	add(r16::HL, r16::SP);	break;
 
-		case 0xE8:	add(r16::SP, read_pc8());	break;
+		case 0xE8:	add_sp(r16::SP, read_pc8());	break;
 
 		case 0x03:	inc(r16::BC);	break;
 		case 0x13:	inc(r16::DE);	break;

@@ -152,6 +152,7 @@ private:
 	void cp(r8 r, r16 r2);
 
 	// 16bit ALU
+	void add_sp(r16 r, int8_t val);
 	void add(r16 r, uint16_t val);
 	void add(r16 r1, r16 r2);
 

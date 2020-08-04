@@ -127,17 +127,19 @@ void CPU::ld(uint16_t addr, r16 r )
 
 void CPU::ldhl(r16 r, int8_t n)
 {
-	int16_t val = read_r16(r);
+	uint16_t val = read_r16(r);
+	uint16_t result = val + n;
 
 
 	reset_flag(flag_id::Z);
 	reset_flag(flag_id::N);
 
-	if ((uint32_t)(val + n) & 0x10000)
-		set_flag(flag_id::C);
+	bool carry = (val ^ n ^ result) & 0x100;//(uint32_t)(val + n) & 0x10000;
+	set_flag(flag_id::C, carry);
 
-	if (((val & 0xfff) + (n & 0xfff)) & 0x1000)
-		set_flag(flag_id::H);
+	bool half_carry = (val ^ n ^ result) & 0x10;//((val & 0xfff) + (n & 0xfff)) & 0x1000;
+	set_flag(flag_id::H, half_carry);
+
 
 
 	write_r16(r16::HL, val + n);
@@ -357,6 +359,31 @@ void CPU::cp(r8 r, r16 r2)
 
 
 // 16 bits ALU
+
+void CPU::add_sp(r16 r, int8_t val)
+{
+	uint16_t r_val = read_r16(r);
+	int16_t  result = r_val + val;
+
+	reset_flag(flag_id::Z);
+	reset_flag(flag_id::N);
+
+	bool carry = (r_val ^ val ^ result) & 0x100; //(uint32_t)(val + n) & 0x10000;
+	set_flag(flag_id::C, carry);
+
+	bool half_carry = (r_val ^ val ^ result) & 0x10; //((val & 0xfff) + (n & 0xfff)) & 0x1000;
+	set_flag(flag_id::H, half_carry);
+
+	// bool carry = (uint32_t)(r_val + val) & 0x10000;
+	// set_flag(flag_id::C, carry);
+
+	// bool half_carry = ((r_val & 0xfff) + (val & 0xfff)) & 0x1000;
+	// set_flag(flag_id::H, half_carry);
+
+	r_val += val;
+
+	write_r16(r, r_val);
+}
 
 void CPU::add(r16 r, uint16_t val)
 {
