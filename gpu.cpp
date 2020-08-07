@@ -1,5 +1,6 @@
 #include "gpu.h"
 
+const uint8_t GPU::colors[4] = {255, 192, 128, 0};
 
 inline bool get_bit(uint8_t val, uint8_t b)
 {
@@ -178,6 +179,9 @@ void GPU::draw_scanline(uint8_t line)
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 	if(get_bit(lcd_control, 0))
 		draw_bg(line);
+
+	if(get_bit(lcd_control, 1))
+		draw_objects(line);
 }
 
 void GPU::draw_bg(uint8_t line)
@@ -187,14 +191,15 @@ void GPU::draw_bg(uint8_t line)
 	const uint16_t WX = 0xFF41;
 	const uint16_t WY = 0xFF4B;
 
+	const uint16_t PALETTE = 0xFF47;
+
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 
 	uint8_t scroll_x = memory->read_8bits(SCX);
 	uint8_t scroll_y = memory->read_8bits(SCY);
 
 	// static const uint8_t colors[4] = { 64, 128, 192, 255};
-	static const uint8_t colors[4] = { 255, 192, 128, 64};
-
+	// TODO : fix color
 	//TODO : tests enabled bidule
 
 	uint16_t tile_data_bank_addr = 0;
@@ -208,8 +213,10 @@ void GPU::draw_bg(uint8_t line)
 	}
 
 	uint16_t bg_map_addr = get_bit(lcd_control, 3) ? 0x9C00:0x9800;
+
 	uint8_t bg_y_tile = scroll_y + line;
 
+	// each tile is 8x8 and each row is 32 block
 	uint16_t tileRow = (bg_y_tile/8) * 32;
 
 
@@ -227,7 +234,7 @@ void GPU::draw_bg(uint8_t line)
 		else
 			tile_data_addr = tile_data_bank_addr + (tile_id + 128) * 16;
 
-		uint8_t pixel_line = bg_y_tile & 0x7;
+		uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 		pixel_line *= 2; //each line is 2 bytes
 
 		uint8_t data1 = memory->read_8bits(tile_data_addr + pixel_line);
@@ -238,8 +245,12 @@ void GPU::draw_bg(uint8_t line)
 
 		uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
 
+		uint8_t palette = memory->read_8bits(PALETTE);
+		color_id = (palette >> (color_id << 1)) & 0x03;
+
 		uint8_t col = colors[color_id];
 
+		// TODO : maybe rework
 		pixels[line][i] = (255 << 24) | (col << 16) | (col << 8) | col;
 	}
 
@@ -247,5 +258,59 @@ void GPU::draw_bg(uint8_t line)
 
 void GPU::draw_objects(uint8_t line)
 {
+	const uint16_t OBJ0 = 0xFE00;
+	const uint16_t OBJ_BANK = 0x8000;
+
+	struct spr_attribute {
+		uint8_t y_pos;
+		uint8_t x_pos;
+		uint8_t tile_number;
+		uint8_t attr_flags;
+	};
+
+	uint8_t lcd_control = memory->read_8bits(LCDC_C);
+	bool use_8x16 = get_bit(lcd_control, 2);
+
+	for(int i = 0; i < 40; i++)
+	{
+		const uint8_t spr_idx = i * 4;
+		spr_attribute attr;
+		attr.y_pos = memory->read_8bits(OBJ0 + spr_idx) - 0x10;
+		attr.x_pos = memory->read_8bits(OBJ0 + spr_idx + 1) - 0x08;
+		attr.tile_number = memory->read_8bits(OBJ0 + spr_idx + 2);
+		attr.attr_flags = memory->read_8bits(OBJ0 + spr_idx + 3);
+
+		uint8_t ysize = (use_8x16)?16:8;
+
+		// If we are in the current scanline
+		if(attr.y_pos <= line && attr.y_pos + ysize > line)
+		{
+			uint8_t pixel_line = line - attr.y_pos;
+			if(get_bit(attr.attr_flags, 6))
+				pixel_line = ysize - pixel_line;
+
+			pixel_line *= 2;
+
+			uint8_t data1 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line);
+			uint8_t data2 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line + 1);
+
+			for(int x = 0; x < 8; x++)
+			{
+				uint8_t pixel_col = x;
+				if(!get_bit(attr.attr_flags, 5))
+					pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
+
+				uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
+
+				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4)?0xFF48:0xFF49);
+				color_id = (palette >> (color_id << 1)) & 0x03;
+
+				uint8_t col = colors[color_id];
+
+				// TODO : maybe rework
+				pixels[line][attr.x_pos + x] = ((color_id == 0?0:255) << 24) | (col << 16) | (col << 8) | col;
+			}
+		}
+	}
 
 }

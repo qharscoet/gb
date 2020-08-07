@@ -13,6 +13,7 @@ private:
 	static const uint16_t STAT = 0xFF41;
 	static const uint16_t LY = 0xFF44;
 
+	static const uint8_t colors[4];
 
 	uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t clock_counter;
@@ -34,5 +35,4 @@ public:
 
 	uint32_t* get_pixel_data();
 };
-
 #endif

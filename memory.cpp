@@ -52,7 +52,6 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	{
 		mmap[addr] ^= 0xFF; //Flip all bits
 	}
-
 }
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)
