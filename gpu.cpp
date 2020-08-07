@@ -192,7 +192,8 @@ void GPU::draw_bg(uint8_t line)
 	uint8_t scroll_x = memory->read_8bits(SCX);
 	uint8_t scroll_y = memory->read_8bits(SCY);
 
-	static const uint8_t colors[4] = { 64, 128, 192, 255};
+	// static const uint8_t colors[4] = { 64, 128, 192, 255};
+	static const uint8_t colors[4] = { 255, 192, 128, 64};
 
 	//TODO : tests enabled bidule
 
