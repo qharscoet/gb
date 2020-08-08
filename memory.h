@@ -11,7 +11,7 @@
 class Memory
 {
 private:
-	char mmap[MEMSIZE];
+	char* mmap;
 	uint8_t joypad_keys;
 
 	void DMATransfer(uint8_t src);

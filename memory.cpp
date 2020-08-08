@@ -2,11 +2,13 @@
 
 Memory::Memory(/* args */)
 {
+	mmap = new char[MEMSIZE];
 	std::memset(mmap, 0, MEMSIZE);
 }
 
 Memory::~Memory()
 {
+	delete[] mmap;
 }
 
 void Memory::DMATransfer(uint8_t src)
