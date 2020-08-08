@@ -107,12 +107,34 @@ void Display::render()
 	SDL_RenderPresent(sdlRenderer);
 }
 
+void Display::update_keystate()
+{
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+	const uint8_t keys[8] = { SDL_SCANCODE_DOWN,SDL_SCANCODE_UP,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT,
+								SDL_SCANCODE_RETURN, SDL_SCANCODE_BACKSPACE, SDL_SCANCODE_X, SDL_SCANCODE_X};
+	keystate = 0;
+
+	for(int i = 0; i < 8; i++)
+	{
+		if(state[keys[i]])
+			keystate |= (1 << (7- i));
+	}
+}
+
+uint8_t Display::get_keystate()
+{
+	return keystate;
+}
+
 bool Display::handle_events()
 {
 	SDL_Event event;
 
 	if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
 		return 0;
+
+	update_keystate();
 
 	return 1;
 }

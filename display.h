@@ -19,6 +19,15 @@ private:
 	uint32_t prev_time;
 	uint32_t curr_time;
 
+	enum class keys {
+		A,B,START,SELECT,
+		RIGHT,LEFT,UP,DOWN,
+	};
+
+	uint8_t keystate;
+
+	void update_keystate();
+
 public:
 	Display(/* args */);
 	~Display();
@@ -31,4 +40,5 @@ public:
 	void render();
 
 	bool handle_events();
+	uint8_t get_keystate();
 };

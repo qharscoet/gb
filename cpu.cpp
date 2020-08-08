@@ -55,6 +55,8 @@ void CPU::init()
 	//TODO : refactor pc/sp
 	*pc = 0x0100;
 
+	memory->write_8bits(0xFF00, 0xFF);
+
 	memory->write_8bits(0xFF05, 0x00);
 	memory->write_8bits(0xFF06, 0x00);
 	memory->write_8bits(0xFF07, 0x00);
@@ -219,10 +221,10 @@ void CPU::step_timers(uint8_t cycles)
 	{
 		// Frequency depends on the last 2 bits of TAC
 		uint8_t fq_bits = tac_val & 0x3;
-		//static const uint16_t fq[4] = { 1024, 16, 64, 256 };
+		static const uint16_t fq[4] = { 1024, 16, 64, 256 };
 		// static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
-		static const uint16_t fq_mask[4] = { 0x3FF, 0xF, 0x3F, 0xFF };
 
+		static const uint16_t fq_mask[4] = { 0x3FF, 0xF, 0x3F, 0xFF };
 		//We mask the timer to simulate an "overflow" of specific values
 		if(((timer_cycle_count + cycles) & fq_mask[fq_bits]) < (timer_cycle_count & fq_mask[fq_bits])  )
 		{
@@ -240,6 +242,22 @@ void CPU::step_timers(uint8_t cycles)
 		}
 
 		timer_cycle_count += cycles;
+
+		// while( timer_cycle_count >= fq[fq_bits])
+		// {
+		// 	timer_cycle_count -= fq[fq_bits];
+		// 	uint8_t value = memory->read_8bits(TIMA);
+
+		// 	if(value == 255)
+		// 	{
+		// 		memory->write_8bits(TIMA, memory->read_8bits(TMA));
+		// 		memory->request_interrupt(Memory::interrupt_id::TIMER);
+		// 		//TODO: timing to check if TMA is written at the same time
+		// 	} else
+		// 	{
+		// 		memory->write_8bits(TIMA, value + 1);
+		// 	}
+		// }
 	}
 }
 

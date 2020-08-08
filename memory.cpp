@@ -41,16 +41,35 @@ uint16_t Memory::read_16bits(uint16_t addr)
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
-	//if(addr == 0xFF40 && disabling && we are in vblank WE CANT IT MAY DAMAGE THE HARDWARE
-	mmap[addr] = value;
-
-	//If we write to FF46 we trigger DMA
-	if(addr == 0xFF46)
-		DMATransfer(value);
-
 	if(addr == 0xFF00)
 	{
-		mmap[addr] ^= 0xFF; //Flip all bits
+		uint8_t curr_value = mmap[addr];
+		curr_value &= 0xC0;
+		curr_value |= (value & 0x30);
+
+		switch(value & 0x30)
+		{
+			case 0x20:
+				curr_value |= ((joypad_keys >> 4) & 0x0F);
+				break;
+			case 0x10:
+				curr_value |= (joypad_keys & 0x0F);
+				break;
+			case 0x30:
+				curr_value |= 0x0F;
+				break;
+		}
+
+		mmap[addr] = curr_value;
+		// mmap[addr] ^= 0xFF; //Flip all bits
+	}else
+	{
+		//if(addr == 0xFF40 && disabling && we are in vblank WE CANT IT MAY DAMAGE THE HARDWARE
+		mmap[addr] = value;
+
+		//If we write to FF46 we trigger DMA
+		if(addr == 0xFF46)
+			DMATransfer(value);
 	}
 }
 
@@ -73,4 +92,10 @@ void Memory::request_interrupt(interrupt_id id)
 	if_val |= (1 << bit);
 
 	write_8bits(IF, if_val);
+}
+
+void Memory::update_joypad(uint8_t keys)
+{
+	// In the gameboy, 0 means pressed
+	joypad_keys = ~keys;
 }

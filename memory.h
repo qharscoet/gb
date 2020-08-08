@@ -12,6 +12,7 @@ class Memory
 {
 private:
 	char mmap[MEMSIZE];
+	uint8_t joypad_keys;
 
 	void DMATransfer(uint8_t src);
 
@@ -30,6 +31,8 @@ public:
 
 	void load_content(std::istream &file);
 	void load_content(const uint8_t* data, uint32_t size);
+
+	void update_joypad(uint8_t keys);
 
 	uint8_t read_8bits(uint16_t addr);
 	uint16_t read_16bits(uint16_t addr);

@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
 				auto total_start = std::chrono::steady_clock::now();
 				auto start = total_start;
 
-				emu.step();
+				emu.step(display.get_keystate());
 
 				auto end = std::chrono::steady_clock::now();
 				t_emu = end - start;

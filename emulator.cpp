@@ -37,12 +37,12 @@ void Emulator::start()
 
 }
 
-void Emulator::step()
+void Emulator::step(uint8_t keys)
 {
 	// std::chrono::duration<double, std::milli> t_cpu, t_gpu, t_total;
 	// auto total_start = std::chrono::steady_clock::now();
 	// auto start = total_start;
-
+	memory.update_joypad(keys);
 	uint8_t cycles = cpu.step();
 
 	// auto end = std::chrono::steady_clock::now();

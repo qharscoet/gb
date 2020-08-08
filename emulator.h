@@ -17,7 +17,7 @@ public:
 	void init();
 	bool load_rom(std::string filename);
 	void start();
-	void step();
+	void step(uint8_t inputs);
 
 	uint32_t* get_pixel_data();
 };
