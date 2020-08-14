@@ -49,11 +49,15 @@ int Display::init()
 		prev_time = curr_time = SDL_GetTicks();
 	}
 
+	debug_ui_init();
+
 	return 1;
 }
 
 void Display::free()
 {
+
+	debug_ui_free();
 	// /!\ Do not forget to free all textures !
 
 	//Destroy window
@@ -72,7 +76,7 @@ void Display::clear()
 	SDL_RenderClear(sdlRenderer);
 }
 
-void Display::update(uint32_t* pixels)
+void Display::update(const uint32_t* pixels, const GPU& gpu)
 {
 	if ((curr_time = SDL_GetTicks()) - prev_time >= TICKS_PER_FRAME)
 	{
@@ -95,15 +99,16 @@ void Display::update(uint32_t* pixels)
 		SDL_UnlockTexture(sdlTexture);
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 
+		// std::cout << " FRAME -------------- " << curr_time - prev_time << " ms  \n";
 		prev_time = curr_time;
-		// std::cout << " FRAME -------------- \n";
 
-		render();
+		render(gpu);
 	}
 }
 
-void Display::render()
+void Display::render(const GPU& gpu)
 {
+	debug_ui_render(gpu);
 	SDL_RenderPresent(sdlRenderer);
 }
 
@@ -131,10 +136,19 @@ bool Display::handle_events()
 {
 	SDL_Event event;
 
-	if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
-		return 0;
+	if (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_QUIT
+        || (event.type == SDL_WINDOWEVENT
+			&& event.window.event == SDL_WINDOWEVENT_CLOSE
+        	&& event.window.windowID == SDL_GetWindowID(sdlWindow)))
+		{
+				return 0;
+		}
+	}
 
 	update_keystate();
+	ImGui_ImplSDL2_ProcessEvent(&event);
 
 	return 1;
 }

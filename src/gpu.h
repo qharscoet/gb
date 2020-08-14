@@ -33,6 +33,7 @@ public:
 
 	void step(uint8_t cycles);
 
-	uint32_t* get_pixel_data();
+	const uint32_t* get_pixel_data() const;
+	void draw_full_bg(uint32_t *pixels) const;
 };
 #endif

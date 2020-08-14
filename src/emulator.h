@@ -1,6 +1,8 @@
+#ifndef _EMULATOR_H_
+#define _EMULATOR_H_
+
 #include "cpu.h"
 #include "gpu.h"
-
 
 #include <string>
 
@@ -19,5 +21,9 @@ public:
 	void start();
 	void step(uint8_t inputs);
 
-	uint32_t* get_pixel_data();
+	const GPU& get_gpu_ref();
+
+	const uint32_t* get_pixel_data();
 };
+
+#endif

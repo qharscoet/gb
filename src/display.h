@@ -2,6 +2,12 @@
 #undef main
 #include <iostream>
 
+#include "imgui/imgui_impl_sdl.h"
+#include "emulator.h"
+
+void debug_ui_init();
+void debug_ui_free();
+void debug_ui_render(const GPU& gpu);
 
 class Display
 {
@@ -36,8 +42,8 @@ public:
 	void free();
 
 	void clear();
-	void update(uint32_t* pixels);
-	void render();
+	void update(const uint32_t* pixels, const GPU& gpu);
+	void render(const GPU& gpu);
 
 	bool handle_events();
 	uint8_t get_keystate();
