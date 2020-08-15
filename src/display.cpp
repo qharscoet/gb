@@ -1,5 +1,7 @@
 #include "display.h"
 
+#include "imgui/imgui_impl_sdl.h"
+
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
 
@@ -49,15 +51,11 @@ int Display::init()
 		prev_time = curr_time = SDL_GetTicks();
 	}
 
-	debug_ui_init();
-
 	return 1;
 }
 
 void Display::free()
 {
-
-	debug_ui_free();
 	// /!\ Do not forget to free all textures !
 
 	//Destroy window
@@ -76,7 +74,7 @@ void Display::clear()
 	SDL_RenderClear(sdlRenderer);
 }
 
-void Display::update(const uint32_t* pixels, const GPU& gpu)
+void Display::update(const uint32_t* pixels)
 {
 	if ((curr_time = SDL_GetTicks()) - prev_time >= TICKS_PER_FRAME)
 	{
@@ -102,13 +100,12 @@ void Display::update(const uint32_t* pixels, const GPU& gpu)
 		// std::cout << " FRAME -------------- " << curr_time - prev_time << " ms  \n";
 		prev_time = curr_time;
 
-		render(gpu);
+		render();
 	}
 }
 
-void Display::render(const GPU& gpu)
+void Display::render()
 {
-	debug_ui_render(gpu);
 	SDL_RenderPresent(sdlRenderer);
 }
 
@@ -148,6 +145,8 @@ bool Display::handle_events()
 	}
 
 	update_keystate();
+
+	//forward event to imgui
 	ImGui_ImplSDL2_ProcessEvent(&event);
 
 	return 1;

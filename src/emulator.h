@@ -8,10 +8,18 @@
 
 class Emulator
 {
+
+	friend void debug_ui_render(Emulator &);
+
 private:
 	Memory memory; //64Ko memory map
 	CPU cpu;
 	GPU gpu;
+
+	struct debug_options{
+		bool pause;
+	} options;
+
 public:
 	Emulator(/* args */);
 	~Emulator();

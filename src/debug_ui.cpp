@@ -2,8 +2,9 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_memory_editor.h"
 
-#include "gpu.h"
+#include "emulator.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
 
@@ -36,12 +37,22 @@
 static SDL_GLContext gl_context;
 static SDL_Window* window;
 
+static MemoryEditor mem_edit;
+
+static GLuint bg_full = 0;
+static GLuint bg_tiles = 0;
+static GLuint screen = 0;
+
 // Simple helper function to load an image into a OpenGL texture with common settings
 bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, int h)
 {
 	// Create a OpenGL texture identifier
-	GLuint image_texture;
-	glGenTextures(1, &image_texture);
+	GLuint image_texture = *out_texture;
+	bool update = image_texture != 0;
+
+	if(!update)
+		glGenTextures(1, &image_texture);
+
 	glBindTexture(GL_TEXTURE_2D, image_texture);
 
 	// Setup filtering parameters for display
@@ -50,7 +61,12 @@ bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, i
 
 	// Upload pixels into texture
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	if(update)
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA,
+						GL_UNSIGNED_BYTE, pixels);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	*out_texture = image_texture;
 	return true;
@@ -122,12 +138,10 @@ void debug_ui_init()
 }
 
 
-void debug_ui_render(const GPU& gpu)
+void debug_ui_render(Emulator& emu)
 {
 
 	// Our state
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
@@ -143,22 +157,42 @@ void debug_ui_render(const GPU& gpu)
 	ImGui::NewFrame();
 	ImGuiIO &io = ImGui::GetIO();
 
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	// Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
 
-		ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
+		ImGui::Begin("VRAM Viewer"); // Create a window called "Hello, world!" and append into it.
 
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-		GLuint my_image_texture = 0;
+		ImGui::Text("LCD_CONTROL : %02X", emu.memory.read_8bits(0xFF40));
 		uint32_t pixels[256* 256];
-		gpu.draw_full_bg(pixels);
-		LoadTextureFromPixels(pixels, &my_image_texture, 256, 256);
-		ImGui::Image((void *)(intptr_t)my_image_texture, ImVec2(256, 256));
+		emu.gpu.draw_full_bg(pixels);
+		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
+		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(256, 256));
+		ImGui::SameLine();
 
-		LoadTextureFromPixels(gpu.get_pixel_data(), &my_image_texture, 160, 144);
-		ImGui::Image((void *)(intptr_t)my_image_texture, ImVec2(160, 144));
+
+		emu.gpu.display_bg_tiles(pixels);
+		LoadTextureFromPixels(pixels, &bg_tiles, 128, 256);
+		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(128, 256));
+
+		LoadTextureFromPixels(emu.gpu.get_pixel_data(), &screen, 160, 144);
+		ImGui::Image((void *)(intptr_t)screen, ImVec2(160, 144));
+
+		ImGui::End();
+	}
+
+	//  Memory viewer
+	{
+		mem_edit.DrawWindow("Memory Editor", emu.memory.get_data(0x8000), 0x2000);
+	}
+
+
+	// Debug options
+	{
+		ImGui::Begin("Debug options");
+		ImGui::Checkbox("Pause", &emu.options.pause);
 
 		ImGui::End();
 	}
@@ -178,6 +212,10 @@ void debug_ui_free()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
+
+	glDeleteTextures(1, &bg_full);
+	glDeleteTextures(1, &bg_tiles);
+	glDeleteTextures(1, &screen);
 
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(window);

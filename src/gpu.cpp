@@ -232,7 +232,7 @@ void GPU::draw_bg(uint8_t line)
 		if(use_unsigned)
 			tile_data_addr = tile_data_bank_addr + tile_id * 16;
 		else
-			tile_data_addr = tile_data_bank_addr + (tile_id + 128) * 16;
+			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
 		uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 		pixel_line *= 2; //each line is 2 bytes
@@ -353,7 +353,7 @@ void GPU::draw_full_bg(uint32_t *pixels) const
 			if (use_unsigned)
 				tile_data_addr = tile_data_bank_addr + tile_id * 16;
 			else
-				tile_data_addr = tile_data_bank_addr + (tile_id + 128) * 16;
+				tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
 			uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 			pixel_line *= 2;					  //each line is 2 bytes
@@ -373,6 +373,58 @@ void GPU::draw_full_bg(uint32_t *pixels) const
 
 			// TODO : maybe rework
 			pixels[i * 256 + j] = (col << 24) | (col << 16) | (col << 8) | (255);
+		}
+	}
+}
+
+void GPU::display_bg_tiles(uint32_t* pixels) const
+{
+	const uint16_t PALETTE = 0xFF47;
+	const uint16_t bg_map_addr = 0x9800;
+
+	uint8_t lcd_control = memory->read_8bits(LCDC_C);
+	uint16_t tile_data_bank_addr = 0;
+	bool use_unsigned = get_bit(lcd_control, 4);
+
+	tile_data_bank_addr = 0x8000;
+
+	for (int i = 0; i < 256; i++)
+	{
+
+		uint8_t bg_y_tile = i;
+
+		// each tile is 8x8 and each row is 32 block
+		uint16_t tileRow = (bg_y_tile / 8) * 16;
+
+		for (int j = 0; j < 128; j++)
+		{
+			uint8_t bg_x_tile = j;
+			uint16_t tileCol = bg_x_tile / 8;
+
+			uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
+			uint8_t tile_id = tileRow + tileCol; //memory->read_8bits(tile_addr);
+
+			uint16_t tile_data_addr = 0;
+			tile_data_addr = tile_data_bank_addr + tile_id * 16;
+
+			uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
+			pixel_line *= 2;					  //each line is 2 bytes
+
+			uint8_t data1 = memory->read_8bits(tile_data_addr + pixel_line);
+			uint8_t data2 = memory->read_8bits(tile_data_addr + pixel_line + 1);
+
+			uint8_t pixel_col = bg_x_tile & 0x7;
+			pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
+
+			uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
+
+			uint8_t palette = memory->read_8bits(PALETTE);
+			color_id = (palette >> (color_id << 1)) & 0x03;
+
+			uint8_t col = colors[color_id];
+
+			// TODO : maybe rework
+			pixels[i * 128 + j] = (col << 24) | (col << 16) | (col << 8) | (255);
 		}
 	}
 }

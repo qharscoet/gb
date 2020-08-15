@@ -41,6 +41,8 @@ public:
 	void write_16bits(uint16_t addr, uint16_t value);
 
 	void request_interrupt(interrupt_id id);
+
+	char* const get_data(uint16_t addr);
 };
 
 #endif

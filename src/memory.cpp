@@ -101,3 +101,8 @@ void Memory::update_joypad(uint8_t keys)
 	// In the gameboy, 0 means pressed
 	joypad_keys = ~keys;
 }
+
+char *const Memory::get_data(uint16_t addr)
+{
+	return &mmap[addr];
+}

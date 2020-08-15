@@ -15,7 +15,10 @@ Emulator::~Emulator()
 }
 
 void Emulator::init()
-{}
+{
+
+	options.pause = false;
+}
 
 bool Emulator::load_rom(std::string filename)
 {
@@ -42,32 +45,35 @@ void Emulator::step(uint8_t keys)
 	const uint16_t CYCLES_BY_FRAME = 17556;
 	uint16_t cycles_total = 0;
 
-	while(cycles_total < CYCLES_BY_FRAME)
+	if(!options.pause)
 	{
-		// std::chrono::duration<double, std::milli> t_cpu, t_gpu, t_total;
-		// auto total_start = std::chrono::steady_clock::now();
-		// auto start = total_start;
-		memory.update_joypad(keys);
-		uint8_t cycles = cpu.step();
+		while(cycles_total < CYCLES_BY_FRAME)
+		{
+			// std::chrono::duration<double, std::milli> t_cpu, t_gpu, t_total;
+			// auto total_start = std::chrono::steady_clock::now();
+			// auto start = total_start;
+			memory.update_joypad(keys);
+			uint8_t cycles = cpu.step();
 
-		// auto end = std::chrono::steady_clock::now();
-		// t_cpu = end - start;
+			// auto end = std::chrono::steady_clock::now();
+			// t_cpu = end - start;
 
-		// start = std::chrono::steady_clock::now();
+			// start = std::chrono::steady_clock::now();
 
-		gpu.step(cycles);
-		cycles_total += cycles;
+			gpu.step(cycles);
+			cycles_total += cycles;
 
-		// end = std::chrono::steady_clock::now();
-		// t_gpu = end - start;
+			// end = std::chrono::steady_clock::now();
+			// t_gpu = end - start;
 
-		// auto total_end = std::chrono::steady_clock::now();
-		// t_total = total_end - total_start;
+			// auto total_end = std::chrono::steady_clock::now();
+			// t_total = total_end - total_start;
 
-		// std::cout << " cpu time " << t_cpu.count() << " ms, \t" << (int)cycles << " cycles" << "\n";
-		// std::cout << " gpu time " << t_gpu.count() << " ms" << "\n";
+			// std::cout << " cpu time " << t_cpu.count() << " ms, \t" << (int)cycles << " cycles" << "\n";
+			// std::cout << " gpu time " << t_gpu.count() << " ms" << "\n";
 
-		// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
+			// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
+		}
 	}
 
 }

@@ -5,6 +5,9 @@
 #include "emulator.h"
 #include "display.h"
 
+void debug_ui_init();
+void debug_ui_free();
+void debug_ui_render(Emulator &emu);
 
 int main(int argc, char const *argv[])
 {
@@ -12,6 +15,7 @@ int main(int argc, char const *argv[])
 	Display display;
 	emu.init();
 	display.init();
+	debug_ui_init();
 
 	if(argc > 1) {
 		if(!emu.load_rom(argv[1]))
@@ -34,7 +38,8 @@ int main(int argc, char const *argv[])
 
 				start = std::chrono::steady_clock::now();
 
-				display.update(emu.get_pixel_data(), emu.get_gpu_ref());
+				display.update(emu.get_pixel_data());
+				debug_ui_render(emu);
 				//display.render();
 
 				end = std::chrono::steady_clock::now();
@@ -43,10 +48,10 @@ int main(int argc, char const *argv[])
 				auto total_end = std::chrono::steady_clock::now();
 				t_total = total_end - total_start;
 
-				std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
-				std::cout << " display time " << t_display.count() << " ms" << "\n";
+				// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
+				// std::cout << " display time " << t_display.count() << " ms" << "\n";
 
-				std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
+				// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 			}
 		}
 
@@ -56,6 +61,7 @@ int main(int argc, char const *argv[])
 
 	std::cout << "COUCOU" << std::endl;
 
+	debug_ui_free();
 	display.free();
 	return 0;
 }
