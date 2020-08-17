@@ -41,8 +41,8 @@ void GPU::step(uint8_t cycles)
 	//LCD is disabled
 	if(!get_bit(memory->read_8bits(LCDC_C), 7))
 	{
-		//We force it to Mode 1
-		stat_val = (stat_val & 0xFC) | 0x1;
+		//We force it to Mode 0
+		stat_val = (stat_val & 0xFC);// | 0x1;
 		memory->write_8bits(STAT, stat_val);
 		memory->write_8bits(LY, 0);
 
