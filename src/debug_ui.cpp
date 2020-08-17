@@ -185,7 +185,11 @@ void debug_ui_render(Emulator& emu)
 
 	//  Memory viewer
 	{
-		mem_edit.DrawWindow("Memory Editor", emu.memory.get_data(0x8000), 0x2000);
+		ImGui::Begin("Memory Editor");
+		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
+		ImGui::SameLine();
+		mem_edit.DrawContents(emu.memory.get_data(0xFF00), 0x100, 0xFF00);
+		ImGui::End();
 	}
 
 
