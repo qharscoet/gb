@@ -1,8 +1,10 @@
 #include "emulator.h"
+#include "debug_ui.h"
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
+
 
 Emulator::Emulator(/* args */)
 :cpu(&memory), gpu(&memory)
@@ -54,6 +56,9 @@ void Emulator::step(uint8_t keys)
 			// auto start = total_start;
 			memory.update_joypad(keys);
 			uint8_t cycles = cpu.step();
+
+			if(memory.read_8bits(0x8001) == 0x39)
+				options.pause = true;
 
 			// auto end = std::chrono::steady_clock::now();
 			// t_cpu = end - start;

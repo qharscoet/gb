@@ -4,7 +4,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_memory_editor.h"
 
-#include "emulator.h"
+#include "debug_ui.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
 
@@ -38,10 +38,15 @@ static SDL_GLContext gl_context;
 static SDL_Window* window;
 
 static MemoryEditor mem_edit;
+static MemoryEditor mem_edit2;
 
 static GLuint bg_full = 0;
 static GLuint bg_tiles = 0;
 static GLuint screen = 0;
+
+debug_options options;
+
+static int begin, size;
 
 // Simple helper function to load an image into a OpenGL texture with common settings
 bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, int h)
@@ -188,15 +193,24 @@ void debug_ui_render(Emulator& emu)
 		ImGui::Begin("Memory Editor");
 		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
 		ImGui::SameLine();
+		mem_edit.DrawContents(emu.memory.get_data(0xFE00), 0x100, 0xFE00);
+		ImGui::SameLine();
 		mem_edit.DrawContents(emu.memory.get_data(0xFF00), 0x100, 0xFF00);
 		ImGui::End();
 	}
-
+	//  Memory viewer custom
+	{
+		ImGui::Begin("Memory Editor 2");
+		ImGui::InputInt("begin", &begin);
+		ImGui::InputInt("size", &size);
+		mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
+		ImGui::End();
+	}
 
 	// Debug options
 	{
 		ImGui::Begin("Debug options");
-		ImGui::Checkbox("Pause", &emu.options.pause);
+		ImGui::Checkbox("Pause", &options.pause);
 
 		ImGui::End();
 	}

@@ -1,4 +1,5 @@
 #include "display.h"
+#include "debug_ui.h"
 
 #include "imgui/imgui_impl_sdl.h"
 
@@ -142,6 +143,9 @@ bool Display::handle_events()
 		{
 				return 0;
 		}
+
+		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)
+			options.pause = !options.pause;
 	}
 
 	update_keystate();

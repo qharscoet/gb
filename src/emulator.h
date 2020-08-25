@@ -6,6 +6,9 @@
 
 #include <string>
 
+struct debug_options;
+extern debug_options options;
+
 class Emulator
 {
 
@@ -15,10 +18,6 @@ private:
 	Memory memory; //64Ko memory map
 	CPU cpu;
 	GPU gpu;
-
-	struct debug_options{
-		bool pause;
-	} options;
 
 public:
 	Emulator(/* args */);

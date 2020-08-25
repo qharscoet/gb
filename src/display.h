@@ -2,6 +2,9 @@
 #undef main
 #include <iostream>
 
+struct debug_options;
+extern debug_options options;
+
 class Display
 {
 private:

@@ -2,12 +2,15 @@
 #include <iostream>
 #include <chrono>
 
+#include "debug_ui.h"
+
 #include "emulator.h"
 #include "display.h"
 
-void debug_ui_init();
-void debug_ui_free();
-void debug_ui_render(Emulator &emu);
+#include <cassert>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 
 int main(int argc, char const *argv[])
 {
