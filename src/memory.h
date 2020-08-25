@@ -34,8 +34,8 @@ public:
 
 	void update_joypad(uint8_t keys);
 
-	uint8_t read_8bits(uint16_t addr);
-	uint16_t read_16bits(uint16_t addr);
+	uint8_t read_8bits(uint16_t addr) const;
+	uint16_t read_16bits(uint16_t addr) const;
 
 	void write_8bits(uint16_t addr, uint8_t value);
 	void write_16bits(uint16_t addr, uint16_t value);

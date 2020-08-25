@@ -28,7 +28,7 @@ void Memory::load_content(const uint8_t* data, uint32_t size)
 	memcpy(mmap, data, size);
 }
 
-uint8_t Memory::read_8bits(uint16_t addr)
+uint8_t Memory::read_8bits(uint16_t addr) const
 {
 	//echo ram
 	if(addr >= 0xE000 && addr < 0xFE00)
@@ -37,7 +37,7 @@ uint8_t Memory::read_8bits(uint16_t addr)
 	return mmap[addr];
 }
 
-uint16_t Memory::read_16bits(uint16_t addr)
+uint16_t Memory::read_16bits(uint16_t addr) const
 {
 	//echo ram
 	if (addr >= 0xE000 && addr < 0xFE00)
@@ -51,6 +51,10 @@ uint16_t Memory::read_16bits(uint16_t addr)
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
+	// this is ROM space and can't be written
+	if(addr < 0x8000)
+		return;
+
 	//echo ram
 	if (addr >= 0xE000 && addr < 0xFE00)
 		addr -= 0x2000;
