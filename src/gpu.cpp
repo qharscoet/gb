@@ -307,8 +307,9 @@ void GPU::draw_objects(uint8_t line)
 
 				uint8_t col = colors[color_id];
 
+				if(color_id != 0)
+					pixels[line][attr.x_pos + x] = (col << 16) | (col << 8) | col;
 				// TODO : maybe rework
-				pixels[line][attr.x_pos + x] = ((color_id == 0?0:255) << 24) | (col << 16) | (col << 8) | col;
 			}
 		}
 	}

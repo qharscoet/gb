@@ -30,11 +30,19 @@ void Memory::load_content(const uint8_t* data, uint32_t size)
 
 uint8_t Memory::read_8bits(uint16_t addr)
 {
+	//echo ram
+	if(addr >= 0xE000 && addr < 0xFE00)
+		addr -= 0x2000;
+
 	return mmap[addr];
 }
 
 uint16_t Memory::read_16bits(uint16_t addr)
 {
+	//echo ram
+	if (addr >= 0xE000 && addr < 0xFE00)
+		addr -= 0x2000;
+
 	uint8_t lsb = mmap[addr++];
 	uint8_t msb = mmap[addr++];
 
@@ -43,6 +51,10 @@ uint16_t Memory::read_16bits(uint16_t addr)
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
+	//echo ram
+	if (addr >= 0xE000 && addr < 0xFE00)
+		addr -= 0x2000;
+
 	if(addr == 0xFF00)
 	{
 		uint8_t curr_value = mmap[addr];
@@ -77,6 +89,10 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)
 {
+	//echo ram
+	if (addr >= 0xE000 && addr < 0xFE00)
+		addr -= 0x2000;
+
 	uint8_t msb = (value >> 8);
 	uint8_t lsb = (value & 0xFF);
 
