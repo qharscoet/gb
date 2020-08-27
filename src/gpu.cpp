@@ -180,18 +180,40 @@ void GPU::draw_scanline(uint8_t line)
 	if(get_bit(lcd_control, 0))
 		draw_bg(line);
 
+	if(get_bit(lcd_control, 5))
+		draw_window(line);
+
 	if(get_bit(lcd_control, 1))
 		draw_objects(line);
+}
+
+void GPU::draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t tile_pix_col, uint16_t tile_addr)
+{
+	const uint16_t PALETTE = 0xFF47;
+
+	tile_pix_row *= 2; //each line is 2 bytes
+
+	uint8_t data1 = memory->read_8bits(tile_addr + tile_pix_row);
+	uint8_t data2 = memory->read_8bits(tile_addr + tile_pix_row + 1);
+
+	tile_pix_col = 7 - tile_pix_col; // pixel 0 is bit 7 etc
+
+	uint8_t color_id = (get_bit(data1, tile_pix_col) << 1) | (get_bit(data2, tile_pix_col));
+
+	uint8_t palette = memory->read_8bits(PALETTE);
+	color_id = (palette >> (color_id << 1)) & 0x03;
+
+	uint8_t color = colors[color_id];
+
+	// TODO : maybe rework
+	pixels[row][col] = (255 << 24) | (color << 16) | (color << 8) | color;
 }
 
 void GPU::draw_bg(uint8_t line)
 {
 	const uint16_t SCX = 0xFF43;
 	const uint16_t SCY = 0xFF42;
-	const uint16_t WX = 0xFF41;
-	const uint16_t WY = 0xFF4B;
 
-	const uint16_t PALETTE = 0xFF47;
 
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 
@@ -202,30 +224,26 @@ void GPU::draw_bg(uint8_t line)
 	// TODO : fix color
 	//TODO : tests enabled bidule
 
-	uint16_t tile_data_bank_addr = 0;
 	bool use_unsigned = get_bit(lcd_control, 4);
-	if(use_unsigned)
-	{
-		tile_data_bank_addr = 0x8000;
-	} else
-	{
-		tile_data_bank_addr  = 0x8800;
-	}
+	uint16_t tile_data_bank_addr = use_unsigned ? 0x8000 : 0x8800;
 
 	uint16_t bg_map_addr = get_bit(lcd_control, 3) ? 0x9C00:0x9800;
 
+	//row in pixels in the big background space
 	uint8_t bg_y_tile = scroll_y + line;
 
 	// each tile is 8x8 and each row is 32 block
-	uint16_t tileRow = (bg_y_tile/8) * 32;
+	uint16_t tile_row_offset = (bg_y_tile/8) * 32;
 
+	// pixel line inside the tile
+	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
 	for(int i = 0; i < LCD_WIDTH; i++)
 	{
 		uint8_t bg_x_tile = scroll_x + i;
-		uint16_t tileCol = bg_x_tile/8;
+		uint16_t tile_col_offset = bg_x_tile/8;
 
-		uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
+		uint16_t tile_addr = bg_map_addr + tile_row_offset + tile_col_offset;
 		uint8_t tile_id = memory->read_8bits(tile_addr);
 
 		uint16_t tile_data_addr = 0;
@@ -234,26 +252,56 @@ void GPU::draw_bg(uint8_t line)
 		else
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
-		uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
-		pixel_line *= 2; //each line is 2 bytes
-
-		uint8_t data1 = memory->read_8bits(tile_data_addr + pixel_line);
-		uint8_t data2 = memory->read_8bits(tile_data_addr + pixel_line + 1);
-
 		uint8_t pixel_col = bg_x_tile & 0x7;
-		pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
 
-		uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
-
-		uint8_t palette = memory->read_8bits(PALETTE);
-		color_id = (palette >> (color_id << 1)) & 0x03;
-
-		uint8_t col = colors[color_id];
-
-		// TODO : maybe rework
-		pixels[line][i] = (255 << 24) | (col << 16) | (col << 8) | col;
+		draw_pixel(line, i, pixel_line, pixel_col, tile_data_addr);
 	}
 
+}
+
+void GPU::draw_window(uint8_t line)
+{
+	const uint16_t WX = 0xFF41;
+	const uint16_t WY = 0xFF4B;
+
+	uint8_t lcd_control = memory->read_8bits(LCDC_C);
+
+	uint8_t window_x = memory->read_8bits(WX);
+	uint8_t window_y = memory->read_8bits(WY);
+
+	if(line < window_y)
+		return;
+
+	bool use_unsigned = get_bit(lcd_control, 4);
+	uint16_t tile_data_bank_addr = use_unsigned ? 0x8000 : 0x8800;
+
+
+	uint16_t bg_map_addr = get_bit(lcd_control, 6) ? 0x9C00 : 0x9800;
+
+	uint8_t bg_y_tile = line - window_y;
+
+	// each tile is 8x8 and each row is 32 block
+	uint16_t tileRow = (bg_y_tile / 8) * 32;
+	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
+
+	for (int i = window_x - 7; i < LCD_WIDTH; i++)
+	{
+		uint8_t bg_x_tile = i - window_x;
+		uint16_t tileCol = bg_x_tile / 8;
+
+		uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
+		uint8_t tile_id = memory->read_8bits(tile_addr);
+
+		uint16_t tile_data_addr = 0;
+		if (use_unsigned)
+			tile_data_addr = tile_data_bank_addr + tile_id * 16;
+		else
+			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
+
+		uint8_t pixel_col = bg_x_tile & 0x7;
+
+		draw_pixel(line, i, pixel_line, pixel_col, tile_data_addr);
+	}
 }
 
 void GPU::draw_objects(uint8_t line)

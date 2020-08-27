@@ -22,7 +22,10 @@ private:
 
 	void compareLYLYC();
 
+	void draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t tile_pix_col, uint16_t tile_addr);
+
 	void draw_bg(uint8_t line);
+	void draw_window(uint8_t line);
 	void draw_objects(uint8_t line);
 
 	void draw_scanline(uint8_t line);
