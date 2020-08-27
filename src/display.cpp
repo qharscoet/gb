@@ -112,7 +112,7 @@ void Display::update_keystate()
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	const uint8_t keys[8] = { SDL_SCANCODE_DOWN,SDL_SCANCODE_UP,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT,
-								SDL_SCANCODE_RETURN, SDL_SCANCODE_BACKSPACE, SDL_SCANCODE_X, SDL_SCANCODE_X};
+								SDL_SCANCODE_RETURN, SDL_SCANCODE_BACKSPACE, SDL_SCANCODE_X, SDL_SCANCODE_C};
 	keystate = 0;
 
 	for(int i = 0; i < 8; i++)
