@@ -1,6 +1,6 @@
 #include "gpu.h"
 
-const uint8_t GPU::colors[4] = {255, 192, 128, 0};
+const uint8_t GPU::colors[4] = {0xFF, 0xCC, 0x77, 0};
 
 inline bool get_bit(uint8_t val, uint8_t b)
 {
@@ -198,7 +198,7 @@ void GPU::draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t til
 
 	tile_pix_col = 7 - tile_pix_col; // pixel 0 is bit 7 etc
 
-	uint8_t color_id = (get_bit(data1, tile_pix_col) << 1) | (get_bit(data2, tile_pix_col));
+	uint8_t color_id = (get_bit(data2, tile_pix_col) << 1) | (get_bit(data1, tile_pix_col));
 
 	uint8_t palette = memory->read_8bits(PALETTE);
 	color_id = (palette >> (color_id << 1)) & 0x03;
@@ -348,15 +348,17 @@ void GPU::draw_objects(uint8_t line)
 				if(!get_bit(attr.attr_flags, 5))
 					pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
 
-				uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
+				uint8_t color_id = (get_bit(data2, pixel_col) << 1) | (get_bit(data1, pixel_col));
 
-				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4)?0xFF48:0xFF49);
+				if(color_id == 0)
+					continue;
+
+				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4)?0xFF49:0xFF48);
 				color_id = (palette >> (color_id << 1)) & 0x03;
 
 				uint8_t col = colors[color_id];
 
-				if(color_id != 0)
-					pixels[line][attr.x_pos + x] = (col << 16) | (col << 8) | col;
+				pixels[line][attr.x_pos + x] = (255 << 24) | (col << 16) | (col << 8) | col;
 				// TODO : maybe rework
 			}
 		}
@@ -413,7 +415,7 @@ void GPU::draw_full_bg(uint32_t *pixels) const
 			uint8_t pixel_col = bg_x_tile & 0x7;
 			pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
 
-			uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
+			uint8_t color_id = (get_bit(data2, pixel_col) << 1) | (get_bit(data1, pixel_col));
 
 			uint8_t palette = memory->read_8bits(PALETTE);
 			color_id = (palette >> (color_id << 1)) & 0x03;
@@ -465,7 +467,7 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 			uint8_t pixel_col = bg_x_tile & 0x7;
 			pixel_col = 7 - pixel_col; // pixel 0 is bit 7 etc
 
-			uint8_t color_id = (get_bit(data1, pixel_col) << 1) | (get_bit(data2, pixel_col));
+			uint8_t color_id = (get_bit(data2, pixel_col) << 1) | (get_bit(data1, pixel_col));
 
 			uint8_t palette = memory->read_8bits(PALETTE);
 			color_id = (palette >> (color_id << 1)) & 0x03;
