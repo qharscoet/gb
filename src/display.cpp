@@ -77,24 +77,21 @@ void Display::clear()
 
 void Display::update(const uint32_t* pixels)
 {
-	if ((curr_time = SDL_GetTicks()) - prev_time >= TICKS_PER_FRAME)
+	while((curr_time = SDL_GetTicks()) - prev_time < TICKS_PER_FRAME)
+	{
+		// std::cout << "WAITING " << (TICKS_PER_FRAME - (curr_time - prev_time)) << "\n";
+		SDL_Delay(TICKS_PER_FRAME - (curr_time - prev_time));
+	}
+
 	{
 		clear();
-		// SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
-		// for (int i = 0; i < SCREEN_WIDTH; ++i)
-		// 	SDL_RenderDrawPoint(sdlRenderer, i, i);
+
 		void* argb_pixels;
 		int pitch;
 		SDL_LockTexture(sdlTexture, NULL, &argb_pixels, &pitch);
-		// for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++)
-		// {
-		// 	((uint32_t *)argb_pixels)[i] = pixels[i]; //(255 << 24) | (pixval << 16) | (pixval << 8) | pixval;
-		// 	// SDL_SetRenderDrawColor(sdlRenderer, pixval, pixval, pixval, 255);
-		// 	// SDL_RenderDrawPoint(sdlRenderer, i % LCD_WIDTH, i / LCD_WIDTH);
-		// }
+
 		memcpy(argb_pixels, pixels, LCD_WIDTH * LCD_HEIGHT * sizeof(uint32_t));
 
-		// SDL_UpdateTexture(sdlTexture, NULL, argb_pixels, 160 * sizeof(uint32_t));
 		SDL_UnlockTexture(sdlTexture);
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 
@@ -150,8 +147,11 @@ bool Display::handle_events()
 
 	update_keystate();
 
+#ifndef NDEBUG
 	//forward event to imgui
-	ImGui_ImplSDL2_ProcessEvent(&event);
+	debug_ui_update(&event);
+#endif
+
 
 	return 1;
 }

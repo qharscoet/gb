@@ -2,14 +2,16 @@
 #include <iostream>
 #include <chrono>
 
-#include "debug_ui.h"
+#include <cassert>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 
 #include "emulator.h"
 #include "display.h"
 
-#include <cassert>
-#ifdef _WIN32
-#include <intrin.h>
+#ifndef NDEBUG
+#include "debug_ui.h"
 #endif
 
 int main(int argc, char const *argv[])
@@ -18,7 +20,10 @@ int main(int argc, char const *argv[])
 	Display display;
 	emu.init();
 	display.init();
+
+#ifndef NDEBUG
 	debug_ui_init();
+#endif
 
 	if(argc > 1) {
 		if(!emu.load_rom(argv[1]))
@@ -42,8 +47,10 @@ int main(int argc, char const *argv[])
 				start = std::chrono::steady_clock::now();
 
 				display.update(emu.get_pixel_data());
+
+#ifndef NDEBUG
 				debug_ui_render(emu);
-				//display.render();
+#endif
 
 				end = std::chrono::steady_clock::now();
 				t_display = end - start;
@@ -62,9 +69,10 @@ int main(int argc, char const *argv[])
 		std::cout << "please indicate rom file" << std::endl;
 	}
 
-	std::cout << "COUCOU" << std::endl;
-
+#ifndef NDEBUG
 	debug_ui_free();
+#endif
+
 	display.free();
 	return 0;
 }

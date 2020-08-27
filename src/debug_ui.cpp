@@ -142,6 +142,10 @@ void debug_ui_init()
 
 }
 
+void debug_ui_update(SDL_Event *event)
+{
+	ImGui_ImplSDL2_ProcessEvent(event);
+}
 
 void debug_ui_render(Emulator& emu)
 {

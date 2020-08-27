@@ -51,33 +51,11 @@ void Emulator::step(uint8_t keys)
 	{
 		while(cycles_total < CYCLES_BY_FRAME)
 		{
-			// std::chrono::duration<double, std::milli> t_cpu, t_gpu, t_total;
-			// auto total_start = std::chrono::steady_clock::now();
-			// auto start = total_start;
 			memory.update_joypad(keys);
 			uint8_t cycles = cpu.step();
 
-			if(memory.read_8bits(0x8001) == 0x39)
-				options.pause = true;
-
-			// auto end = std::chrono::steady_clock::now();
-			// t_cpu = end - start;
-
-			// start = std::chrono::steady_clock::now();
-
 			gpu.step(cycles);
 			cycles_total += cycles;
-
-			// end = std::chrono::steady_clock::now();
-			// t_gpu = end - start;
-
-			// auto total_end = std::chrono::steady_clock::now();
-			// t_total = total_end - total_start;
-
-			// std::cout << " cpu time " << t_cpu.count() << " ms, \t" << (int)cycles << " cycles" << "\n";
-			// std::cout << " gpu time " << t_gpu.count() << " ms" << "\n";
-
-			// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 		}
 	}
 
