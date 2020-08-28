@@ -1,5 +1,8 @@
 #include "display.h"
 #include "debug_ui.h"
+#include "options.h"
+
+extern emu_options options;
 
 #include "imgui/imgui_impl_sdl.h"
 

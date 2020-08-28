@@ -359,13 +359,14 @@ void GPU::draw_objects(uint8_t line)
 				uint8_t col = colors[color_id];
 
 				pixels[line][attr.x_pos + x] = (255 << 24) | (col << 16) | (col << 8) | col;
-				// TODO : maybe rework
 			}
 		}
 	}
 
 }
 
+
+#ifndef NDEBUG
 
 void GPU::draw_full_bg(uint32_t *pixels) const
 {
@@ -474,8 +475,9 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 
 			uint8_t col = colors[color_id];
 
-			// TODO : maybe rework
 			pixels[i * 128 + j] = (col << 24) | (col << 16) | (col << 8) | (255);
 		}
 	}
 }
+
+#endif

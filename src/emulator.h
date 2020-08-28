@@ -6,9 +6,6 @@
 
 #include <string>
 
-struct debug_options;
-extern debug_options options;
-
 class Emulator
 {
 

@@ -1,10 +1,11 @@
 #include "emulator.h"
-#include "debug_ui.h"
+#include "options.h"
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 
+extern emu_options options;
 
 Emulator::Emulator(/* args */)
 :cpu(&memory), gpu(&memory)

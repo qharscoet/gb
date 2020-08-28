@@ -9,6 +9,9 @@
 
 #include "emulator.h"
 #include "display.h"
+#include "options.h"
+
+emu_options options;
 
 #ifndef NDEBUG
 #include "debug_ui.h"

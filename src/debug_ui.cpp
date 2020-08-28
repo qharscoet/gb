@@ -1,3 +1,5 @@
+#ifndef NDEBUG
+
 #include <SDL2/SDL.h>
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
@@ -5,6 +7,7 @@
 #include "imgui/imgui_memory_editor.h"
 
 #include "debug_ui.h"
+#include "options.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
 
@@ -44,7 +47,7 @@ static GLuint bg_full = 0;
 static GLuint bg_tiles = 0;
 static GLuint screen = 0;
 
-debug_options options;
+extern emu_options options;
 
 static int begin, size;
 
@@ -242,3 +245,5 @@ void debug_ui_free()
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(window);
 }
+
+#endif

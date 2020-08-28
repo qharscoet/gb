@@ -37,7 +37,11 @@ public:
 	void step(uint8_t cycles);
 
 	const uint32_t* get_pixel_data() const;
+
+#ifndef NDEBUG
 	void draw_full_bg(uint32_t *pixels) const;
 	void display_bg_tiles(uint32_t *pixels) const;
+#endif
+
 };
 #endif

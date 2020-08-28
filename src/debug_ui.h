@@ -4,12 +4,6 @@
 #include <SDL2/SDL.h>
 #include "emulator.h"
 
-struct debug_options
-{
-	bool pause;
-};
-
-extern debug_options options;
 
 void debug_ui_init();
 void debug_ui_free();
