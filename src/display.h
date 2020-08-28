@@ -5,8 +5,8 @@
 class Display
 {
 private:
-	const int SCREEN_WIDTH = 640;
-	const int SCREEN_HEIGHT = 576;
+	static const int SCREEN_WIDTH = 640;
+	static const int SCREEN_HEIGHT = 576;
 
 	static const uint8_t LCD_WIDTH = 160;
 	static const uint8_t LCD_HEIGHT = 144;
@@ -32,7 +32,6 @@ public:
 	~Display();
 
 	int init();
-	void free();
 
 	void clear();
 	void update(const uint32_t* pixels);

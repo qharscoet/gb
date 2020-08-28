@@ -1,6 +1,5 @@
 #include "gpu.h"
 
-const uint8_t GPU::colors[4] = {0xFF, 0xCC, 0x77, 0};
 
 inline bool get_bit(uint8_t val, uint8_t b)
 {

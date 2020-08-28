@@ -64,7 +64,6 @@ private:
 	Memory* memory;
 	//char *memory;
 
-	void init();
 	uint8_t execute();
 	void step_divider(uint8_t cycles);
 	void step_timers(uint8_t cycles);
@@ -263,8 +262,9 @@ public:
 
 	CPU();
 	CPU(Memory* memory);
-	~CPU();
+	~CPU() = default;
 
+	void init();
 	uint8_t step();
 };
 

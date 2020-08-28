@@ -15,6 +15,16 @@ Display::Display(/* args */)
 
 Display::~Display()
 {
+	// /!\ Do not forget to free all textures !
+
+	//Destroy window
+	SDL_DestroyRenderer(sdlRenderer);
+	SDL_DestroyWindow(sdlWindow);
+	sdlWindow = NULL;
+	sdlRenderer = NULL;
+
+	//Quit SDL
+	SDL_Quit();
 }
 
 int Display::init()
@@ -56,20 +66,6 @@ int Display::init()
 	}
 
 	return 1;
-}
-
-void Display::free()
-{
-	// /!\ Do not forget to free all textures !
-
-	//Destroy window
-	SDL_DestroyRenderer(sdlRenderer);
-	SDL_DestroyWindow(sdlWindow);
-	sdlWindow = NULL;
-	sdlRenderer = NULL;
-
-	//Quit SDL
-	SDL_Quit();
 }
 
 void Display::clear()

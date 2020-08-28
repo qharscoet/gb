@@ -19,7 +19,7 @@ Emulator::~Emulator()
 
 void Emulator::init()
 {
-
+	cpu.init();
 	options.pause = false;
 }
 

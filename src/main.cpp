@@ -76,6 +76,5 @@ int main(int argc, char const *argv[])
 	debug_ui_free();
 #endif
 
-	display.free();
 	return 0;
 }

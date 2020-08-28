@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <functional>
 
+#include <cassert>
+
 CPU::CPU(/* args */)
 {
 	sp = &registers[4];
@@ -14,34 +16,19 @@ CPU::CPU(/* args */)
 	flags = ((uint8_t*)registers) + 1;
 
 	ime = true;
-
-	init();
-
 }
 
 CPU::CPU(Memory* memory)
+:CPU()
 {
-	sp = &registers[4];
-	*sp = 0xFFFE;
-
-	pc = &registers[5];
-	*pc = 0x100; //0x45FB;
-
-	flags = ((uint8_t*)registers) + 1;
-
-	ime = true;
-
 	this->memory = memory;
-
-	init();
 }
 
-CPU::~CPU()
-{
-}
 
 void CPU::init()
 {
+	assert(memory != nullptr);
+
 	memset(registers, 0, 12);
 	write_r8(r8::A, 0x01);
 	write_r8(r8::F, 0xB0);

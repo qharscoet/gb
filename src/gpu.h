@@ -13,7 +13,7 @@ private:
 	static const uint16_t STAT = 0xFF41;
 	static const uint16_t LY = 0xFF44;
 
-	static const uint8_t colors[4];
+	static constexpr uint8_t colors[4] = {0xFF, 0xCC, 0x77, 0};
 
 	uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t clock_counter;
