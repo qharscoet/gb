@@ -3,17 +3,22 @@ Simple Gameboy Emulator
 
 This is a simple self-teaching project
 
-TODO NEXT :
+WHAT WORKS
 ----------
-- Check flags, especially carry and zeros, oftet set but not reset
-- Test every instructions, especially bit ops and stuff
+
+- CPU
+- GPU (mostly)
+- Inputs
+
+TODO NEXT :
+-----------
+- TODOs in the code
+- Refactor to get rid of duplicated code here and there
 
 
 Missing:
 --------
-Everything but cpu instructions, that includes:
-- GPU & Display
+
 - Sounds
-- Interrupts
-- Inputs
+- MBC Mangement
 - etc.
