@@ -31,6 +31,8 @@ public:
 	Display(/* args */);
 	~Display();
 
+	void set_title(std::string str);
+
 	int init();
 
 	void clear();

@@ -28,6 +28,7 @@ public:
 	const GPU& get_gpu_ref();
 
 	const uint32_t* get_pixel_data();
+	const std::string get_game_name();
 };
 
 #endif

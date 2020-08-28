@@ -71,3 +71,8 @@ const GPU& Emulator::get_gpu_ref()
 {
 	return gpu;
 }
+
+const std::string Emulator::get_game_name()
+{
+	return memory.get_data(0x0134);
+}

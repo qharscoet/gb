@@ -27,6 +27,11 @@ Display::~Display()
 	SDL_Quit();
 }
 
+void Display::set_title(std::string str)
+{
+	SDL_SetWindowTitle(sdlWindow, str.c_str());
+}
+
 int Display::init()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)

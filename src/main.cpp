@@ -36,6 +36,7 @@ int main(int argc, char const *argv[])
 		else
 		{
 			//emu.start();
+			display.set_title(emu.get_game_name());
 			while(display.handle_events())
 			{
 				std::chrono::duration<double, std::milli> t_emu, t_display, t_total;
