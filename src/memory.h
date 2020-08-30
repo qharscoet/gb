@@ -6,6 +6,8 @@
 
 #include <fstream>
 
+#include "MBC.h"
+
 #define MEMSIZE 0x10000
 
 class Memory
@@ -13,6 +15,8 @@ class Memory
 private:
 	char* mmap;
 	uint8_t joypad_keys;
+
+	MBC mbc;
 
 	void DMATransfer(uint8_t src);
 
@@ -43,6 +47,8 @@ public:
 	void request_interrupt(interrupt_id id);
 
 	char* const get_data(uint16_t addr);
+
+	bool use_mbc() const;
 };
 
 #endif

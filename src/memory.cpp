@@ -1,5 +1,7 @@
 #include "memory.h"
 
+inline uint32_t kilobytes(uint32_t n) {return 1024 * n; }
+
 Memory::Memory(/* args */)
 {
 	mmap = new char[MEMSIZE];
@@ -21,6 +23,22 @@ void Memory::DMATransfer(uint8_t src)
 void Memory::load_content(std::istream &file)
 {
 	file.read(mmap, 0x8000);
+
+	if(use_mbc())
+	{
+		uint32_t romsize = ( kilobytes(32) )<< mmap[0x148];
+		uint32_t ramsize = 0;
+
+		switch(mmap[0x149])
+		{
+			case 0x01: ramsize = 2048; break;
+			case 0x02: ramsize = 8192; break;
+			case 0x03: ramsize = kilobytes(32); break;
+			default:break;
+		}
+
+		mbc = MBC(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
+	}
 }
 
 void Memory::load_content(const uint8_t* data, uint32_t size)
@@ -30,78 +48,106 @@ void Memory::load_content(const uint8_t* data, uint32_t size)
 
 uint8_t Memory::read_8bits(uint16_t addr) const
 {
-	//echo ram
-	if(addr >= 0xE000 && addr < 0xFE00)
-		addr -= 0x2000;
+	uint8_t ret = 0;
 
-	return mmap[addr];
+	if (use_mbc() && addr >= 0x4000 && addr < 0x8000)
+	{
+		ret = mbc.read_rom(addr - 0x4000);
+	}
+	else if (use_mbc() && addr >= 0xA000 && addr < 0xC000)
+	{
+		ret = mbc.read_ram(addr - 0xA000);
+	}
+	else
+	{
+		//echo ram
+		if(addr >= 0xE000 && addr < 0xFE00)
+			addr -= 0x2000;
+
+		ret = mmap[addr];
+	}
+
+	return ret;
 }
 
 uint16_t Memory::read_16bits(uint16_t addr) const
 {
-	//echo ram
-	if (addr >= 0xE000 && addr < 0xFE00)
-		addr -= 0x2000;
+	// //echo ram
+	// if (addr >= 0xE000 && addr < 0xFE00)
+	// 	addr -= 0x2000;
 
-	uint8_t lsb = mmap[addr++];
-	uint8_t msb = mmap[addr++];
+	uint8_t lsb = read_8bits(addr++);
+	uint8_t msb = read_8bits(addr);
 
 	return (uint16_t)(msb << 8) | (uint16_t)(lsb);
 }
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
-	// this is ROM space and can't be written
-	if(addr < 0x8000)
-		return;
 
-	//echo ram
-	if (addr >= 0xE000 && addr < 0xFE00)
-		addr -= 0x2000;
-
-	if(addr == 0xFF00)
+	char* write_location = &mmap[addr];
+	//maybe forward to MBC
+	if (use_mbc() && addr < 0x8000)
 	{
-		uint8_t curr_value = mmap[addr];
-		curr_value &= 0xC0;
-		curr_value |= (value & 0x30);
+		mbc.write(addr, value);
+	}
+	else if (use_mbc() && mbc.use_ram() && addr >= 0xA000 && addr < 0xC000)
+	{
+		mbc.write_ram(addr - 0xA000, value);
+	} else {
 
-		switch(value & 0x30)
+		// this is ROM space and can't be written,
+		if (addr < 0x8000)
+			return;
+
+		//echo ram
+		if (addr >= 0xE000 && addr < 0xFE00)
+			addr -= 0x2000;
+
+		if(addr == 0xFF00)
 		{
-			case 0x20:
-				curr_value |= ((joypad_keys >> 4) & 0x0F);
-				break;
-			case 0x10:
-				curr_value |= (joypad_keys & 0x0F);
-				break;
-			case 0x30:
-				curr_value |= 0x0F;
-				break;
+			uint8_t curr_value = mmap[addr];
+			curr_value &= 0xC0;
+			curr_value |= (value & 0x30);
+
+			switch(value & 0x30)
+			{
+				case 0x20:
+					curr_value |= ((joypad_keys >> 4) & 0x0F);
+					break;
+				case 0x10:
+					curr_value |= (joypad_keys & 0x0F);
+					break;
+				case 0x30:
+					curr_value |= 0x0F;
+					break;
+			}
+
+			mmap[addr] = curr_value;
+			// mmap[addr] ^= 0xFF; //Flip all bits
+		}else
+		{
+			//if(addr == 0xFF40 && disabling && we are in vblank WE CANT IT MAY DAMAGE THE HARDWARE
+			mmap[addr] = value;
+
+			//If we write to FF46 we trigger DMA
+			if(addr == 0xFF46)
+				DMATransfer(value);
 		}
-
-		mmap[addr] = curr_value;
-		// mmap[addr] ^= 0xFF; //Flip all bits
-	}else
-	{
-		//if(addr == 0xFF40 && disabling && we are in vblank WE CANT IT MAY DAMAGE THE HARDWARE
-		mmap[addr] = value;
-
-		//If we write to FF46 we trigger DMA
-		if(addr == 0xFF46)
-			DMATransfer(value);
 	}
 }
 
 void Memory::write_16bits(uint16_t addr, uint16_t value)
 {
-	//echo ram
-	if (addr >= 0xE000 && addr < 0xFE00)
-		addr -= 0x2000;
 
 	uint8_t msb = (value >> 8);
 	uint8_t lsb = (value & 0xFF);
 
-	mmap[addr] = lsb;
-	mmap[addr + 1] = msb;
+	write_8bits(addr, lsb);
+	write_8bits(addr + 1, msb);
+
+	// mmap[addr] = lsb;
+	// mmap[addr + 1] = msb;
 	//*((uint16_t *)(mmap + addr)) = value;
 }
 
@@ -125,4 +171,9 @@ void Memory::update_joypad(uint8_t keys)
 char *const Memory::get_data(uint16_t addr)
 {
 	return &mmap[addr];
+}
+
+bool Memory::use_mbc() const
+{
+	return mmap[0x0147] != 0;
 }
