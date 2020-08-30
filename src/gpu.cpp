@@ -260,8 +260,8 @@ void GPU::draw_bg(uint8_t line)
 
 void GPU::draw_window(uint8_t line)
 {
-	const uint16_t WX = 0xFF41;
-	const uint16_t WY = 0xFF4B;
+	const uint16_t WY = 0xFF4A;
+	const uint16_t WX = 0xFF4B;
 
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 
