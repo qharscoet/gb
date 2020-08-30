@@ -439,7 +439,7 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 
 	tile_data_bank_addr = 0x8000;
 
-	for (int i = 0; i < 256; i++)
+	for (int i = 0; i < 192; i++)
 	{
 
 		uint8_t bg_y_tile = i;

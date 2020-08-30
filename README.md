@@ -20,14 +20,14 @@ Missing:
 --------
 
 - Sounds
-- MBC Mangement
-- etc.
+- Saves
+- MBC other than MBC1
 
 External librairies used:
 ---------------------
 
-SDL2 : https://www.libsdl.org/
-Dear imgui : https://github.com/ocornut/imgui
+- SDL2 : https://www.libsdl.org/
+- Dear imgui : https://github.com/ocornut/imgui
 
 Ressources used for documentation about the gameboy:
 --------------------

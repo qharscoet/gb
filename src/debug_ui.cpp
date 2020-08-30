@@ -184,10 +184,10 @@ void debug_ui_render(Emulator& emu)
 		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(256, 256));
 		ImGui::SameLine();
 
-
-		emu.gpu.display_bg_tiles(pixels);
-		LoadTextureFromPixels(pixels, &bg_tiles, 128, 256);
-		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(128, 256));
+		uint32_t pixels2[128 * 192];
+		emu.gpu.display_bg_tiles(pixels2);
+		LoadTextureFromPixels(pixels2, &bg_tiles, 128, 192);
+		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(128, 192));
 
 		LoadTextureFromPixels(emu.gpu.get_pixel_data(), &screen, 160, 144);
 		ImGui::Image((void *)(intptr_t)screen, ImVec2(160, 144));
