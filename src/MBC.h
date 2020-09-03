@@ -20,22 +20,24 @@ enum class mbc_type : uint8_t
 
 private:
 
-	mbc_type type;
 	std::vector<char> rom;
 	std::vector<char> ram;
 
+protected:
+	mbc_type type;
 	uint8_t current_rom;
 	uint8_t current_ram;
 
 	bool ram_enabled;
 	bool rom_ram_mode;
+
 public:
 
 	MBC() = default;
 	MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
 	~MBC() = default;
 
-	void write(uint16_t addr, uint8_t value);
+	virtual void write(uint16_t addr, uint8_t value);
 	void write_ram(uint16_t addr, uint8_t value);
 	void write_ram(uint16_t addr, uint16_t value);
 
@@ -46,6 +48,20 @@ public:
 	uint8_t ram_banks_count() const;
 
 	bool use_ram() const;
+};
+
+
+class MBC1 : public MBC
+{
+	public:
+		MBC1(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
+		void write(uint16_t addr, uint8_t value);
+};
+
+class MBC5 : public MBC
+{
+	public:
+		void write(uint16_t addr, uint8_t value);
 };
 
 #endif

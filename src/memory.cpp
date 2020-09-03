@@ -6,11 +6,14 @@ Memory::Memory(/* args */)
 {
 	mmap = new char[MEMSIZE];
 	std::memset(mmap, 0, MEMSIZE);
+
+	mbc = nullptr;
 }
 
 Memory::~Memory()
 {
 	delete[] mmap;
+	delete mbc;
 }
 
 void Memory::DMATransfer(uint8_t src)
@@ -24,20 +27,28 @@ void Memory::load_content(std::istream &file)
 {
 	file.read(mmap, 0x8000);
 
-	if(use_mbc())
+	uint32_t romsize = ( kilobytes(32) )<< mmap[0x148];
+	uint32_t ramsize = 0;
+
+	switch(mmap[0x149])
 	{
-		uint32_t romsize = ( kilobytes(32) )<< mmap[0x148];
-		uint32_t ramsize = 0;
+		case 0x01: ramsize = 2048; break;
+		case 0x02: ramsize = 8192; break;
+		case 0x03: ramsize = kilobytes(32); break;
+		default:break;
+	}
 
-		switch(mmap[0x149])
-		{
-			case 0x01: ramsize = 2048; break;
-			case 0x02: ramsize = 8192; break;
-			case 0x03: ramsize = kilobytes(32); break;
-			default:break;
-		}
-
-		mbc = MBC(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
+	switch(mmap[0x147]) {
+		case 0x00:
+			mbc = new MBC(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
+			break;
+		case 0x01:
+		case 0x02:
+		case 0x03:
+			mbc = new MBC1(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
+			break;
+		default:
+			break;
 	}
 }
 
@@ -50,13 +61,13 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 {
 	uint8_t ret = 0;
 
-	if (use_mbc() && addr >= 0x4000 && addr < 0x8000)
+	if (addr >= 0x4000 && addr < 0x8000)
 	{
-		ret = mbc.read_rom(addr - 0x4000);
+		ret = mbc->read_rom(addr - 0x4000);
 	}
-	else if (use_mbc() && addr >= 0xA000 && addr < 0xC000)
+	else if (addr >= 0xA000 && addr < 0xC000)
 	{
-		ret = mbc.read_ram(addr - 0xA000);
+		ret = mbc->read_ram(addr - 0xA000);
 	}
 	else
 	{
@@ -87,13 +98,13 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 
 	char* write_location = &mmap[addr];
 	//maybe forward to MBC
-	if (use_mbc() && addr < 0x8000)
+	if (addr < 0x8000)
 	{
-		mbc.write(addr, value);
+		mbc->write(addr, value);
 	}
-	else if (use_mbc() && mbc.use_ram() && addr >= 0xA000 && addr < 0xC000)
+	else if (mbc != nullptr && mbc->use_ram() && addr >= 0xA000 && addr < 0xC000)
 	{
-		mbc.write_ram(addr - 0xA000, value);
+		mbc->write_ram(addr - 0xA000, value);
 	} else {
 
 		// this is ROM space and can't be written,

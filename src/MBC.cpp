@@ -17,27 +17,6 @@ MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 	rom_ram_mode = false;
 }
 
-
-void MBC::write(uint16_t addr, uint8_t value)
-{
-	// external RAM enable
-	if(addr < 0x2000) {
-		ram_enabled = ((value & 0x0F) == 0xA);
-	} else if ( addr < 0x4000) {
-		if(value == 0) value = 1;
-
-		current_rom = (current_rom & 0xE0) | (value & 0x1F);
-	} else if ( addr < 0x6000) {
-
-		if(rom_ram_mode)
-			current_ram = value;
-		else
-			current_rom = (value << 5) | (current_rom & 0x1F);
-
-	} else {
-		rom_ram_mode = value;
-	}
-}
 void MBC::write_ram(uint16_t addr, uint8_t value)
 {
 	if(ram_enabled)
@@ -65,4 +44,39 @@ uint8_t MBC::ram_banks_count() const
 bool MBC::use_ram() const
 {
 	return ram.size() > 0;
+}
+
+void MBC::write(uint16_t addr, uint8_t value)
+{}
+
+MBC1::MBC1(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
+:MBC(type, romsize, ramsize, file)
+{}
+
+void MBC1::write(uint16_t addr, uint8_t value)
+{
+	// external RAM enable
+	if (addr < 0x2000)
+	{
+		ram_enabled = ((value & 0x0F) == 0xA);
+	}
+	else if (addr < 0x4000)
+	{
+		if (value == 0)
+			value = 1;
+
+		current_rom = (current_rom & 0xE0) | (value & 0x1F);
+	}
+	else if (addr < 0x6000)
+	{
+
+		if (rom_ram_mode)
+			current_ram = value;
+		else
+			current_rom = (value << 5) | (current_rom & 0x1F);
+	}
+	else
+	{
+		rom_ram_mode = value;
+	}
 }

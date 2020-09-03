@@ -16,7 +16,7 @@ private:
 	char* mmap;
 	uint8_t joypad_keys;
 
-	MBC mbc;
+	MBC* mbc;
 
 	void DMATransfer(uint8_t src);
 
