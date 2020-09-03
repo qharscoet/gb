@@ -25,7 +25,7 @@ private:
 
 protected:
 	mbc_type type;
-	uint8_t current_rom;
+	uint16_t current_rom;
 	uint8_t current_ram;
 
 	bool ram_enabled;
@@ -60,7 +60,10 @@ class MBC1 : public MBC
 
 class MBC5 : public MBC
 {
+	private:
+		bool upper_rom_bank;
 	public:
+		MBC5(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
 		void write(uint16_t addr, uint8_t value);
 };
 
