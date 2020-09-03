@@ -265,7 +265,7 @@ void GPU::draw_window(uint8_t line)
 
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 
-	uint8_t window_x = memory->read_8bits(WX);
+	uint8_t window_x = memory->read_8bits(WX) - 7;
 	uint8_t window_y = memory->read_8bits(WY);
 
 	if(line < window_y)
@@ -283,7 +283,7 @@ void GPU::draw_window(uint8_t line)
 	uint16_t tileRow = (bg_y_tile / 8) * 32;
 	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
-	for (int i = window_x - 7; i < LCD_WIDTH; i++)
+	for (int i = window_x ; i < LCD_WIDTH; i++)
 	{
 		uint8_t bg_x_tile = i - window_x;
 		uint16_t tileCol = bg_x_tile / 8;
