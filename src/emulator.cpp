@@ -15,6 +15,7 @@ Emulator::Emulator(/* args */)
 
 Emulator::~Emulator()
 {
+	save();
 }
 
 void Emulator::init()
@@ -31,6 +32,8 @@ bool Emulator::load_rom(std::string filename)
 	if(file.is_open()){
 		memory.load_content(file);
 		file.close();
+
+		load_save();
 
 		return true;
 	} else {
@@ -75,4 +78,24 @@ const GPU& Emulator::get_gpu_ref()
 const std::string Emulator::get_game_name()
 {
 	return memory.get_data(0x0134);
+}
+
+void Emulator::save()
+{
+	std::ofstream file;
+	file.open(get_game_name() + ".sav", std::ios::out | std::ios::binary | std::ios::trunc);
+	memory.dump_ram(file);
+	file.close();
+}
+
+void Emulator::load_save()
+{
+	std::ifstream file;
+	file.open(get_game_name() + ".sav", std::ios::in | std::ios::binary);
+
+	if(file.is_open())
+	{
+		memory.load_ram(file);
+		file.close();
+	}
 }

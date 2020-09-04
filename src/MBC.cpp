@@ -46,6 +46,16 @@ bool MBC::use_ram() const
 	return ram.size() > 0;
 }
 
+void MBC::dump_ram(std::ostream &file) const
+{
+	file.write(&ram[0], ram.size());
+}
+
+void MBC::load_ram(std::istream &file)
+{
+	file.read(&ram[0], ram.size());
+}
+
 void MBC::write(uint16_t addr, uint8_t value)
 {}
 

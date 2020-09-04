@@ -29,6 +29,8 @@ public:
 
 	const uint32_t* get_pixel_data();
 	const std::string get_game_name();
+	void save();
+	void load_save();
 };
 
 #endif

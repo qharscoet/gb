@@ -48,6 +48,8 @@ public:
 	uint8_t ram_banks_count() const;
 
 	bool use_ram() const;
+	void dump_ram(std::ostream &file) const;
+	void load_ram(std::istream &file);
 };
 
 

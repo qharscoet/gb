@@ -187,9 +187,20 @@ void Memory::update_joypad(uint8_t keys)
 	joypad_keys = ~keys;
 }
 
-char *const Memory::get_data(uint16_t addr)
+char *const Memory::get_data(uint16_t addr) const
 {
 	return &mmap[addr];
+}
+
+void Memory::dump_ram(std::ostream &file) const
+{
+	mbc->dump_ram(file);
+}
+
+void Memory::load_ram(std::istream &file)
+{
+	if (mbc->use_ram())
+		mbc->load_ram(file);
 }
 
 bool Memory::use_mbc() const

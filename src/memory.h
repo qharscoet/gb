@@ -46,7 +46,9 @@ public:
 
 	void request_interrupt(interrupt_id id);
 
-	char* const get_data(uint16_t addr);
+	char* const get_data(uint16_t addr) const;
+	void dump_ram(std::ostream &file) const;
+	void load_ram(std::istream &file);
 
 	bool use_mbc() const;
 };
