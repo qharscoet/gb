@@ -9,7 +9,7 @@ extern emu_options options;
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
 
-Display::Display(/* args */)
+Display::Display()
 {
 }
 
@@ -42,7 +42,6 @@ int Display::init()
 	else
 	{
 		//Initialize window and renderer, and check for NULL
-		//sdlWindow = SDL_CreateWindow("My swaggy emulator ! ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
 
 		SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &sdlWindow, &sdlRenderer);
 		if (sdlWindow == NULL)
@@ -83,7 +82,7 @@ void Display::update(const uint32_t* pixels)
 {
 	while((curr_time = SDL_GetTicks()) - prev_time < TICKS_PER_FRAME)
 	{
-		// std::cout << "WAITING " << (TICKS_PER_FRAME - (curr_time - prev_time)) << "\n";
+
 		SDL_Delay(TICKS_PER_FRAME - (curr_time - prev_time));
 	}
 
@@ -99,7 +98,6 @@ void Display::update(const uint32_t* pixels)
 		SDL_UnlockTexture(sdlTexture);
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 
-		// std::cout << " FRAME -------------- " << curr_time - prev_time << " ms  \n";
 		prev_time = curr_time;
 
 		render();

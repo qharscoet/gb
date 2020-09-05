@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
 		}
 		else
 		{
-			//emu.start();
+			emu.start();
 			display.set_title(emu.get_game_name());
 			while(display.handle_events())
 			{

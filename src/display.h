@@ -28,7 +28,7 @@ private:
 	void update_keystate();
 
 public:
-	Display(/* args */);
+	Display();
 	~Display();
 
 	void set_title(std::string str);

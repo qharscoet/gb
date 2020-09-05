@@ -17,7 +17,7 @@ private:
 	GPU gpu;
 
 public:
-	Emulator(/* args */);
+	Emulator();
 	~Emulator();
 
 	void init();
@@ -25,11 +25,9 @@ public:
 	void start();
 	void step(uint8_t inputs);
 
-	const GPU& get_gpu_ref();
-
-	const uint32_t* get_pixel_data();
-	const std::string get_game_name();
-	void save();
+	const uint32_t* get_pixel_data() const;
+	const std::string get_game_name() const;
+	void save() const;
 	void load_save();
 };
 

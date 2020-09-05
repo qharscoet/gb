@@ -7,7 +7,7 @@
 
 extern emu_options options;
 
-Emulator::Emulator(/* args */)
+Emulator::Emulator()
 :cpu(&memory), gpu(&memory)
 {
 
@@ -20,7 +20,6 @@ Emulator::~Emulator()
 
 void Emulator::init()
 {
-	cpu.init();
 	options.pause = false;
 }
 
@@ -43,7 +42,7 @@ bool Emulator::load_rom(std::string filename)
 
 void Emulator::start()
 {
-
+	cpu.init();
 }
 
 void Emulator::step(uint8_t keys)
@@ -65,22 +64,17 @@ void Emulator::step(uint8_t keys)
 
 }
 
-const uint32_t* Emulator::get_pixel_data()
+const uint32_t* Emulator::get_pixel_data() const
 {
 	return gpu.get_pixel_data();
 }
 
-const GPU& Emulator::get_gpu_ref()
-{
-	return gpu;
-}
-
-const std::string Emulator::get_game_name()
+const std::string Emulator::get_game_name() const
 {
 	return memory.get_data(0x0134);
 }
 
-void Emulator::save()
+void Emulator::save() const
 {
 	std::ofstream file;
 	file.open(get_game_name() + ".sav", std::ios::out | std::ios::binary | std::ios::trunc);

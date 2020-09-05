@@ -30,7 +30,7 @@ public:
 		JOYPAD
 	};
 
-	Memory(/* args */);
+	Memory();
 	~Memory();
 
 	void load_content(std::istream &file);

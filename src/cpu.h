@@ -40,11 +40,9 @@ private:
 	};
 
 	// uint8_t registers[8]; //registers A F B C D E H L
-	// uint16_t sp;
 	// uint16_t pc;
 
 	uint16_t registers[6];
-	uint16_t* sp;
 	uint16_t* pc;
 
 	uint8_t* flags;

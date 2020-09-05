@@ -5,11 +5,8 @@
 
 #include <cassert>
 
-CPU::CPU(/* args */)
+CPU::CPU()
 {
-	sp = &registers[4];
-	*sp = 0xFFFE;
-
 	pc = &registers[5];
 	*pc = 0x100;
 
@@ -229,22 +226,6 @@ void CPU::step_timers(uint8_t cycles)
 		}
 
 		timer_cycle_count += cycles;
-
-		// while( timer_cycle_count >= fq[fq_bits])
-		// {
-		// 	timer_cycle_count -= fq[fq_bits];
-		// 	uint8_t value = memory->read_8bits(TIMA);
-
-		// 	if(value == 255)
-		// 	{
-		// 		memory->write_8bits(TIMA, memory->read_8bits(TMA));
-		// 		memory->request_interrupt(Memory::interrupt_id::TIMER);
-		// 		//TODO: timing to check if TMA is written at the same time
-		// 	} else
-		// 	{
-		// 		memory->write_8bits(TIMA, value + 1);
-		// 	}
-		// }
 	}
 }
 

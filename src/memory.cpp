@@ -2,7 +2,7 @@
 
 inline uint32_t kilobytes(uint32_t n) {return 1024 * n; }
 
-Memory::Memory(/* args */)
+Memory::Memory()
 {
 	mmap = new char[MEMSIZE];
 	std::memset(mmap, 0, MEMSIZE);
@@ -91,10 +91,6 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 
 uint16_t Memory::read_16bits(uint16_t addr) const
 {
-	// //echo ram
-	// if (addr >= 0xE000 && addr < 0xFE00)
-	// 	addr -= 0x2000;
-
 	uint8_t lsb = read_8bits(addr++);
 	uint8_t msb = read_8bits(addr);
 
@@ -110,7 +106,7 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	{
 		mbc->write(addr, value);
 	}
-	else if (mbc != nullptr && mbc->use_ram() && addr >= 0xA000 && addr < 0xC000)
+	else if (mbc->use_ram() && addr >= 0xA000 && addr < 0xC000)
 	{
 		mbc->write_ram(addr - 0xA000, value);
 	} else {
