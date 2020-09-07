@@ -14,14 +14,15 @@ TODO NEXT :
 -----------
 - TODOs in the code
 - Refactor to get rid of duplicated code here and there
+- Sprite overlapping and 10 sprite on one line limit
+- Sound ?
 
 
 Missing:
 --------
 
 - Sounds
-- Saves
-- MBC other than MBC1
+- MBC other than MBC1 and 5
 
 External librairies used:
 ---------------------
