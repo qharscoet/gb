@@ -219,10 +219,6 @@ void GPU::draw_bg(uint8_t line)
 	uint8_t scroll_x = memory->read_8bits(SCX);
 	uint8_t scroll_y = memory->read_8bits(SCY);
 
-	// static const uint8_t colors[4] = { 64, 128, 192, 255};
-	// TODO : fix color
-	//TODO : tests enabled bidule
-
 	bool use_unsigned = get_bit(lcd_control, 4);
 	uint16_t tile_data_bank_addr = use_unsigned ? 0x8000 : 0x8800;
 
@@ -352,7 +348,16 @@ void GPU::draw_objects(uint8_t line)
 				if(color_id == 0)
 					continue;
 
-				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4)?0xFF49:0xFF48);
+				uint8_t bg_palette = memory->read_8bits(0xFF47);
+				uint8_t bg_color_0 = bg_palette  & 0x03;
+
+				// Priority check, if it's behind the bg we don't draw
+				// TODO: use real BG color at that px instead of what's already drawn
+				// TODO: overlapping
+				if (get_bit(attr.attr_flags, 7) && ((pixels[line][attr.x_pos + x] & 0xFF) != colors[bg_color_0]))
+					continue;
+
+				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4) ? 0xFF49 : 0xFF48);
 				color_id = (palette >> (color_id << 1)) & 0x03;
 
 				uint8_t col = colors[color_id];
