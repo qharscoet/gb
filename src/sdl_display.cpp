@@ -1,9 +1,9 @@
 #include "sdl_display.h"
 #include "options.h"
 
-#ifndef NDEBUG
-#include "debug_ui.h"
-#endif
+// #ifndef NDEBUG
+// #include "debug_ui.h"
+// #endif
 
 extern emu_options options;
 
@@ -88,8 +88,6 @@ void SDL_Display::update(const uint32_t* pixels)
 	}
 
 	{
-		clear();
-
 		void* argb_pixels;
 		int pitch;
 		SDL_LockTexture(sdlTexture, NULL, &argb_pixels, &pitch);
@@ -100,8 +98,6 @@ void SDL_Display::update(const uint32_t* pixels)
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 
 		prev_time = curr_time;
-
-		render();
 	}
 }
 
@@ -150,10 +146,10 @@ bool SDL_Display::handle_events()
 
 	update_keystate();
 
-#ifndef NDEBUG
-	//forward event to imgui
-	debug_ui_update(&event);
-#endif
+// #ifndef NDEBUG
+// 	//forward event to imgui
+// 	debug_ui_update(&event);
+// #endif
 
 
 	return 1;

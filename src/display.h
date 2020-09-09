@@ -1,3 +1,6 @@
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
+
 #include <iostream>
 
 class Display
@@ -20,3 +23,5 @@ public:
 	virtual bool handle_events() = 0;
 	virtual uint8_t get_keystate() = 0;
 };
+
+#endif

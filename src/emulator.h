@@ -9,7 +9,7 @@
 class Emulator
 {
 
-	friend void debug_ui_render(Emulator &);
+	friend class Debug_Display;
 
 private:
 	Memory memory; //64Ko memory map
