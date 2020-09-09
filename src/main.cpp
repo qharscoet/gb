@@ -8,7 +8,7 @@
 #endif
 
 #include "emulator.h"
-#include "display.h"
+#include "sdl_display.h"
 #include "options.h"
 
 emu_options options;
@@ -20,7 +20,7 @@ emu_options options;
 int main(int argc, char const *argv[])
 {
 	Emulator emu;
-	Display display;
+	SDL_Display display;
 	emu.init();
 	display.init();
 
