@@ -5,9 +5,6 @@
 
 #include "emulator.h"
 
-#ifndef NDEBUG
-#include "debug_ui.h"
-#endif
 
 class Debug_Display : public Display
 {

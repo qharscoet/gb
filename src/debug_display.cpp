@@ -129,7 +129,7 @@ int Debug_Display::init()
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL |  SDL_WINDOW_ALLOW_HIGHDPI);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	sdlWindow = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 	gl_context = SDL_GL_CreateContext(sdlWindow);
 	SDL_GL_MakeCurrent(sdlWindow, gl_context);
@@ -190,19 +190,22 @@ void Debug_Display::update(const uint32_t *pixels)
 	// Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
 
-		ImGui::SetNextWindowPos({640, 360}, 0, {0.5f, 0.5f});
-		ImGui::SetNextWindowSize({480, 480});
-		ImGui::Begin("Emu screen", NULL, ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoMove); // Create a window called "Hello, world!" and append into it.
+		const float screen_display_size = io.DisplaySize.y / 1.5f;
+		ImGui::SetNextWindowPos({io.DisplaySize.x/2.0f, io.DisplaySize.y/2.0f}, 0, {0.5f, 0.5f});
+		ImGui::SetNextWindowSize({screen_display_size, screen_display_size});
+		ImGui::Begin("Emu screen", NULL, ImGuiWindowFlags_NoTitleBar ); // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 		LoadTextureFromPixels(pixels, &screen, LCD_WIDTH, LCD_HEIGHT);
-		ImGui::Image((void *)(intptr_t)screen, ImVec2(LCD_WIDTH * 3, LCD_HEIGHT * 3));
+		ImGui::Image((void *)(intptr_t)screen, ImVec2(screen_display_size * 0.95f, screen_display_size * 0.95f));
 
 		ImGui::End();
 	}
 
 	{
+		ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Once);
+
 		ImGui::Begin("VRAM Viewer");
 
 		ImGui::Text("LCD_CONTROL : %02X", emu.memory.read_8bits(0xFF40));
@@ -222,6 +225,7 @@ void Debug_Display::update(const uint32_t *pixels)
 
 	//  Memory viewer
 	{
+		ImGui::SetNextWindowPos({1280, 0}, ImGuiCond_Once, {1.0f, 0.0f});
 		ImGui::Begin("Memory Editor");
 		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
 		ImGui::SameLine();
@@ -230,14 +234,14 @@ void Debug_Display::update(const uint32_t *pixels)
 		mem_edit.DrawContents(emu.memory.get_data(0xFF00), 0x100, 0xFF00);
 		ImGui::End();
 	}
-	//  Memory viewer custom
-	{
-		ImGui::Begin("Memory Editor 2");
-		ImGui::InputInt("begin", &begin);
-		ImGui::InputInt("size", &size);
-		mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
-		ImGui::End();
-	}
+	// //  Memory viewer custom
+	// {
+	// 	ImGui::Begin("Memory Editor 2");
+	// 	ImGui::InputInt("begin", &begin);
+	// 	ImGui::InputInt("size", &size);
+	// 	mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
+	// 	ImGui::End();
+	// }
 
 	// Debug options
 	{

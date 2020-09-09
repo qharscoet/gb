@@ -31,9 +31,6 @@ int main(int argc, char const *argv[])
 	emu.init();
 	display->init();
 
-// #ifndef NDEBUG
-// 	debug_ui_init();
-// #endif
 
 	if(argc > 1) {
 		if(!emu.load_rom(argv[1]))
@@ -61,9 +58,6 @@ int main(int argc, char const *argv[])
 				display->update(emu.get_pixel_data());
 				display->render();
 
-// #ifndef NDEBUG
-// 				debug_ui_render(emu);
-// #endif
 
 				end = std::chrono::steady_clock::now();
 				t_display = end - start;
@@ -81,10 +75,6 @@ int main(int argc, char const *argv[])
 	} else {
 		std::cout << "please indicate rom file" << std::endl;
 	}
-
-// #ifndef NDEBUG
-// 	debug_ui_free();
-// #endif
 
 	return 0;
 }

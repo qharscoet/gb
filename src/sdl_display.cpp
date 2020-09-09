@@ -1,9 +1,6 @@
 #include "sdl_display.h"
 #include "options.h"
 
-// #ifndef NDEBUG
-// #include "debug_ui.h"
-// #endif
 
 extern emu_options options;
 
@@ -145,12 +142,6 @@ bool SDL_Display::handle_events()
 	}
 
 	update_keystate();
-
-// #ifndef NDEBUG
-// 	//forward event to imgui
-// 	debug_ui_update(&event);
-// #endif
-
 
 	return 1;
 }
