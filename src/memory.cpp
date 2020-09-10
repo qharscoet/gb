@@ -185,7 +185,12 @@ void Memory::update_joypad(uint8_t keys)
 
 char *const Memory::get_data(uint16_t addr) const
 {
-	return &mmap[addr];
+	if (addr >= 0x4000 && addr < 0x8000)
+		return mbc->get_rom_data(addr - 0x4000);
+	else if (addr >= 0xA000 && addr < 0xC000)
+		return mbc->get_ram_data(addr - 0xA000);
+	else
+		return &mmap[addr];
 }
 
 void Memory::dump_ram(std::ostream &file) const

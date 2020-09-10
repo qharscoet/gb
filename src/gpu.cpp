@@ -370,7 +370,7 @@ void GPU::draw_objects(uint8_t line)
 }
 
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
 
 void GPU::draw_full_bg(uint32_t *pixels) const
 {
@@ -484,4 +484,4 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 	}
 }
 
-#endif
+//#endif

@@ -108,3 +108,13 @@ void MBC5::write(uint16_t addr, uint8_t value)
 		current_ram = (current_ram & 0xF0) | (value & 0x0F);
 	}
 }
+
+char * MBC::get_rom_data(uint16_t addr)
+{
+	return &rom[current_rom * 0x4000 + addr];
+}
+
+char * MBC::get_ram_data(uint16_t addr)
+{
+	return &ram[current_ram * 0x2000 + addr];
+}

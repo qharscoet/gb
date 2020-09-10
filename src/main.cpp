@@ -21,15 +21,14 @@ int main(int argc, char const *argv[])
 {
 	Emulator emu;
 
-	Display* display;
 #ifndef NDEBUG
-	display = new Debug_Display(emu);
+	Debug_Display display(emu);
 #else
-	display = new SDL_Display();
+	SDL_Display display;
 #endif
 
 	emu.init();
-	display->init();
+	display.init();
 
 
 	if(argc > 1) {
@@ -40,23 +39,23 @@ int main(int argc, char const *argv[])
 		else
 		{
 			emu.start();
-			display->set_title(emu.get_game_name());
-			while(display->handle_events())
+			display.set_title(emu.get_game_name());
+			while(display.handle_events())
 			{
 				std::chrono::duration<double, std::milli> t_emu, t_display, t_total;
 				auto total_start = std::chrono::steady_clock::now();
 				auto start = total_start;
 
-				emu.step(display->get_keystate());
+				emu.step(display.get_keystate());
 
 				auto end = std::chrono::steady_clock::now();
 				t_emu = end - start;
 
 				start = std::chrono::steady_clock::now();
 
-				display->clear();
-				display->update(emu.get_pixel_data());
-				display->render();
+				display.clear();
+				display.update(emu.get_pixel_data());
+				display.render();
 
 
 				end = std::chrono::steady_clock::now();
@@ -66,7 +65,7 @@ int main(int argc, char const *argv[])
 				t_total = total_end - total_start;
 
 				// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
-				// std::cout << " display time " << t_display->count() << " ms" << "\n";
+				// std::cout << " display time " << t_display.count() << " ms" << "\n";
 
 				// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 			}
@@ -75,6 +74,7 @@ int main(int argc, char const *argv[])
 	} else {
 		std::cout << "please indicate rom file" << std::endl;
 	}
+
 
 	return 0;
 }

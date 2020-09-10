@@ -50,6 +50,9 @@ public:
 	bool use_ram() const;
 	void dump_ram(std::ostream &file) const;
 	void load_ram(std::istream &file);
+
+	char * get_rom_data(uint16_t addr);
+	char * get_ram_data(uint16_t addr);
 };
 
 
