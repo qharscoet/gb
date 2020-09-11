@@ -29,6 +29,7 @@ External librairies used:
 
 - SDL2 : https://www.libsdl.org/
 - Dear imgui : https://github.com/ocornut/imgui
+- tinyfiledialogs : https://sourceforge.net/projects/tinyfiledialogs/
 
 Ressources used for documentation about the gameboy:
 --------------------
