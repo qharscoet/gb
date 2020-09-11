@@ -93,6 +93,8 @@ int main(int argc, char const *argv[])
 				display = new SDL_Display();
 
 			display->init();
+			display->set_title(emu.get_game_name());
+
 			options.display_changed = false;
 		}
 	}
