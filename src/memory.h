@@ -52,6 +52,7 @@ public:
 	void dump_ram(std::ostream &file) const;
 	void load_ram(std::istream &file);
 
+	bool use_external_ram() const;
 	bool use_mbc() const;
 };
 

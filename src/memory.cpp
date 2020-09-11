@@ -215,6 +215,11 @@ void Memory::load_ram(std::istream &file)
 		mbc->load_ram(file);
 }
 
+bool Memory::use_external_ram() const
+{
+	return use_mbc() && mbc->use_ram();
+}
+
 bool Memory::use_mbc() const
 {
 	return mmap[0x0147] != 0;
