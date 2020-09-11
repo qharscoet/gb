@@ -226,22 +226,16 @@ void Debug_Display::update(const uint32_t *pixels)
 	//  Memory viewer
 	{
 		ImGui::SetNextWindowPos({1280, 0}, ImGuiCond_Once, {1.0f, 0.0f});
+		mem_edit.DrawWindow("VRAM Editor", emu.memory.get_data(0x8000), 0x2000, 0x8000);
+	}
+	//  Memory viewer custom
+	{
 		ImGui::Begin("Memory Editor");
-		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
-		ImGui::SameLine();
-		mem_edit.DrawContents(emu.memory.get_data(0xFE00), 0x100, 0xFE00);
-		ImGui::SameLine();
-		mem_edit.DrawContents(emu.memory.get_data(0xFF00), 0x100, 0xFF00);
+		ImGui::InputInt("begin", &begin, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
+		ImGui::InputInt("size", &size, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
+		mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
 		ImGui::End();
 	}
-	// //  Memory viewer custom
-	// {
-	// 	ImGui::Begin("Memory Editor 2");
-	// 	ImGui::InputInt("begin", &begin);
-	// 	ImGui::InputInt("size", &size);
-	// 	mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
-	// 	ImGui::End();
-	// }
 
 	// Debug options
 	{
