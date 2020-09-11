@@ -38,9 +38,9 @@ using namespace gl;
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
 
-static GLuint bg_full = 0;
-static GLuint bg_tiles = 0;
-static GLuint screen = 0;
+static GLuint bg_full;
+static GLuint bg_tiles;
+static GLuint screen;
 
 static MemoryEditor mem_edit;
 static MemoryEditor mem_edit2;
@@ -84,19 +84,23 @@ bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, i
 
 Debug_Display::Debug_Display(Emulator &emu)
 :emu(emu)
-{}
+{
+	bg_full = 0;
+	bg_tiles = 0;
+	screen = 0;
+}
 
 Debug_Display::~Debug_Display()
 {
+
+	glDeleteTextures(1, &bg_full);
+	glDeleteTextures(1, &bg_tiles);
+	glDeleteTextures(1, &screen);
 
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
-
-	glDeleteTextures(1, &bg_full);
-	glDeleteTextures(1, &bg_tiles);
-	glDeleteTextures(1, &screen);
 
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(sdlWindow);
@@ -291,6 +295,15 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		ImGui::Begin("Debug options", &options_open);
 		ImGui::Checkbox("Pause", &options.pause);
+		if(ImGui::Checkbox("Debug UI", &options.debug_ui)){
+			options.display_changed = true;
+		}
+
+		if (ImGui::Button("Reset", ImVec2(80, 0)))
+		{
+			emu.save();
+			emu.reset();
+		}
 
 		ImGui::End();
 	}

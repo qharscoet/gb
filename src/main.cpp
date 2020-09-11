@@ -10,25 +10,25 @@
 #include "emulator.h"
 #include "options.h"
 
-#ifndef NDEBUG
-	#include "debug_display.h"
-#else
-	#include "sdl_display.h"
-#endif
+#include "debug_display.h"
+#include "sdl_display.h"
 
 emu_options options;
 int main(int argc, char const *argv[])
 {
 	Emulator emu;
+	Display *display;
 
 #ifndef NDEBUG
-	Debug_Display display(emu);
+	display = new Debug_Display(emu);
+	options.debug_ui = true;
 #else
-	SDL_Display display;
+	display = new SDL_Display();
+	options.debug_ui = false;
 #endif
 
 	emu.init();
-	display.init();
+	display->init();
 
 	if(argc > 1) {
 		emu.set_rom_file(argv[1]);
@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
 
 	while(!emu.is_exiting())
 	{
-		display.handle_events(emu);
+		display->handle_events(emu);
 
 		if(emu.needs_reload())
 		{
@@ -48,7 +48,7 @@ int main(int argc, char const *argv[])
 			else
 			{
 				emu.start();
-				display.set_title(emu.get_game_name());
+				display->set_title(emu.get_game_name());
 			}
 		}
 		else
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
 
 			if (emu.is_running())
 			{
-				emu.step(display.get_keystate());
+				emu.step(display->get_keystate());
 			}
 
 			auto end = std::chrono::steady_clock::now();
@@ -67,9 +67,9 @@ int main(int argc, char const *argv[])
 
 			start = std::chrono::steady_clock::now();
 
-			display.clear();
-			display.update(emu.get_pixel_data());
-			display.render();
+			display->clear();
+			display->update(emu.get_pixel_data());
+			display->render();
 
 			end = std::chrono::steady_clock::now();
 			t_display = end - start;
@@ -78,11 +78,25 @@ int main(int argc, char const *argv[])
 			t_total = total_end - total_start;
 
 			// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
-			// std::cout << " display time " << t_display.count() << " ms" << "\n";
+			// std::cout << " display time " << t_display->count() << " ms" << "\n";
 
 			// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 		}
+
+		if (options.display_changed)
+		{
+			delete display;
+
+			if (options.debug_ui)
+				display = new Debug_Display(emu);
+			else
+				display = new SDL_Display();
+
+			display->init();
+			options.display_changed = false;
+		}
 	}
 
+	delete display;
 	return 0;
 }

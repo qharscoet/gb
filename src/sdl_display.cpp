@@ -143,6 +143,12 @@ bool SDL_Display::handle_events(Emulator &emu)
 		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)
 			options.pause = !options.pause;
 
+		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F1)
+		{
+			options.debug_ui = !options.debug_ui;
+			options.display_changed = true;
+		}
+
 		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R)
 			emu.reset();
 
@@ -150,12 +156,12 @@ bool SDL_Display::handle_events(Emulator &emu)
 		{
 			char const *lFilterPatterns[1] = {"*.gb"};
 			char const *selection = tinyfd_openFileDialog( // there is also a wchar_t version
-				"Open ROM",							   // title
-				NULL,									   // optional initial directory
-				1,										   // number of filter patterns
-				lFilterPatterns,						   // char const * lFilterPatterns[2] = { "*.txt", "*.jpg" };
-				NULL,									   // optional filter description
-				0										   // forbid multiple selections
+				"Open ROM",									// title
+				NULL,										// optional initial directory
+				1,											// number of filter patterns
+				lFilterPatterns,							// char const * lFilterPatterns[2] = { "*.txt", "*.jpg" };
+				NULL,										// optional filter description
+				0											// forbid multiple selections
 			);
 
 			emu.save();
