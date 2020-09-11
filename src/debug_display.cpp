@@ -4,6 +4,7 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_memory_editor.h"
+#include "imgui/imfilebrowser.h"
 
 #include "options.h"
 
@@ -43,6 +44,12 @@ static GLuint screen = 0;
 
 static MemoryEditor mem_edit;
 static MemoryEditor mem_edit2;
+static ImGui::FileBrowser fileDialog;
+
+static bool memory_editor_open = true;
+static bool vram_editor_open = true;
+static bool options_open = true;
+static bool vram_viewer = true;
 
 static int begin, size;
 
@@ -186,6 +193,40 @@ void Debug_Display::update(const uint32_t *pixels)
 	ImGui::NewFrame();
 	ImGuiIO &io = ImGui::GetIO();
 
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open", "Ctrl+O"))
+			{
+				fileDialog.Open();
+				fileDialog.SetTypeFilters({".gb"});
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Tools"))
+		{
+			ImGui::MenuItem("VRAM Viewer", NULL, &vram_viewer);
+			ImGui::MenuItem("VRAM Editor", NULL, &vram_editor_open);
+			ImGui::MenuItem("Memory Editor", NULL, &memory_editor_open);
+			ImGui::MenuItem("Options", NULL, &options_open);
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+
+	fileDialog.Display();
+	if (fileDialog.HasSelected())
+	{
+		emu.save();
+		emu.set_rom_file(fileDialog.GetSelected().string());
+		emu.reset();
+
+		fileDialog.ClearSelected();
+	}
 
 	// Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
@@ -205,10 +246,12 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::End();
 	}
 
-	{
-		ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Once);
+	//ImGui::ShowDemoWindow();
 
-		ImGui::Begin("VRAM Viewer");
+	if(vram_viewer)
+	{
+		ImGui::SetNextWindowPos({0, ImGui::GetFrameHeight()}, ImGuiCond_Appearing);
+		ImGui::Begin("VRAM Viewer", &vram_viewer);
 
 		ImGui::Text("LCD_CONTROL : %02X", emu.memory.read_8bits(0xFF40));
 		uint32_t pixels[256 * 256];
@@ -226,13 +269,17 @@ void Debug_Display::update(const uint32_t *pixels)
 	}
 
 	//  Memory viewer
+	if(vram_editor_open)
 	{
-		ImGui::SetNextWindowPos({1280, 0}, ImGuiCond_Once, {1.0f, 0.0f});
-		mem_edit.DrawWindow("VRAM Editor", emu.memory.get_data(0x8000), 0x2000, 0x8000);
+		ImGui::SetNextWindowPos({io.DisplaySize.x, ImGui::GetFrameHeight()}, ImGuiCond_Appearing, {1.0f, 0.0f});
+		ImGui::Begin("VRAM Editor", &vram_editor_open);
+		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
+		ImGui::End();
 	}
 	//  Memory viewer custom
+	if(memory_editor_open)
 	{
-		ImGui::Begin("Memory Editor");
+		ImGui::Begin("Memory Editor", &memory_editor_open);
 		ImGui::InputInt("begin", &begin, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
 		ImGui::InputInt("size", &size, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
 		mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
@@ -240,8 +287,9 @@ void Debug_Display::update(const uint32_t *pixels)
 	}
 
 	// Debug options
+	if(options_open)
 	{
-		ImGui::Begin("Debug options");
+		ImGui::Begin("Debug options", &options_open);
 		ImGui::Checkbox("Pause", &options.pause);
 
 		ImGui::End();
