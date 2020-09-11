@@ -80,19 +80,23 @@ void Emulator::save() const
 {
 	std::ofstream file;
 	file.open(get_game_name() + ".sav", std::ios::out | std::ios::binary | std::ios::trunc);
-	memory.dump_ram(file);
+	if(memory.use_mbc())
+		memory.dump_ram(file);
 	file.close();
 }
 
 void Emulator::load_save()
 {
-	std::ifstream file;
-	file.open(get_game_name() + ".sav", std::ios::in | std::ios::binary);
-
-	if(file.is_open())
+	if (memory.use_mbc())
 	{
-		memory.load_ram(file);
-		file.close();
+		std::ifstream file;
+		file.open(get_game_name() + ".sav", std::ios::in | std::ios::binary);
+
+		if(file.is_open())
+		{
+			memory.load_ram(file);
+			file.close();
+		}
 	}
 }
 

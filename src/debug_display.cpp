@@ -193,12 +193,14 @@ void Debug_Display::update(const uint32_t *pixels)
 		const float screen_display_size = io.DisplaySize.y / 1.5f;
 		ImGui::SetNextWindowPos({io.DisplaySize.x/2.0f, io.DisplaySize.y/2.0f}, 0, {0.5f, 0.5f});
 		ImGui::SetNextWindowSize({screen_display_size, screen_display_size});
-		ImGui::Begin("Emu screen", NULL, ImGuiWindowFlags_NoTitleBar ); // Create a window called "Hello, world!" and append into it.
+		ImGui::Begin("Emu screen", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize); // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+		ImGui::SetCursorPos({screen_display_size * 0.05f, screen_display_size * 0.05f});
+
 		LoadTextureFromPixels(pixels, &screen, LCD_WIDTH, LCD_HEIGHT);
-		ImGui::Image((void *)(intptr_t)screen, ImVec2(screen_display_size * 0.95f, screen_display_size * 0.95f));
+		ImGui::Image((void *)(intptr_t)screen, ImVec2(screen_display_size * 0.90f, screen_display_size * 0.90f));
 
 		ImGui::End();
 	}
