@@ -37,6 +37,7 @@ public:
 	MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
 	~MBC() = default;
 
+	void reset();
 	virtual void write(uint16_t addr, uint8_t value);
 	void write_ram(uint16_t addr, uint8_t value);
 	void write_ram(uint16_t addr, uint16_t value);

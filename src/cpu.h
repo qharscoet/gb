@@ -51,7 +51,7 @@ private:
 	bool test_true;
 
 	bool ime = false;
-	bool ime_scheduled;
+	bool ime_scheduled = false;
 
 	bool halted = false;
 
@@ -262,6 +262,7 @@ public:
 	CPU(Memory* memory);
 	~CPU() = default;
 
+	void reset();
 	void init();
 	uint8_t step();
 };

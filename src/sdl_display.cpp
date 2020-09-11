@@ -123,7 +123,7 @@ uint8_t SDL_Display::get_keystate()
 	return keystate;
 }
 
-bool SDL_Display::handle_events()
+bool SDL_Display::handle_events(Emulator &emu)
 {
 	SDL_Event event;
 
@@ -134,11 +134,15 @@ bool SDL_Display::handle_events()
 			&& event.window.event == SDL_WINDOWEVENT_CLOSE
         	&& event.window.windowID == SDL_GetWindowID(sdlWindow)))
 		{
+				emu.quit();
 				return 0;
 		}
 
 		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)
 			options.pause = !options.pause;
+
+		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R)
+			emu.reset();
 	}
 
 	update_keystate();

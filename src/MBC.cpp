@@ -1,5 +1,7 @@
 #include "MBC.h"
 
+#include <algorithm>
+
 MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 {
 	this->type = type;
@@ -15,6 +17,15 @@ MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 
 	ram_enabled = false;
 	rom_ram_mode = false;
+}
+
+void MBC::reset()
+{
+	if(rom.size() > 0)
+		std::fill(rom.begin(), rom.end(), 0);
+
+	if(ram.size() > 0)
+		std::fill(ram.begin(), ram.end(), 0);
 }
 
 void MBC::write_ram(uint16_t addr, uint8_t value)

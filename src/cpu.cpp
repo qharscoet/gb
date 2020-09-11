@@ -21,12 +21,21 @@ CPU::CPU(Memory* memory)
 	this->memory = memory;
 }
 
+void CPU::reset()
+{
+	memset(registers, 0, 12);
+	halted = false;
+	ime = false;
+	ime_scheduled = false;
+
+	divider_cycle_count = 0;
+	timer_cycle_count = 0;
+}
 
 void CPU::init()
 {
 	assert(memory != nullptr);
 
-	memset(registers, 0, 12);
 	write_r8(r8::A, 0x01);
 	write_r8(r8::F, 0xB0);
 	// write_r8(r8::B, 0x00);

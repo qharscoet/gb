@@ -16,6 +16,13 @@ Memory::~Memory()
 	delete mbc;
 }
 
+void Memory::reset()
+{
+	std::memset(mmap, 0, MEMSIZE);
+	if(mbc != nullptr)
+		mbc->reset();
+}
+
 void Memory::DMATransfer(uint8_t src)
 {
 	uint16_t addr  = src << 8;
@@ -25,6 +32,7 @@ void Memory::DMATransfer(uint8_t src)
 
 void Memory::load_content(std::istream &file)
 {
+	reset();
 	file.read(mmap, 0x8000);
 
 	uint32_t romsize = ( kilobytes(32) )<< mmap[0x148];
@@ -37,6 +45,9 @@ void Memory::load_content(std::istream &file)
 		case 0x03: ramsize = kilobytes(32); break;
 		default:break;
 	}
+
+	if(mbc != nullptr)
+		delete mbc;
 
 	switch(mmap[0x147]) {
 		case 0x00:

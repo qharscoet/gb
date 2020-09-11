@@ -33,6 +33,8 @@ public:
 	Memory();
 	~Memory();
 
+	void reset();
+
 	void load_content(std::istream &file);
 	void load_content(const uint8_t* data, uint32_t size);
 

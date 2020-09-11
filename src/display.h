@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "emulator.h"
+
 class Display
 {
 protected:
@@ -20,7 +22,7 @@ public:
 	virtual void update(const uint32_t* pixels) = 0;
 	virtual void render() = 0;
 
-	virtual bool handle_events() = 0;
+	virtual bool handle_events(Emulator &emu) = 0;
 	virtual uint8_t get_keystate() = 0;
 };
 

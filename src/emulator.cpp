@@ -8,7 +8,7 @@
 extern emu_options options;
 
 Emulator::Emulator()
-:cpu(&memory), gpu(&memory)
+:cpu(&memory), gpu(&memory), state(emu_state::IDLE)
 {
 
 }
@@ -42,7 +42,9 @@ bool Emulator::load_rom(std::string filename)
 
 void Emulator::start()
 {
+	cpu.reset();
 	cpu.init();
+	state = emu_state::RUNNING;
 }
 
 void Emulator::step(uint8_t keys)
@@ -92,4 +94,32 @@ void Emulator::load_save()
 		memory.load_ram(file);
 		file.close();
 	}
+}
+
+bool Emulator::is_running()
+{
+	return state == emu_state::RUNNING;
+}
+bool Emulator::is_exiting()
+{
+	return state == emu_state::QUIT;
+}
+bool Emulator::needs_reload()
+{
+	return state == emu_state::NEED_RELOAD;
+}
+
+void Emulator::quit()
+{
+	state = emu_state::QUIT;
+}
+
+void Emulator::reset()
+{
+	state = emu_state::NEED_RELOAD;
+}
+
+void Emulator::stop()
+{
+	state = emu_state::IDLE;
 }

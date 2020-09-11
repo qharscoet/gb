@@ -251,7 +251,7 @@ void Debug_Display::set_title(std::string str)
 	SDL_SetWindowTitle(sdlWindow, str.c_str());
 }
 
-bool Debug_Display::handle_events()
+bool Debug_Display::handle_events(Emulator &emu)
 {
 	SDL_Event event;
 
@@ -259,11 +259,15 @@ bool Debug_Display::handle_events()
 	{
 		if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(sdlWindow)))
 		{
+			emu.quit();
 			return 0;
 		}
 
 		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)
 			options.pause = !options.pause;
+
+		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R)
+			emu.reset();
 	}
 
 	update_keystate();

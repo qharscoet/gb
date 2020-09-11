@@ -35,6 +35,6 @@ public:
 	void update(const uint32_t *pixels);
 	void render();
 
-	bool handle_events();
+	bool handle_events(Emulator &emu);
 	uint8_t get_keystate();
 };
