@@ -7,12 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_GENERATOR_PLATFORM x86)
 
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
-
 file(GLOB SOURCES "./src/*.cpp")
 file(GLOB IMGUI "./src/imgui/*.cpp")
 
-add_executable(gb ${SOURCES} ${IMGUI})
+add_executable(gb ${SOURCES} ${IMGUI} "./src/tinyfiledialogs/tinyfiledialogs.c")
 
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
