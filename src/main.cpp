@@ -30,10 +30,8 @@ int main(int argc, char const *argv[])
 	emu.init();
 	display.init();
 
-	std::string rom_filename = "";
 	if(argc > 1) {
-		rom_filename = argv[1];
-		emu.reset();
+		emu.set_rom_file(argv[1]);
 	}
 
 	while(!emu.is_exiting())
@@ -42,7 +40,7 @@ int main(int argc, char const *argv[])
 
 		if(emu.needs_reload())
 		{
-			if(!emu.load_rom(rom_filename))
+			if(!emu.load_rom())
 			{
 				std::cout << "Error opening file " << argv[1] << std::endl;
 				emu.stop();

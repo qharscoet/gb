@@ -22,6 +22,8 @@ private:
 
 	emu_state state;
 
+	std::string rom_filename;
+
 	Memory memory; //64Ko memory map
 	CPU cpu;
 	GPU gpu;
@@ -31,6 +33,7 @@ public:
 	~Emulator();
 
 	void init();
+	bool load_rom();
 	bool load_rom(std::string filename);
 	void start();
 	void step(uint8_t inputs);
@@ -44,10 +47,12 @@ public:
 	void save() const;
 	void load_save();
 
+	void set_rom_file(std::string filename);
+
 	//state functions
-	bool is_running();
-	bool is_exiting();
-	bool needs_reload();
+	bool is_running() const;
+	bool is_exiting() const;
+	bool needs_reload() const;
 };
 
 #endif

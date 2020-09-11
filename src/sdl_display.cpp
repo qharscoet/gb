@@ -1,6 +1,8 @@
 #include "sdl_display.h"
 #include "options.h"
 
+#include "tinyfiledialogs/tinyfiledialogs.h"
+
 
 extern emu_options options;
 
@@ -143,6 +145,24 @@ bool SDL_Display::handle_events(Emulator &emu)
 
 		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_R)
 			emu.reset();
+
+		if(event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_O)
+		{
+			char const *lFilterPatterns[1] = {"*.gb"};
+			char const *selection = tinyfd_openFileDialog( // there is also a wchar_t version
+				"Open ROM",							   // title
+				NULL,									   // optional initial directory
+				1,										   // number of filter patterns
+				lFilterPatterns,						   // char const * lFilterPatterns[2] = { "*.txt", "*.jpg" };
+				NULL,									   // optional filter description
+				0										   // forbid multiple selections
+			);
+
+			emu.save();
+			emu.set_rom_file(selection);
+			emu.reset();
+		}
+
 	}
 
 	update_keystate();

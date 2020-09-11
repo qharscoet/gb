@@ -23,6 +23,11 @@ void Emulator::init()
 	options.pause = false;
 }
 
+bool Emulator::load_rom()
+{
+	return load_rom(rom_filename);
+}
+
 bool Emulator::load_rom(std::string filename)
 {
 	std::ifstream file;
@@ -73,7 +78,7 @@ const uint32_t* Emulator::get_pixel_data() const
 
 const std::string Emulator::get_game_name() const
 {
-	return memory.get_data(0x0134);
+	return rom_filename != ""?memory.get_data(0x0134):"Gameboy Emulator";
 }
 
 void Emulator::save() const
@@ -100,15 +105,21 @@ void Emulator::load_save()
 	}
 }
 
-bool Emulator::is_running()
+void Emulator::set_rom_file(std::string filename)
+{
+	rom_filename = filename;
+	reset();
+}
+
+bool Emulator::is_running() const
 {
 	return state == emu_state::RUNNING;
 }
-bool Emulator::is_exiting()
+bool Emulator::is_exiting() const
 {
 	return state == emu_state::QUIT;
 }
-bool Emulator::needs_reload()
+bool Emulator::needs_reload() const
 {
 	return state == emu_state::NEED_RELOAD;
 }
