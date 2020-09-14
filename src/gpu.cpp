@@ -314,21 +314,24 @@ void GPU::draw_objects(uint8_t line)
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 	bool use_8x16 = get_bit(lcd_control, 2);
 
-	for(int i = 0; i < 40; i++)
+	// We loop backwards because the number with smallest obj number has highest priority
+	for(int i = 39; i >= 0; i--)
 	{
 		const uint8_t spr_idx = i * 4;
 		spr_attribute attr;
-		attr.y_pos = memory->read_8bits(OBJ0 + spr_idx) - 10;
-		attr.x_pos = memory->read_8bits(OBJ0 + spr_idx + 1) - 8;
+		attr.y_pos = memory->read_8bits(OBJ0 + spr_idx);
+		attr.x_pos = memory->read_8bits(OBJ0 + spr_idx + 1);
 		attr.tile_number = memory->read_8bits(OBJ0 + spr_idx + 2);
 		attr.attr_flags = memory->read_8bits(OBJ0 + spr_idx + 3);
 
 		uint8_t ysize = (use_8x16)?16:8;
 
 		// If we are in the current scanline
-		if(attr.y_pos <= line && attr.y_pos + ysize > line)
+		int16_t ajusted_y = attr.y_pos - 0x10;
+		int16_t ajusted_x = attr.x_pos - 0x08;
+		if(ajusted_y <= line && ajusted_y + ysize > line)
 		{
-			uint8_t pixel_line = line - attr.y_pos;
+			uint8_t pixel_line = line - ajusted_y;
 			if(get_bit(attr.attr_flags, 6))
 				pixel_line = ysize - pixel_line -1 ;
 
@@ -337,7 +340,8 @@ void GPU::draw_objects(uint8_t line)
 			uint8_t data1 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line);
 			uint8_t data2 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line + 1);
 
-			for(int x = 0; x < 8; x++)
+			// Backward because smallest X had priority
+			for(int x = 7; x >= 0; x--)
 			{
 				uint8_t pixel_col = x;
 				if(!get_bit(attr.attr_flags, 5))
@@ -354,7 +358,7 @@ void GPU::draw_objects(uint8_t line)
 				// Priority check, if it's behind the bg we don't draw
 				// TODO: use real BG color at that px instead of what's already drawn
 				// TODO: overlapping
-				if (get_bit(attr.attr_flags, 7) && ((pixels[line][attr.x_pos + x] & 0xFF) != colors[bg_color_0]))
+				if (get_bit(attr.attr_flags, 7) && ((pixels[line][ajusted_x + x] & 0xFF) != colors[bg_color_0]))
 					continue;
 
 				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4) ? 0xFF49 : 0xFF48);
@@ -362,7 +366,7 @@ void GPU::draw_objects(uint8_t line)
 
 				uint8_t col = colors[color_id];
 
-				pixels[line][attr.x_pos + x] = (255 << 24) | (col << 16) | (col << 8) | col;
+				pixels[line][ajusted_x + x] = (255 << 24) | (col << 16) | (col << 8) | col;
 			}
 		}
 	}
