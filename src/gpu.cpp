@@ -318,8 +318,8 @@ void GPU::draw_objects(uint8_t line)
 	{
 		const uint8_t spr_idx = i * 4;
 		spr_attribute attr;
-		attr.y_pos = memory->read_8bits(OBJ0 + spr_idx) - 0x10;
-		attr.x_pos = memory->read_8bits(OBJ0 + spr_idx + 1) - 0x08;
+		attr.y_pos = memory->read_8bits(OBJ0 + spr_idx) - 10;
+		attr.x_pos = memory->read_8bits(OBJ0 + spr_idx + 1) - 8;
 		attr.tile_number = memory->read_8bits(OBJ0 + spr_idx + 2);
 		attr.attr_flags = memory->read_8bits(OBJ0 + spr_idx + 3);
 
@@ -330,7 +330,7 @@ void GPU::draw_objects(uint8_t line)
 		{
 			uint8_t pixel_line = line - attr.y_pos;
 			if(get_bit(attr.attr_flags, 6))
-				pixel_line = ysize - pixel_line;
+				pixel_line = ysize - pixel_line -1 ;
 
 			pixel_line *= 2;
 
