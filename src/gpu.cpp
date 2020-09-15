@@ -440,7 +440,6 @@ void GPU::draw_full_bg(uint32_t *pixels) const
 void GPU::display_bg_tiles(uint32_t* pixels) const
 {
 	const uint16_t PALETTE = 0xFF47;
-	const uint16_t bg_map_addr = 0x9800;
 
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
 	uint16_t tile_data_bank_addr = 0;
@@ -453,7 +452,7 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 
 		uint8_t bg_y_tile = i;
 
-		// each tile is 8x8 and each row is 32 block
+		// each tile is 8x8 and each row is 16 block
 		uint16_t tileRow = (bg_y_tile / 8) * 16;
 
 		for (int j = 0; j < 128; j++)
@@ -461,8 +460,7 @@ void GPU::display_bg_tiles(uint32_t* pixels) const
 			uint8_t bg_x_tile = j;
 			uint16_t tileCol = bg_x_tile / 8;
 
-			uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
-			uint8_t tile_id = tileRow + tileCol; //memory->read_8bits(tile_addr);
+			uint16_t tile_id = tileRow + tileCol;
 
 			uint16_t tile_data_addr = 0;
 			tile_data_addr = tile_data_bank_addr + tile_id * 16;

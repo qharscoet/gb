@@ -201,7 +201,7 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Open", "Ctrl+O"))
+			if (ImGui::MenuItem("Open"))
 			{
 				fileDialog.Open();
 				fileDialog.SetTypeFilters({".gb"});
@@ -261,13 +261,13 @@ void Debug_Display::update(const uint32_t *pixels)
 		uint32_t pixels[256 * 256];
 		emu.gpu.draw_full_bg(pixels);
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
-		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(256, 256));
+		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.5f));
 		ImGui::SameLine();
 
 		uint32_t pixels2[128 * 192];
 		emu.gpu.display_bg_tiles(pixels2);
 		LoadTextureFromPixels(pixels2, &bg_tiles, 128, 192);
-		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(128, 192));
+		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(ImGui::GetWindowWidth() * 0.25f, ImGui::GetWindowHeight() * 0.375f));
 
 		ImGui::End();
 	}
