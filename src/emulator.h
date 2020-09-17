@@ -3,6 +3,7 @@
 
 #include "cpu.h"
 #include "gpu.h"
+#include "sound.h"
 
 #include <string>
 
@@ -27,6 +28,7 @@ private:
 	Memory memory; //64Ko memory map
 	CPU cpu;
 	GPU gpu;
+	Sound apu;
 
 public:
 	Emulator();
@@ -43,6 +45,9 @@ public:
 
 	const uint32_t* get_pixel_data() const;
 	const std::string get_game_name() const;
+
+	const uint8_t* get_audio_data() const;
+	void clear_audio();
 
 	void save() const;
 	void load_save();

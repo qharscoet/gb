@@ -8,7 +8,7 @@
 extern emu_options options;
 
 Emulator::Emulator()
-:cpu(&memory), gpu(&memory), state(emu_state::IDLE)
+:cpu(&memory), gpu(&memory), apu(&memory), state(emu_state::IDLE)
 {
 
 }
@@ -65,10 +65,11 @@ void Emulator::step(uint8_t keys)
 			uint8_t cycles = cpu.step();
 
 			gpu.step(cycles);
+			apu.step(cycles);
 			cycles_total += cycles;
+
 		}
 	}
-
 }
 
 const uint32_t* Emulator::get_pixel_data() const
@@ -79,6 +80,16 @@ const uint32_t* Emulator::get_pixel_data() const
 const std::string Emulator::get_game_name() const
 {
 	return rom_filename != ""?memory.get_data(0x0134):"Gameboy Emulator";
+}
+
+const uint8_t* Emulator::get_audio_data() const
+{
+	return apu.get_sound_data();
+}
+
+void Emulator::clear_audio()
+{
+	apu.clear_data();
 }
 
 void Emulator::save() const
