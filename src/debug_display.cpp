@@ -105,6 +105,8 @@ Debug_Display::~Debug_Display()
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(sdlWindow);
 
+	SDL_CloseAudioDevice(audio_dev);
+
 	SDL_Quit();
 }
 
@@ -185,6 +187,8 @@ int Debug_Display::init()
 	// Setup Platform/Renderer bindings
 	ImGui_ImplSDL2_InitForOpenGL(sdlWindow, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
+
+	init_audio();
 
 	return 1;
 }
@@ -375,4 +379,52 @@ void Debug_Display::render()
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	SDL_GL_SwapWindow(sdlWindow);
+}
+
+int Debug_Display::init_audio()
+{
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_AudioSpec want, have;
+
+	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
+	want.freq = 48000;
+	want.format = AUDIO_U8;
+	want.channels = 1;
+	want.samples = 1024;
+	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+
+	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+	if (audio_dev == 0)
+	{
+		SDL_Log("Failed to open audio: %s", SDL_GetError());
+	}
+	else
+	{
+		if (have.format != want.format)
+		{ /* we let this one thing change. */
+			SDL_Log("We didn't get U8 audio format.");
+		}
+		SDL_PauseAudioDevice(audio_dev, 0); /* start audio playing. */
+											//SDL_Delay(5000);			  /* let the audio callback play some sound for 5 seconds. */
+	}
+
+	return 1;
+}
+
+void Debug_Display::play_audio(const uint8_t *samples)
+{
+	while ((SDL_GetQueuedAudioSize(1)) > 1024 * sizeof(uint8_t))
+	{
+		SDL_Delay(1);
+	}
+
+	if(SDL_QueueAudio(audio_dev, samples, 1024) == -1)
+	{
+		std::cout << SDL_GetError() << std::endl;
+	}
 }

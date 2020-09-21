@@ -23,6 +23,9 @@ private:
 
 	void update_keystate();
 
+	SDL_AudioDeviceID audio_dev;
+	int init_audio();
+
 public:
 	Debug_Display(Emulator& emu);
 	~Debug_Display();
@@ -37,4 +40,6 @@ public:
 
 	bool handle_events(Emulator &emu);
 	uint8_t get_keystate();
+
+	void play_audio(const uint8_t *samples);
 };

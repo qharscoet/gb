@@ -24,6 +24,8 @@ public:
 
 	virtual bool handle_events(Emulator &emu) = 0;
 	virtual uint8_t get_keystate() = 0;
+
+	virtual void play_audio(const uint8_t* samples) = 0;
 };
 
 #endif
