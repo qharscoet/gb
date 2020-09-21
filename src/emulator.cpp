@@ -52,24 +52,26 @@ void Emulator::start()
 	state = emu_state::RUNNING;
 }
 
-void Emulator::step(uint8_t keys)
+uint8_t Emulator::step(uint8_t keys)
 {
-	const uint16_t CYCLES_BY_FRAME = 17556;
-	uint16_t cycles_total = 0;
+	// const uint16_t CYCLES_BY_FRAME = 17556;
+	// uint16_t cycles_total = 0;
 
-	if(!options.pause)
-	{
-		while(cycles_total < CYCLES_BY_FRAME)
-		{
+	// if(!options.pause)
+	// {
+	// 	while(cycles_total < CYCLES_BY_FRAME)
+	// 	{
 			memory.update_joypad(keys);
 			uint8_t cycles = cpu.step();
 
 			gpu.step(cycles);
 			apu.step(cycles);
-			cycles_total += cycles;
+			// cycles_total += cycles;
 
-		}
-	}
+	// 	}
+	// }
+
+	return cycles;
 }
 
 const uint32_t* Emulator::get_pixel_data() const

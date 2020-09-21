@@ -110,8 +110,6 @@ uint16_t Memory::read_16bits(uint16_t addr) const
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)
 {
-
-	char* write_location = &mmap[addr];
 	//maybe forward to MBC
 	if (addr < 0x8000)
 	{

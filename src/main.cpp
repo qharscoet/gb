@@ -56,16 +56,34 @@ int main(int argc, char const *argv[])
 			std::chrono::duration<double, std::milli> t_emu, t_display, t_total;
 			auto total_start = std::chrono::steady_clock::now();
 			auto start = total_start;
+			auto end = std::chrono::steady_clock::now();
 
 			if (emu.is_running())
 			{
-				emu.step(display->get_keystate());
+
+				const uint16_t CYCLES_BY_FRAME = 17556;
+				uint16_t cycles_total = 0;
+
+				start = std::chrono::steady_clock::now();
+				if (!options.pause)
+				{
+					while (cycles_total < CYCLES_BY_FRAME)
+					{
+
+						cycles_total += emu.step(display->get_keystate());
+
+						const uint8_t *samples = emu.get_audio_data();
+						if (samples != nullptr)
+						{
+							display->play_audio(samples);
+							emu.clear_audio();
+						}
+					}
+				}
 			}
 
-			auto end = std::chrono::steady_clock::now();
+			end = std::chrono::steady_clock::now();
 			t_emu = end - start;
-
-			start = std::chrono::steady_clock::now();
 
 			display->clear();
 			display->update(emu.get_pixel_data());

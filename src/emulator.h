@@ -38,7 +38,7 @@ public:
 	bool load_rom();
 	bool load_rom(std::string filename);
 	void start();
-	void step(uint8_t inputs);
+	uint8_t step(uint8_t inputs);
 	void quit();
 	void reset();
 	void stop();

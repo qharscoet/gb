@@ -46,6 +46,7 @@ Sound::Sound(Memory* memory)
 
 void Sound::step(uint8_t cycles)
 {
+	cycles *= 4;
 	for(uint8_t i = 0; i < cycles; i++)
 	{
 		wave.step();

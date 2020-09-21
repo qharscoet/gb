@@ -12,6 +12,8 @@ public:
 	//virtual void init();
 	virtual void step() = 0;
 	virtual uint8_t get_sample() = 0;
+
+	virtual void trigger() = 0;
 };
 
 
@@ -27,6 +29,9 @@ private:
 	static const uint16_t wave_addr = 0xFF30;
 
 	uint8_t position;
+	uint8_t volume;
+	uint8_t length_counter;
+
 public:
 	ChannelWave(const Memory* memory);
 	~ChannelWave() = default;
@@ -34,4 +39,6 @@ public:
 	void init();
 	void step();
 	uint8_t get_sample();
+
+	void trigger();
 };
