@@ -29,7 +29,7 @@ void ChannelWave::step()
 		timer--;
 		if(timer == 0)
 		{
-			const uint16_t freq = ((memory->read_8bits(NR34) & 0x03) << 8) | memory->read_8bits(NR33);
+			const uint16_t freq = ((memory->read_8bits(NR34) & 0x07) << 8) | memory->read_8bits(NR33);
 			timer = (2048 - freq) * 2;
 			position = (position + 1) & 0x1F; //Reset at 32;
 		}

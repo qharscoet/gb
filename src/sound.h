@@ -10,7 +10,7 @@ class Sound
 private:
 	static constexpr uint32_t SAMPLERATE = 48000;
 	static constexpr uint32_t CLOCKSPEED = 4194304;
-	static constexpr uint32_t BUFFER_SIZE = 1024;
+	static constexpr uint32_t BUFFER_SIZE = 4096;
 
 	const Memory* memory;
 	ChannelWave wave;

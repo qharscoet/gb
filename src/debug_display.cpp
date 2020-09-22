@@ -38,6 +38,8 @@ using namespace gl;
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
 
+static const int BUFFER_SIZE = 4096;
+
 static GLuint bg_full;
 static GLuint bg_tiles;
 static GLuint screen;
@@ -52,6 +54,7 @@ static bool options_open = true;
 static bool vram_viewer = true;
 
 static int begin, size;
+
 
 // Simple helper function to load an image into a OpenGL texture with common settings
 bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, int h)
@@ -393,7 +396,7 @@ int Debug_Display::init_audio()
 
 	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 	want.freq = 48000;
-	want.format = AUDIO_U8;
+	want.format = AUDIO_F32;
 	want.channels = 1;
 	want.samples = 1024;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
@@ -418,12 +421,17 @@ int Debug_Display::init_audio()
 
 void Debug_Display::play_audio(const uint8_t *samples)
 {
-	while ((SDL_GetQueuedAudioSize(1)) > 1024 * sizeof(uint8_t))
+
+	while ((SDL_GetQueuedAudioSize(1)) > BUFFER_SIZE * sizeof(float))
 	{
 		SDL_Delay(1);
 	}
 
-	if(SDL_QueueAudio(audio_dev, samples, 1024) == -1)
+	float fsamples[BUFFER_SIZE];
+	for (int i = 0; i < BUFFER_SIZE; i++)
+		fsamples[i] = samples[i] * 2.0f / 15 - 1.0f;
+
+	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float)) == -1)
 	{
 		std::cout << SDL_GetError() << std::endl;
 	}
