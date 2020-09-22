@@ -8,9 +8,9 @@
 extern emu_options options;
 
 Emulator::Emulator()
-:cpu(&memory), gpu(&memory), apu(&memory), state(emu_state::IDLE)
+:cpu(&memory), gpu(&memory), apu(), state(emu_state::IDLE)
 {
-
+	memory.set_apu(&apu);
 }
 
 Emulator::~Emulator()

@@ -1,12 +1,23 @@
-#include "memory.h"
+#ifndef __SOUND_CHANNEL_H__
+#define __SOUND_CHANNEL_H__
+
+#include <cstdint>
+#include <vector>
+
+class Sound;
 
 class Channel
 {
 protected:
+	const Sound* apu;
+
 	uint16_t timer;
-	const Memory* memory;
+
+	uint8_t length_counter;
+	bool length_enabled;
+
 public:
-	Channel(const Memory* memory);
+	Channel(const Sound* apu);
 	~Channel() = default;
 
 	//virtual void init();
@@ -14,6 +25,8 @@ public:
 	virtual uint8_t get_sample() = 0;
 
 	virtual void trigger() = 0;
+
+	void length_tick();
 };
 
 
@@ -30,10 +43,9 @@ private:
 
 	uint8_t position;
 	uint8_t volume;
-	uint8_t length_counter;
 
 public:
-	ChannelWave(const Memory* memory);
+	ChannelWave(const Sound* apu);
 	~ChannelWave() = default;
 
 	void init();
@@ -42,3 +54,5 @@ public:
 
 	void trigger();
 };
+
+#endif

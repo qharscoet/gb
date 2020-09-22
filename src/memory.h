@@ -7,16 +7,19 @@
 #include <fstream>
 
 #include "MBC.h"
+#include "sound.h"
 
 #define MEMSIZE 0x10000
 
 class Memory
 {
 private:
+	// TODO : change mmap to not allocate areas managed by other components (MBC and audio atm)
 	char* mmap;
 	uint8_t joypad_keys;
 
 	MBC* mbc;
+	Sound* apu;
 
 	void DMATransfer(uint8_t src);
 
@@ -32,6 +35,8 @@ public:
 
 	Memory();
 	~Memory();
+
+	void set_apu(Sound* apu);
 
 	void reset();
 

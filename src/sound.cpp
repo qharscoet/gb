@@ -5,10 +5,9 @@ inline bool get_bit(uint8_t val, uint8_t b)
 	return val & (1 << b);
 }
 
-Sound::Sound(Memory* memory)
-:wave(memory), sample_timer(CLOCKSPEED / SAMPLERATE)
+Sound::Sound()
+:wave(this), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
-	this->memory = memory;
 	buffer.reserve(BUFFER_SIZE);
 }
 
@@ -49,6 +48,20 @@ void Sound::step(uint8_t cycles)
 	cycles *= 4;
 	for(uint8_t i = 0; i < cycles; i++)
 	{
+
+		// reset at 8192
+		frame_sequencer = (frame_sequencer + 1) & 0x2000;
+		if(frame_sequencer == 0)
+		{
+			if(!(frame_seq_step & 1))
+			{
+				wave.length_tick();
+			}
+
+
+			frame_seq_step = (frame_seq_step + 1) & 0x7;
+		}
+
 		wave.step();
 		//TODO : add other channels
 
@@ -77,4 +90,21 @@ const uint8_t* Sound::get_sound_data() const
 void Sound::clear_data()
 {
 	buffer.clear();
+}
+
+
+void Sound::write_reg(uint16_t addr, uint8_t val)
+{
+	registers[addr - 0xFF10] = val;
+
+	if(addr == 0xFF1E)
+	{
+		if(get_bit(val, 7))
+			wave.trigger();
+	}
+}
+
+uint8_t Sound::read_reg(uint16_t addr) const
+{
+	return registers[addr - 0xFF10];
 }

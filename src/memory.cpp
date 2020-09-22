@@ -16,6 +16,11 @@ Memory::~Memory()
 	delete mbc;
 }
 
+void Memory::set_apu(Sound* apu)
+{
+	this->apu = apu;
+}
+
 void Memory::reset()
 {
 	std::memset(mmap, 0, MEMSIZE);
@@ -88,6 +93,10 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 	{
 		ret = mbc->read_ram(addr - 0xA000);
 	}
+	else if (addr >= 0xFF10 && addr < 0xFF40)
+	{
+		ret = apu->read_reg(addr);
+	}
 	else
 	{
 		//echo ram
@@ -118,6 +127,10 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	else if (mbc->use_ram() && addr >= 0xA000 && addr < 0xC000)
 	{
 		mbc->write_ram(addr - 0xA000, value);
+	}
+	else if (addr >= 0xFF10 && addr < 0xFF40)
+	{
+		apu->write_reg(addr, value);
 	} else {
 
 		// this is ROM space and can't be written,
