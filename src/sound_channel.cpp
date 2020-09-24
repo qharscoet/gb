@@ -13,6 +13,10 @@ Channel::Channel(const Sound* apu)
 
 void Channel::length_tick()
 {
+	if (length_enabled && length_counter > 0)
+	{
+		length_counter--;
+	}
 }
 
 
@@ -23,6 +27,20 @@ ChannelWave::ChannelWave(const Sound* apu)
 	timer = (2048 - freq) * 2;
 }
 
+void ChannelWave::write_reg(uint16_t addr, uint8_t val)
+{
+	if(addr == NR31)
+	{
+		length_counter = val;
+	} else if (addr == NR32) {
+		volume = (val & 0x60) >> 5; // We get bits 5 and 6;
+	} else if(addr == NR34){
+		if (get_bit(val, 7))
+			trigger();
+
+		length_enabled = get_bit(val, 6);
+	}
+}
 
 void ChannelWave::step()
 {
@@ -30,7 +48,7 @@ void ChannelWave::step()
 	const uint8_t enabled = get_bit(apu->read_reg(NR30), 7);
 	volume = (apu->read_reg(NR32) & 0x60) >> 5;
 
-	if(enabled)
+	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
 	{
 		timer--;
 		if(timer == 0)

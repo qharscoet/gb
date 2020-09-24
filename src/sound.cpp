@@ -97,10 +97,9 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 {
 	registers[addr - 0xFF10] = val;
 
-	if(addr == 0xFF1E)
+	if(addr >= 0xFF1A && addr <= 0xFF1E)
 	{
-		if(get_bit(val, 7))
-			wave.trigger();
+		wave.write_reg(addr, val);
 	}
 }
 

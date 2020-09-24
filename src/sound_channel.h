@@ -25,6 +25,7 @@ public:
 	virtual uint8_t get_sample() = 0;
 
 	virtual void trigger() = 0;
+	virtual void write_reg(uint16_t addr, uint8_t val) = 0;
 
 	void length_tick();
 };
@@ -51,6 +52,7 @@ public:
 	void init();
 	void step();
 	uint8_t get_sample();
+	void write_reg(uint16_t addr, uint8_t val);
 
 	void trigger();
 };
