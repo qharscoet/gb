@@ -6,7 +6,7 @@ inline bool get_bit(uint8_t val, uint8_t b)
 }
 
 Sound::Sound()
-:wave(this), sample_timer(CLOCKSPEED / SAMPLERATE)
+:wave(this), square2(this), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
 }
@@ -57,6 +57,7 @@ void Sound::step(uint8_t cycles)
 				if(!(frame_seq_step & 1))
 				{
 					wave.length_tick();
+					square2.length_tick();
 				}
 
 
@@ -64,6 +65,7 @@ void Sound::step(uint8_t cycles)
 			}
 
 			wave.step();
+			square2.step();
 			//TODO : add other channels
 
 
@@ -73,6 +75,7 @@ void Sound::step(uint8_t cycles)
 				sample_timer = CLOCKSPEED/SAMPLERATE;
 
 				uint8_t sample = wave.get_sample();
+				sample += square2.get_sample();
 				buffer.push_back(sample);
 			}
 		}
@@ -97,7 +100,10 @@ void Sound::clear_data()
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {
-	if(addr >= 0xFF1A && addr <= 0xFF1E)
+	if(addr >= 0xFF15 && addr <= 0xFF19)
+	{
+		square2.write_reg(addr,val);
+	} else if(addr >= 0xFF1A && addr <= 0xFF1E)
 	{
 		wave.write_reg(addr, val);
 	} else if (addr == NR52) {

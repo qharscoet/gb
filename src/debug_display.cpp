@@ -429,7 +429,7 @@ void Debug_Display::play_audio(const uint8_t *samples)
 
 	float fsamples[BUFFER_SIZE];
 	for (int i = 0; i < BUFFER_SIZE; i++)
-		fsamples[i] = samples[i] * 2.0f / 15 - 1.0f;
+		fsamples[i] = samples[i] * 2.0f / 31 - 1.0f;
 
 	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float)) == -1)
 	{

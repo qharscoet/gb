@@ -19,12 +19,69 @@ void Channel::length_tick()
 	}
 }
 
+SquareChannel::SquareChannel(const Sound *apu)
+:Channel(apu)
+{
+	const uint16_t freq = ((apu->read_reg(NRX4) & 0x03) << 8) | apu->read_reg(NRX3);
+	timer = (2048 - freq) * 4;
+}
+
+void SquareChannel::step()
+{
+	if ((length_enabled && length_counter != 0) || !length_enabled)
+	{
+		timer--;
+		if (timer == 0)
+		{
+			const uint16_t freq = ((apu->read_reg(NRX4) & 0x07) << 8) | apu->read_reg(NRX3);
+			timer = (2048 - freq) * 4;
+			position = (position + 1) & 0x07; //Reset at 8;
+		}
+	}
+}
+uint8_t SquareChannel::get_sample()
+{
+	if ((length_enabled && length_counter != 0) || !length_enabled)
+	{
+		return duty_pattern[duty][position] * volume;
+	}
+	return 0;
+}
+void SquareChannel::write_reg(uint16_t addr, uint8_t val)
+{
+	if(addr == NRX1)
+	{
+		length_counter = (val & 0x3F);
+		duty = (val & 0xC0) >> 6;
+	} else if (addr == NRX2) {
+		volume = (apu->read_reg(NRX2) & 0xF0) >> 4;
+	} else if(addr == NRX4){
+		if (get_bit(val, 7))
+			trigger();
+
+		length_enabled = get_bit(val, 6);
+	}
+}
+
+void SquareChannel::trigger()
+{
+	if (length_counter == 0)
+	{
+		length_counter = 64;
+	}
+
+	const uint16_t freq = ((apu->read_reg(NRX4) & 0x03) << 8) | apu->read_reg(NRX3);
+	timer = (2048 - freq) * 4;
+	position = 0;
+}
 
 ChannelWave::ChannelWave(const Sound* apu)
-:Channel(apu), position(0)
+:Channel(apu)
 {
 	const uint16_t freq = ((apu->read_reg(NR34) & 0x03) << 8) | apu->read_reg(NR33);
 	timer = (2048 - freq) * 2;
+
+	position = 0;
 }
 
 void ChannelWave::write_reg(uint16_t addr, uint8_t val)
@@ -46,7 +103,6 @@ void ChannelWave::step()
 {
 
 	const uint8_t enabled = get_bit(apu->read_reg(NR30), 7);
-	volume = (apu->read_reg(NR32) & 0x60) >> 5;
 
 	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
 	{

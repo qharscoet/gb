@@ -12,6 +12,8 @@ protected:
 	const Sound* apu;
 
 	uint16_t timer;
+	uint8_t volume;
+	uint8_t position;
 
 	uint8_t length_counter;
 	bool length_enabled;
@@ -30,6 +32,35 @@ public:
 	void length_tick();
 };
 
+class SquareChannel : public Channel
+{
+private:
+	static const uint16_t NRX1 = 0xFF16;
+	static const uint16_t NRX2 = 0xFF17;
+	static const uint16_t NRX3 = 0xFF18;
+	static const uint16_t NRX4 = 0xFF19;
+
+	const bool duty_pattern[4][8] = {
+		{true, false, false, false, false, false, false, false},
+		{true, true, false, false, false, false, false, false},
+		{true, true, true, true, false, false, false, false},
+		{true, true, true, true, true, true, false, false},
+	};
+
+	uint8_t duty;
+
+public:
+	SquareChannel(const Sound *apu);
+	~SquareChannel() = default;
+
+	// void init();
+	void step();
+	uint8_t get_sample();
+	void write_reg(uint16_t addr, uint8_t val);
+
+	void trigger();
+};
+
 
 class ChannelWave : public Channel
 {
@@ -42,14 +73,11 @@ private:
 
 	static const uint16_t wave_addr = 0xFF30;
 
-	uint8_t position;
-	uint8_t volume;
-
 public:
 	ChannelWave(const Sound* apu);
 	~ChannelWave() = default;
 
-	void init();
+	// void init();
 	void step();
 	uint8_t get_sample();
 	void write_reg(uint16_t addr, uint8_t val);
