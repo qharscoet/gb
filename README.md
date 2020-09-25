@@ -15,14 +15,17 @@ TODO NEXT :
 - TODOs in the code
 - Refactor to get rid of duplicated code here and there
 - Sprite overlapping and 10 sprite on one line limit
-- Sound ?
+
+IN PROGRESS
+------------
+- Sound Channel 1 and 2
 
 
 Missing:
 --------
 
-- Sounds
 - MBC other than MBC1 and 5
+- Lots of udiscovered bugs
 
 External librairies used:
 ---------------------
