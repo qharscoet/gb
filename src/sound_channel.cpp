@@ -62,11 +62,18 @@ void ChannelWave::step()
 
 uint8_t ChannelWave::get_sample()
 {
-	const uint8_t val = apu->read_reg(wave_addr + (position >> 1));
-	uint8_t sample = position & 1 ? val & 0x0F : val >> 4;
-	sample >>= (volume != 0 ? volume - 1 : 4) ;
+	const uint8_t enabled = get_bit(apu->read_reg(NR30), 7);
 
-	return sample << 4;
+	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
+	{
+		const uint8_t val = apu->read_reg(wave_addr + (position >> 1));
+		uint8_t sample = position & 1 ? val & 0x0F : val >> 4;
+		sample >>= (volume != 0 ? volume - 1 : 4) ;
+
+		return sample;
+	}
+
+	return 0;
 }
 
 

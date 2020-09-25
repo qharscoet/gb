@@ -11,6 +11,11 @@ private:
 	static constexpr uint32_t CLOCKSPEED = 4194304;
 	static constexpr uint32_t BUFFER_SIZE = 4096;
 
+
+	static const uint16_t NR50 = 0xFF24;
+	static const uint16_t NR51 = 0xFF25;
+	static const uint16_t NR52 = 0xFF26;
+
 	// clocked at 512 Hz, which means every 8192 clocks for the CU at 4Mhz
 	uint16_t frame_sequencer = 0;
 	uint8_t frame_seq_step = 0;

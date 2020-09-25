@@ -48,31 +48,33 @@ void Sound::step(uint8_t cycles)
 	cycles *= 4;
 	for(uint8_t i = 0; i < cycles; i++)
 	{
-
-		// reset at 8192
-		frame_sequencer = (frame_sequencer + 1) & 0x2000;
-		if(frame_sequencer == 0)
+		if (get_bit(registers[NR52 - 0xFF10], 7))
 		{
-			if(!(frame_seq_step & 1))
+			// reset at 8192
+			frame_sequencer = (frame_sequencer + 1) & 0x2000;
+			if(frame_sequencer == 0)
 			{
-				wave.length_tick();
+				if(!(frame_seq_step & 1))
+				{
+					wave.length_tick();
+				}
+
+
+				frame_seq_step = (frame_seq_step + 1) & 0x7;
 			}
 
-
-			frame_seq_step = (frame_seq_step + 1) & 0x7;
-		}
-
-		wave.step();
-		//TODO : add other channels
+			wave.step();
+			//TODO : add other channels
 
 
-		// We only get samples every SAMPLERATE cycles
-		if(--sample_timer == 0)
-		{
-			sample_timer = CLOCKSPEED/SAMPLERATE;
+			// We only get samples every SAMPLERATE cycles
+			if(--sample_timer == 0)
+			{
+				sample_timer = CLOCKSPEED/SAMPLERATE;
 
-			uint8_t sample = wave.get_sample();
-			buffer.push_back(sample);
+				uint8_t sample = wave.get_sample();
+				buffer.push_back(sample);
+			}
 		}
 	}
 }
@@ -95,12 +97,21 @@ void Sound::clear_data()
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {
-	registers[addr - 0xFF10] = val;
-
 	if(addr >= 0xFF1A && addr <= 0xFF1E)
 	{
 		wave.write_reg(addr, val);
+	} else if (addr == NR52) {
+		if(!get_bit(val, 7))
+		{
+			memset(registers, 0, 0x3F);
+		} else if(!get_bit(registers[NR52 - 0xFF10], 7))
+		{
+			frame_sequencer = 0;
+			frame_seq_step = 0;
+		}
 	}
+
+	registers[addr - 0xFF10] = val;
 }
 
 uint8_t Sound::read_reg(uint16_t addr) const
