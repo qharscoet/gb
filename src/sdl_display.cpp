@@ -220,7 +220,7 @@ int SDL_Display::init_audio()
 
 void SDL_Display::play_audio(const uint8_t *samples)
 {
-	while ((SDL_GetQueuedAudioSize(1)) > BUFFER_SIZE * sizeof(uint8_t))
+	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(uint8_t))
 	{
 		SDL_Delay(1);
 	}
