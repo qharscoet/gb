@@ -9,6 +9,8 @@ extern emu_options options;
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
 
+#define BUFFER_SIZE 4096
+
 SDL_Display::SDL_Display()
 {
 }
@@ -195,7 +197,7 @@ int SDL_Display::init_audio()
 	want.freq = 48000;
 	want.format = AUDIO_U8;
 	want.channels = 1;
-	want.samples = 1024;
+	want.samples = BUFFER_SIZE;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
 	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
@@ -218,12 +220,12 @@ int SDL_Display::init_audio()
 
 void SDL_Display::play_audio(const uint8_t *samples)
 {
-	while ((SDL_GetQueuedAudioSize(1)) > 1024 * sizeof(uint8_t))
+	while ((SDL_GetQueuedAudioSize(1)) > BUFFER_SIZE * sizeof(uint8_t))
 	{
 		SDL_Delay(1);
 	}
 
-	if(SDL_QueueAudio(audio_dev, samples, 1024) == -1)
+	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE) == -1)
 	{
 		std::cout << SDL_GetError() << std::endl;
 	}

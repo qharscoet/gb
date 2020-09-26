@@ -398,7 +398,7 @@ int Debug_Display::init_audio()
 	want.freq = 48000;
 	want.format = AUDIO_F32;
 	want.channels = 1;
-	want.samples = 1024;
+	want.samples = BUFFER_SIZE;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
 	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
