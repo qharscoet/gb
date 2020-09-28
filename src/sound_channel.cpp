@@ -1,15 +1,13 @@
-#include "sound.h"
+#include "sound_channel.h"
 
 inline bool get_bit(uint8_t val, uint8_t b)
 {
 	return val & (1 << b);
 }
 
-Channel::Channel(const Sound* apu)
-:timer(0)
-{
-	this->apu = apu;
-}
+Channel::Channel(uint8_t* data)
+:timer(0), registers(data, 5)
+{}
 
 void Channel::length_tick()
 {
@@ -19,10 +17,10 @@ void Channel::length_tick()
 	}
 }
 
-SquareChannel::SquareChannel(const Sound *apu)
-:Channel(apu)
+SquareChannel::SquareChannel(uint8_t *data)
+:Channel(data)
 {
-	const uint16_t freq = ((apu->read_reg(NRX4) & 0x03) << 8) | apu->read_reg(NRX3);
+	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
 	timer = (2048 - freq) * 4;
 }
 
@@ -33,7 +31,7 @@ void SquareChannel::step()
 		timer--;
 		if (timer == 0)
 		{
-			const uint16_t freq = ((apu->read_reg(NRX4) & 0x07) << 8) | apu->read_reg(NRX3);
+			const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 			timer = (2048 - freq) * 4;
 			position = (position + 1) & 0x07; //Reset at 8;
 		}
@@ -70,27 +68,27 @@ void SquareChannel::trigger()
 		length_counter = 64;
 	}
 
-	const uint16_t freq = ((apu->read_reg(NRX4) & 0x03) << 8) | apu->read_reg(NRX3);
+	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
 	timer = (2048 - freq) * 4;
 	position = 0;
 
-	envelope_timer = apu->read_reg(NRX2) & 0x7;
+	envelope_timer = registers[2] & 0x7;
 	if(envelope_timer == 0) envelope_timer = 8;
 
 	envelope_enabled = true;
-	volume = (apu->read_reg(NRX2) & 0xF0) >> 4;
+	volume = (registers[2] & 0xF0) >> 4;
 }
 
 void SquareChannel::vol_envelope()
 {
 	if (envelope_enabled && --envelope_timer == 0)
 	{
-		uint8_t envelope_period = apu->read_reg(NRX2) & 0x7;
+		uint8_t envelope_period = registers[2] & 0x7;
 		envelope_timer = envelope_period?envelope_period:8;
 
 		if(envelope_period != 0)
 		{
-			int8_t new_volume = volume + (get_bit(apu->read_reg(NRX2), 3)? 1:-1);
+			int8_t new_volume = volume + (get_bit(registers[2], 3)? 1:-1);
 			if(new_volume >= 0 && new_volume <= 15)
 			{
 				volume = new_volume;
@@ -104,10 +102,10 @@ void SquareChannel::vol_envelope()
 	}
 }
 
-ChannelWave::ChannelWave(const Sound* apu)
-:Channel(apu)
+ChannelWave::ChannelWave(uint8_t *data, uint8_t *wave)
+:Channel(data), wave_data(wave, 32)
 {
-	const uint16_t freq = ((apu->read_reg(NR34) & 0x03) << 8) | apu->read_reg(NR33);
+	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
 	timer = (2048 - freq) * 2;
 
 	position = 0;
@@ -131,14 +129,14 @@ void ChannelWave::write_reg(uint16_t addr, uint8_t val)
 void ChannelWave::step()
 {
 
-	const uint8_t enabled = get_bit(apu->read_reg(NR30), 7);
+	const uint8_t enabled = get_bit(registers[0], 7);
 
 	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
 	{
 		timer--;
 		if(timer == 0)
 		{
-			const uint16_t freq = ((apu->read_reg(NR34) & 0x07) << 8) | apu->read_reg(NR33);
+			const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 			timer = (2048 - freq) * 2;
 			position = (position + 1) & 0x1F; //Reset at 32;
 		}
@@ -147,11 +145,11 @@ void ChannelWave::step()
 
 uint8_t ChannelWave::get_sample()
 {
-	const uint8_t enabled = get_bit(apu->read_reg(NR30), 7);
+	const uint8_t enabled = get_bit(registers[0], 7);
 
 	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
 	{
-		const uint8_t val = apu->read_reg(wave_addr + (position >> 1));
+		const uint8_t val = wave_data[position >> 1];
 		uint8_t sample = position & 1 ? val & 0x0F : val >> 4;
 		sample >>= (volume != 0 ? volume - 1 : 4) ;
 
@@ -169,7 +167,7 @@ void ChannelWave::trigger()
 		length_counter = 256;
 	}
 
-	const uint16_t freq = ((apu->read_reg(NR34) & 0x03) << 8) | apu->read_reg(NR33);
+	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
 	timer = (2048 - freq) * 2;
 	position = 0;
 }

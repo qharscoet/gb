@@ -25,7 +25,7 @@ private:
 	SquareChannel square2;
 
 	//mapped to 0xFF10 - 0xFF3F
-	char registers[0x3F];
+	uint8_t registers[0x3F];
 
 	uint32_t sample_timer;
 	std::vector<uint8_t> buffer;

@@ -6,7 +6,7 @@ inline bool get_bit(uint8_t val, uint8_t b)
 }
 
 Sound::Sound()
-:wave(this), square2(this), sample_timer(CLOCKSPEED / SAMPLERATE)
+:wave(&registers[0xA], &registers[0x20]),square2(&registers[0x5]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
 }

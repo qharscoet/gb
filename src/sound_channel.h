@@ -4,13 +4,13 @@
 #include <cstdint>
 #include <vector>
 
+#include <span>
+
 class Sound;
 
 class Channel
 {
 protected:
-	const Sound* apu;
-
 	uint16_t timer;
 	uint8_t volume;
 	uint8_t position;
@@ -18,8 +18,10 @@ protected:
 	uint8_t length_counter;
 	bool length_enabled;
 
+	std::span<uint8_t, 5> registers;
+
 public:
-	Channel(const Sound* apu);
+	Channel(uint8_t* data);
 	~Channel() = default;
 
 	//virtual void init();
@@ -52,7 +54,7 @@ private:
 	bool envelope_enabled;
 
 public:
-	SquareChannel(const Sound *apu);
+	SquareChannel(uint8_t *data);
 	~SquareChannel() = default;
 
 	// void init();
@@ -76,9 +78,10 @@ private:
 	static const uint16_t NR34 = 0xFF1E;
 
 	static const uint16_t wave_addr = 0xFF30;
+	std::span<uint8_t, 32> wave_data;
 
 public:
-	ChannelWave(const Sound* apu);
+	ChannelWave(uint8_t *data, uint8_t *wave_data);
 	~ChannelWave() = default;
 
 	// void init();
