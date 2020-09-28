@@ -54,7 +54,7 @@ void SquareChannel::write_reg(uint16_t addr, uint8_t val)
 		length_counter = (val & 0x3F);
 		duty = (val & 0xC0) >> 6;
 	} else if (addr == NRX2) {
-		volume = (apu->read_reg(NRX2) & 0xF0) >> 4;
+		// volume = (val & 0xF0) >> 4;
 	} else if(addr == NRX4){
 		if (get_bit(val, 7))
 			trigger();
@@ -73,6 +73,35 @@ void SquareChannel::trigger()
 	const uint16_t freq = ((apu->read_reg(NRX4) & 0x03) << 8) | apu->read_reg(NRX3);
 	timer = (2048 - freq) * 4;
 	position = 0;
+
+	envelope_timer = apu->read_reg(NRX2) & 0x7;
+	if(envelope_timer == 0) envelope_timer = 8;
+
+	envelope_enabled = true;
+	volume = (apu->read_reg(NRX2) & 0xF0) >> 4;
+}
+
+void SquareChannel::vol_envelope()
+{
+	if (envelope_enabled && --envelope_timer == 0)
+	{
+		uint8_t envelope_period = apu->read_reg(NRX2) & 0x7;
+		envelope_timer = envelope_period?envelope_period:8;
+
+		if(envelope_period != 0)
+		{
+			int8_t new_volume = volume + (get_bit(apu->read_reg(NRX2), 3)? 1:-1);
+			if(new_volume >= 0 && new_volume <= 15)
+			{
+				volume = new_volume;
+			}
+			else
+			{
+				envelope_enabled = false;
+			}
+		}
+
+	}
 }
 
 ChannelWave::ChannelWave(const Sound* apu)

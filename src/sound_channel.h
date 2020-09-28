@@ -48,6 +48,8 @@ private:
 	};
 
 	uint8_t duty;
+	uint8_t envelope_timer;
+	bool envelope_enabled;
 
 public:
 	SquareChannel(const Sound *apu);
@@ -59,6 +61,8 @@ public:
 	void write_reg(uint16_t addr, uint8_t val);
 
 	void trigger();
+
+	void vol_envelope();
 };
 
 

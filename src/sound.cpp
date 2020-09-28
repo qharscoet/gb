@@ -50,14 +50,19 @@ void Sound::step(uint8_t cycles)
 	{
 		if (get_bit(registers[NR52 - 0xFF10], 7))
 		{
-			// reset at 8192
-			frame_sequencer = (frame_sequencer + 1) & 0x2000;
+			// reset at 8192 cycles, which is 512Hz
+			frame_sequencer = (frame_sequencer + 1) & 0x1FFF;
 			if(frame_sequencer == 0)
 			{
 				if(!(frame_seq_step & 1))
 				{
 					wave.length_tick();
 					square2.length_tick();
+				}
+
+				if(frame_seq_step == 7)
+				{
+					square2.vol_envelope();
 				}
 
 
@@ -74,8 +79,14 @@ void Sound::step(uint8_t cycles)
 			{
 				sample_timer = CLOCKSPEED/SAMPLERATE;
 
-				uint8_t sample = wave.get_sample();
-				sample += square2.get_sample();
+				uint8_t sample = 0;
+
+				uint8_t wave_smpl = wave.get_sample();
+				uint8_t sq2_smpl = square2.get_sample();
+
+				sample += wave_smpl;
+				sample += sq2_smpl;
+
 				buffer.push_back(sample);
 			}
 		}
