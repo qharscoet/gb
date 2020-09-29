@@ -14,6 +14,18 @@
 #include "sdl_display.h"
 
 emu_options options;
+
+
+void options_init()
+{
+	options.pause = false;
+
+	options.sound.channel1 = true;
+	options.sound.channel2 = true;
+	options.sound.channel3 = true;
+	options.sound.channel4 = true;
+}
+
 int main(int argc, char const *argv[])
 {
 	Emulator emu;
@@ -27,6 +39,7 @@ int main(int argc, char const *argv[])
 	options.debug_ui = false;
 #endif
 
+	options_init();
 	emu.init();
 	display->init();
 
@@ -96,7 +109,7 @@ int main(int argc, char const *argv[])
 			t_total = total_end - total_start;
 
 			// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
-			// std::cout << " display time " << t_display->count() << " ms" << "\n";
+			// std::cout << " display time " << t_display.count() << " ms" << "\n";
 
 			// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 		}

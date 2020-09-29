@@ -258,7 +258,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::End();
 	}
 
-	//ImGui::ShowDemoWindow();
+	// ImGui::ShowDemoWindow();
 
 	if(vram_viewer)
 	{
@@ -305,6 +305,16 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::Checkbox("Pause", &options.pause);
 		if(ImGui::Checkbox("Debug UI", &options.debug_ui)){
 			options.display_changed = true;
+		}
+
+		if(ImGui::TreeNode("Sound Options"))
+		{
+			ImGui::Checkbox("Enable Channel 1", &options.sound.channel1);
+			ImGui::Checkbox("Enable Channel 2", &options.sound.channel2);
+			ImGui::Checkbox("Enable Channel 3", &options.sound.channel3);
+			ImGui::Checkbox("Enable Channel 4", &options.sound.channel4);
+
+			ImGui::TreePop();
 		}
 
 		if (ImGui::Button("Reset", ImVec2(80, 0)))
@@ -439,7 +449,7 @@ void Debug_Display::play_audio(const uint8_t *samples)
 	float fsamples[BUFFER_SIZE];
 	for (int i = 0; i < BUFFER_SIZE; i++){
 		fsamples[i] = samples[i] * 2.0f / 31 - 1.0f;
-		debug_samples[i] = samples[i] * 2.0f / 31 - 1.0f;
+		debug_samples[i] = samples[i] * 2.0f / 47 - 1.0f;
 	}
 
 	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float)) == -1)

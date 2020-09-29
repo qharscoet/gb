@@ -1,4 +1,6 @@
 #include "sound.h"
+#include "options.h"
+extern emu_options options;
 
 inline bool get_bit(uint8_t val, uint8_t b)
 {
@@ -53,13 +55,12 @@ void Sound::step(uint8_t cycles)
 
 				uint8_t sample = 0;
 
-				uint8_t wave_smpl = wave.get_sample();
-				uint8_t sq1_smpl = square1.get_sample();
-				uint8_t sq2_smpl = square2.get_sample();
-
-				sample += wave_smpl;
-				sample += sq1_smpl;
-				sample += sq2_smpl;
+				if (options.sound.channel1)
+					sample += square1.get_sample();
+				if (options.sound.channel2)
+					sample += square2.get_sample();
+				if(options.sound.channel3)
+					sample += wave.get_sample();
 
 				buffer.push_back(sample);
 			}
