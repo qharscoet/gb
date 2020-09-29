@@ -47,17 +47,23 @@ uint8_t SquareChannel::get_sample()
 }
 void SquareChannel::write_reg(uint16_t addr, uint8_t val)
 {
-	if(addr == NRX1)
+	switch(addr)
 	{
-		length_counter = (val & 0x3F);
-		duty = (val & 0xC0) >> 6;
-	} else if (addr == NRX2) {
-		// volume = (val & 0xF0) >> 4;
-	} else if(addr == NRX4){
-		if (get_bit(val, 7))
-			trigger();
+		case 1:
+			length_counter = (val & 0x3F);
+			duty = (val & 0xC0) >> 6;
+			break;
+		case 2:
+			// volume = (val & 0xF0) >> 4;
+			break;
+		case 3:
+			break;
+		case 4:
+			if (get_bit(val, 7))
+				trigger();
 
-		length_enabled = get_bit(val, 6);
+			length_enabled = get_bit(val, 6);
+		break;
 	}
 }
 
@@ -102,6 +108,13 @@ void SquareChannel::vol_envelope()
 	}
 }
 
+SquareSweepChannel::SquareSweepChannel(uint8_t *data)
+: SquareChannel(data)
+{
+	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
+	timer = (2048 - freq) * 4;
+}
+
 ChannelWave::ChannelWave(uint8_t *data, uint8_t *wave)
 :Channel(data), wave_data(wave, 32)
 {
@@ -113,16 +126,22 @@ ChannelWave::ChannelWave(uint8_t *data, uint8_t *wave)
 
 void ChannelWave::write_reg(uint16_t addr, uint8_t val)
 {
-	if(addr == NR31)
+	switch(addr)
 	{
-		length_counter = val;
-	} else if (addr == NR32) {
-		volume = (val & 0x60) >> 5; // We get bits 5 and 6;
-	} else if(addr == NR34){
-		if (get_bit(val, 7))
-			trigger();
+		case 1:
+			length_counter = val;
+			break;
+		case 2:
+			volume = (val & 0x60) >> 5; // We get bits 5 and 6;
+			break;
+		case 3:
+			break;
+		case 4:
+			if (get_bit(val, 7))
+				trigger();
 
-		length_enabled = get_bit(val, 6);
+			length_enabled = get_bit(val, 6);
+			break;
 	}
 }
 

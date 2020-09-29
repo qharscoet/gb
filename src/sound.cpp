@@ -6,42 +6,11 @@ inline bool get_bit(uint8_t val, uint8_t b)
 }
 
 Sound::Sound()
-:wave(&registers[0xA], &registers[0x20]),square2(&registers[0x5]), sample_timer(CLOCKSPEED / SAMPLERATE)
+:wave(&registers[0xA], &registers[0x20]), square1(&registers[0x00]), square2(&registers[0x5]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
 }
 
-// void Sound::channel_3(uint16_t values[32])
-// {
-// 	static const uint16_t NR30 = 0xFF1A;
-// 	static const uint16_t NR31 = 0xFF1B;
-// 	static const uint16_t NR32 = 0xFF1C;
-// 	static const uint16_t NR33 = 0xFF1D;
-// 	static const uint16_t NR34 = 0xFF1E;
-
-// 	const uint8_t enabled = get_bit(memory->read_8bits(NR30), 7);
-
-// 	static uint16_t timer = 0;
-
-
-// 	if(enabled)
-// 	{
-// 		const uint8_t length = memory->read_8bits(NR31);
-
-// 		const uint8_t nr34 = memory->read_8bits(NR34);
-// 		const bool length_enabled = get_bit(nr34, 6);
-// 		const bool init_flag = get_bit(nr34, 7);
-
-// 		const uint16_t freq = ((nr34 & 0x03)  << 8) | memory->read_8bits(NR33);
-
-// 		for(int i = 0; i < 16; i++)
-// 		{
-// 			const uint8_t val = memory->read_8bits(0xFF30 + i);
-// 			values[i] = val << 4;
-// 			values[i + i] = val & 0xF;
-// 		}
-// 	}
-// }
 
 void Sound::step(uint8_t cycles)
 {
@@ -57,11 +26,13 @@ void Sound::step(uint8_t cycles)
 				if(!(frame_seq_step & 1))
 				{
 					wave.length_tick();
+					square1.length_tick();
 					square2.length_tick();
 				}
 
 				if(frame_seq_step == 7)
 				{
+					square1.vol_envelope();
 					square2.vol_envelope();
 				}
 
@@ -70,6 +41,7 @@ void Sound::step(uint8_t cycles)
 			}
 
 			wave.step();
+			square1.step();
 			square2.step();
 			//TODO : add other channels
 
@@ -82,9 +54,11 @@ void Sound::step(uint8_t cycles)
 				uint8_t sample = 0;
 
 				uint8_t wave_smpl = wave.get_sample();
+				uint8_t sq1_smpl = square1.get_sample();
 				uint8_t sq2_smpl = square2.get_sample();
 
 				sample += wave_smpl;
+				sample += sq1_smpl;
 				sample += sq2_smpl;
 
 				buffer.push_back(sample);
@@ -111,12 +85,15 @@ void Sound::clear_data()
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {
-	if(addr >= 0xFF15 && addr <= 0xFF19)
+	if(addr >= 0xFF10 && addr <= 0xFF14)
 	{
-		square2.write_reg(addr,val);
+		square1.write_reg(addr - 0xFF10, val);
+	} else if(addr >= 0xFF15 && addr <= 0xFF19)
+	{
+		square2.write_reg(addr - 0xFF15,val);
 	} else if(addr >= 0xFF1A && addr <= 0xFF1E)
 	{
-		wave.write_reg(addr, val);
+		wave.write_reg(addr - 0xFF1A, val);
 	} else if (addr == NR52) {
 		if(!get_bit(val, 7))
 		{

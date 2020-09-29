@@ -22,6 +22,7 @@ private:
 
 	//const Memory* memory;
 	ChannelWave wave;
+	SquareSweepChannel square1;
 	SquareChannel square2;
 
 	//mapped to 0xFF10 - 0xFF3F

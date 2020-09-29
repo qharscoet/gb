@@ -36,11 +36,7 @@ public:
 
 class SquareChannel : public Channel
 {
-private:
-	static const uint16_t NRX1 = 0xFF16;
-	static const uint16_t NRX2 = 0xFF17;
-	static const uint16_t NRX3 = 0xFF18;
-	static const uint16_t NRX4 = 0xFF19;
+protected:
 
 	const bool duty_pattern[4][8] = {
 		{true, false, false, false, false, false, false, false},
@@ -68,14 +64,19 @@ public:
 };
 
 
+class SquareSweepChannel : public SquareChannel {
+
+	private:
+
+	public:
+		SquareSweepChannel(uint8_t *data);
+		~SquareSweepChannel() = default;
+};
+
+
 class ChannelWave : public Channel
 {
 private:
-	static const uint16_t NR30 = 0xFF1A;
-	static const uint16_t NR31 = 0xFF1B;
-	static const uint16_t NR32 = 0xFF1C;
-	static const uint16_t NR33 = 0xFF1D;
-	static const uint16_t NR34 = 0xFF1E;
 
 	static const uint16_t wave_addr = 0xFF30;
 	std::span<uint8_t, 32> wave_data;
