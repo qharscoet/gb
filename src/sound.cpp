@@ -32,6 +32,11 @@ void Sound::step(uint8_t cycles)
 					square2.length_tick();
 				}
 
+				if((frame_seq_step & 0x3) == 0x2 )
+				{
+					square1.sweep();
+				}
+
 				if(frame_seq_step == 7)
 				{
 					square1.vol_envelope();

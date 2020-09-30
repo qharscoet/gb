@@ -15,8 +15,11 @@ protected:
 	uint8_t volume;
 	uint8_t position;
 
-	uint8_t length_counter;
+	//can go up to 256
+	uint16_t length_counter;
 	bool length_enabled;
+
+	bool enabled;
 
 	std::span<uint8_t, 5> registers;
 
@@ -55,10 +58,10 @@ public:
 
 	// void init();
 	void step();
-	uint8_t get_sample();
-	void write_reg(uint16_t addr, uint8_t val);
+	virtual uint8_t get_sample();
+	virtual void write_reg(uint16_t addr, uint8_t val);
 
-	void trigger();
+	virtual void trigger();
 
 	void vol_envelope();
 };
@@ -67,10 +70,20 @@ public:
 class SquareSweepChannel : public SquareChannel {
 
 	private:
+		uint8_t sweep_timer;
+		bool sweep_enabled;
+		uint16_t shadow_frequency;
+
+		void sweep_calculation(bool update);
 
 	public:
 		SquareSweepChannel(uint8_t *data);
 		~SquareSweepChannel() = default;
+
+		uint8_t get_sample();
+
+		void sweep();
+		void trigger();
 };
 
 

@@ -6,7 +6,7 @@ inline bool get_bit(uint8_t val, uint8_t b)
 }
 
 Channel::Channel(uint8_t* data)
-:timer(0), registers(data, 5)
+:timer(0), enabled(true), registers(data, 5), length_enabled(false)
 {}
 
 void Channel::length_tick()
@@ -20,14 +20,14 @@ void Channel::length_tick()
 SquareChannel::SquareChannel(uint8_t *data)
 :Channel(data)
 {
-	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
+	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 	timer = (2048 - freq) * 4;
 }
 
 void SquareChannel::step()
 {
-	if ((length_enabled && length_counter != 0) || !length_enabled)
-	{
+	// if ((length_enabled && length_counter != 0) || !length_enabled)
+	// {
 		timer--;
 		if (timer == 0)
 		{
@@ -35,7 +35,7 @@ void SquareChannel::step()
 			timer = (2048 - freq) * 4;
 			position = (position + 1) & 0x07; //Reset at 8;
 		}
-	}
+	// }
 }
 uint8_t SquareChannel::get_sample()
 {
@@ -74,7 +74,7 @@ void SquareChannel::trigger()
 		length_counter = 64;
 	}
 
-	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
+	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 	timer = (2048 - freq) * 4;
 	position = 0;
 
@@ -109,16 +109,77 @@ void SquareChannel::vol_envelope()
 }
 
 SquareSweepChannel::SquareSweepChannel(uint8_t *data)
-: SquareChannel(data)
+: SquareChannel(data), sweep_enabled(false),shadow_frequency(0)
+{}
+
+void SquareSweepChannel::sweep_calculation(bool update)
 {
-	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
-	timer = (2048 - freq) * 4;
+	const uint8_t sweep_shift = registers[0] & 0x7;
+	const bool sweep_sub = get_bit(registers[0], 3);
+	uint16_t delta = shadow_frequency >> sweep_shift;
+	uint16_t new_freq = shadow_frequency + (sweep_sub ? -delta : delta);
+
+	if (new_freq > 2047)
+	{
+		enabled = false;
+	}
+	else if (sweep_shift != 0 && update)
+	{
+		shadow_frequency = new_freq;
+		registers[3] = new_freq & 0x0F;
+		registers[4] = (registers[4] & 0xF8) | (new_freq >> 8); //Change only last 3bits
+	}
+}
+
+
+void SquareSweepChannel::sweep()
+{
+	if (--sweep_timer == 0)
+	{
+		uint8_t sweep_period = (registers[0] & 0x70) >> 4;
+		sweep_timer = sweep_period ? sweep_period : 8;
+
+		if (sweep_enabled && sweep_period != 0)
+		{
+			sweep_calculation(true);
+			sweep_calculation(false);
+		}
+
+	}
+}
+
+uint8_t SquareSweepChannel::get_sample()
+{
+	if(enabled)
+		return SquareChannel::get_sample();
+
+	return 0;
+}
+
+void SquareSweepChannel::trigger()
+{
+	SquareChannel::trigger();
+
+	shadow_frequency = ((registers[4] & 0x07) << 8) | registers[3];
+	const uint8_t sweep_period = (registers[0] & 0x70) >> 4;
+	sweep_timer = sweep_period ? sweep_period : 8;
+
+
+	const uint8_t sweep_shift = registers[0] & 0x7;
+
+	sweep_enabled = (sweep_period != 0 && sweep_shift != 0);
+	enabled = true;
+
+	if(sweep_shift != 0)
+	{
+		sweep_calculation(false);
+	}
 }
 
 ChannelWave::ChannelWave(uint8_t *data, uint8_t *wave)
 :Channel(data), wave_data(wave, 32)
 {
-	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
+	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 	timer = (2048 - freq) * 2;
 
 	position = 0;
@@ -186,7 +247,7 @@ void ChannelWave::trigger()
 		length_counter = 256;
 	}
 
-	const uint16_t freq = ((registers[4] & 0x03) << 8) | registers[3];
+	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
 	timer = (2048 - freq) * 2;
 	position = 0;
 }
