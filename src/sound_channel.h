@@ -6,8 +6,6 @@
 
 #include <span>
 
-class Sound;
-
 class Channel
 {
 protected:
@@ -23,9 +21,9 @@ protected:
 
 	std::span<uint8_t, 5> registers;
 
-public:
 	Channel(uint8_t* data);
 	~Channel() = default;
+public:
 
 	//virtual void init();
 	virtual void step() = 0;
@@ -37,7 +35,21 @@ public:
 	void length_tick();
 };
 
-class SquareChannel : public Channel
+class EnvelopeChannel : public Channel
+{
+	protected:
+		uint8_t envelope_timer;
+		bool envelope_enabled;
+
+		EnvelopeChannel(uint8_t *data);
+		~EnvelopeChannel() = default;
+
+	public:
+		virtual void trigger();
+		void vol_envelope();
+};
+
+class SquareChannel : public EnvelopeChannel
 {
 protected:
 
@@ -49,8 +61,8 @@ protected:
 	};
 
 	uint8_t duty;
-	uint8_t envelope_timer;
-	bool envelope_enabled;
+	// uint8_t envelope_timer;
+	// bool envelope_enabled;
 
 public:
 	SquareChannel(uint8_t *data);
@@ -63,7 +75,7 @@ public:
 
 	virtual void trigger();
 
-	void vol_envelope();
+
 };
 
 
@@ -89,7 +101,7 @@ class SquareSweepChannel : public SquareChannel {
 };
 
 
-class ChannelWave : public Channel
+class WaveChannel : public Channel
 {
 private:
 
@@ -97,8 +109,8 @@ private:
 	std::span<uint8_t, 32> wave_data;
 
 public:
-	ChannelWave(uint8_t *data, uint8_t *wave_data);
-	~ChannelWave() = default;
+	WaveChannel(uint8_t *data, uint8_t *wave_data);
+	~WaveChannel() = default;
 
 	// void init();
 	void step();
@@ -106,6 +118,12 @@ public:
 	void write_reg(uint16_t addr, uint8_t val);
 
 	void trigger();
+};
+
+
+class NoiseChannel: public EnvelopeChannel
+{
+
 };
 
 #endif

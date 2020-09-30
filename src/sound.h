@@ -21,7 +21,7 @@ private:
 	uint8_t frame_seq_step = 0;
 
 	//const Memory* memory;
-	ChannelWave wave;
+	WaveChannel wave;
 	SquareSweepChannel square1;
 	SquareChannel square2;
 
