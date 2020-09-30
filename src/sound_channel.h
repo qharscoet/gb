@@ -21,6 +21,8 @@ protected:
 
 	std::span<uint8_t, 5> registers;
 
+	inline uint16_t frequency() { return ((registers[4] & 0x07) << 8) | registers[3]; };
+
 	Channel(uint8_t* data);
 	~Channel() = default;
 public:
@@ -52,13 +54,8 @@ class EnvelopeChannel : public Channel
 class SquareChannel : public EnvelopeChannel
 {
 protected:
-
-	const bool duty_pattern[4][8] = {
-		{true, false, false, false, false, false, false, false},
-		{true, true, false, false, false, false, false, false},
-		{true, true, true, true, false, false, false, false},
-		{true, true, true, true, true, true, false, false},
-	};
+	const uint8_t duty_pattern[4]{
+		0b1000'0000, 0b1100'0000, 0b1111'0000, 0b1111'1100};
 
 	uint8_t duty;
 	// uint8_t envelope_timer;

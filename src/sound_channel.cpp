@@ -56,8 +56,7 @@ void EnvelopeChannel::trigger()
 SquareChannel::SquareChannel(uint8_t *data)
 : EnvelopeChannel(data)
 {
-	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-	timer = (2048 - freq) * 4;
+	timer = (2048 - frequency()) * 4;
 }
 
 void SquareChannel::step()
@@ -66,8 +65,7 @@ void SquareChannel::step()
 	// {
 		if (--timer == 0)
 		{
-			const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-			timer = (2048 - freq) * 4;
+			timer = (2048 - frequency()) * 4;
 			position = (position + 1) & 0x07; //Reset at 8;
 		}
 	// }
@@ -76,7 +74,7 @@ uint8_t SquareChannel::get_sample()
 {
 	if ((length_enabled && length_counter != 0) || !length_enabled)
 	{
-		return duty_pattern[duty][position] * volume;
+		return get_bit(duty_pattern[duty], position) * volume;
 	}
 	return 0;
 }
@@ -111,8 +109,7 @@ void SquareChannel::trigger()
 		length_counter = 64;
 	}
 
-	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-	timer = (timer & 0x3) | (((2048 - freq) * 4) & ~0x3);
+	timer = (timer & 0x3) | (((2048 - frequency()) * 4) & ~0x3);
 	position = 0;
 }
 
@@ -177,7 +174,7 @@ void SquareSweepChannel::trigger()
 {
 	SquareChannel::trigger();
 
-	shadow_frequency = ((registers[4] & 0x07) << 8) | registers[3];
+	shadow_frequency = frequency();
 	const uint8_t sweep_period = (registers[0] & 0x70) >> 4;
 	sweep_timer = sweep_period ? sweep_period : 8;
 
@@ -197,9 +194,7 @@ void SquareSweepChannel::trigger()
 WaveChannel::WaveChannel(uint8_t *data, uint8_t *wave)
 :Channel(data), wave_data(wave, 32)
 {
-	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-	timer = (2048 - freq) * 2;
-
+	timer = (2048 - frequency()) * 2;
 	position = 0;
 }
 
@@ -234,8 +229,7 @@ void WaveChannel::step()
 		timer--;
 		if(timer == 0)
 		{
-			const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-			timer = (2048 - freq) * 2;
+			timer = (2048 - frequency()) * 2;
 			position = (position + 1) & 0x1F; //Reset at 32;
 		}
 	}
@@ -265,7 +259,6 @@ void WaveChannel::trigger()
 		length_counter = 256;
 	}
 
-	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-	timer = (2048 - freq) * 2;
+	timer = (2048 - frequency()) * 2;
 	position = 0;
 }
