@@ -53,6 +53,7 @@ static bool memory_editor_open = true;
 static bool vram_editor_open = true;
 static bool options_open = true;
 static bool vram_viewer = true;
+static bool sound_viewer = true;
 
 static int begin, size;
 
@@ -222,6 +223,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		{
 			ImGui::MenuItem("VRAM Viewer", NULL, &vram_viewer);
 			ImGui::MenuItem("VRAM Editor", NULL, &vram_editor_open);
+			ImGui::MenuItem("Sound Viewer", NULL, &sound_viewer);
 			ImGui::MenuItem("Memory Editor", NULL, &memory_editor_open);
 			ImGui::MenuItem("Options", NULL, &options_open);
 			ImGui::EndMenu();
@@ -326,10 +328,11 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::End();
 	}
 
+	if(sound_viewer)
 	{
-		ImGui::Begin("Sound viewer");
+		ImGui::Begin("Sound viewer", &sound_viewer);
 
-		ImGui::PlotLines("sound", debug_samples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f));
+		ImGui::PlotLines("", debug_samples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f));
 
 		ImGui::End();
 	}
