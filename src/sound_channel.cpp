@@ -75,7 +75,7 @@ void SquareChannel::trigger()
 	}
 
 	const uint16_t freq = ((registers[4] & 0x07) << 8) | registers[3];
-	timer = (2048 - freq) * 4;
+	timer = (timer & 0x3) | (((2048 - freq) * 4) & ~0x3);
 	position = 0;
 
 	envelope_timer = registers[2] & 0x7;
@@ -112,10 +112,18 @@ SquareSweepChannel::SquareSweepChannel(uint8_t *data)
 : SquareChannel(data), sweep_enabled(false),shadow_frequency(0)
 {}
 
+void SquareSweepChannel::write_reg(uint16_t addr, uint8_t val)
+{
+	if(addr == 0 && sweep_enabled && sweep_sub && !get_bit(val,3))
+		enabled = false;
+
+	SquareChannel::write_reg(addr,val);
+}
+
 void SquareSweepChannel::sweep_calculation(bool update)
 {
 	const uint8_t sweep_shift = registers[0] & 0x7;
-	const bool sweep_sub = get_bit(registers[0], 3);
+	sweep_sub = get_bit(registers[0], 3);
 	uint16_t delta = shadow_frequency >> sweep_shift;
 	uint16_t new_freq = shadow_frequency + (sweep_sub ? -delta : delta);
 
@@ -126,7 +134,7 @@ void SquareSweepChannel::sweep_calculation(bool update)
 	else if (sweep_shift != 0 && update)
 	{
 		shadow_frequency = new_freq;
-		registers[3] = new_freq & 0x0F;
+		registers[3] = new_freq & 0xFF;
 		registers[4] = (registers[4] & 0xF8) | (new_freq >> 8); //Change only last 3bits
 	}
 }
@@ -168,6 +176,7 @@ void SquareSweepChannel::trigger()
 	const uint8_t sweep_shift = registers[0] & 0x7;
 
 	sweep_enabled = (sweep_period != 0 && sweep_shift != 0);
+	sweep_sub = false;
 	enabled = true;
 
 	if(sweep_shift != 0)

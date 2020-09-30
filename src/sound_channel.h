@@ -73,6 +73,7 @@ class SquareSweepChannel : public SquareChannel {
 		uint8_t sweep_timer;
 		bool sweep_enabled;
 		uint16_t shadow_frequency;
+		bool sweep_sub;
 
 		void sweep_calculation(bool update);
 
@@ -81,9 +82,10 @@ class SquareSweepChannel : public SquareChannel {
 		~SquareSweepChannel() = default;
 
 		uint8_t get_sample();
+		void write_reg(uint16_t addr, uint8_t val);
+		void trigger();
 
 		void sweep();
-		void trigger();
 };
 
 

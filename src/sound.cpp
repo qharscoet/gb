@@ -11,6 +11,7 @@ Sound::Sound()
 :wave(&registers[0xA], &registers[0x20]), square1(&registers[0x00]), square2(&registers[0x5]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
+	buffer.clear();
 }
 
 
@@ -91,6 +92,7 @@ void Sound::clear_data()
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {
+	registers[addr - 0xFF10] = val;
 	if(addr >= 0xFF10 && addr <= 0xFF14)
 	{
 		square1.write_reg(addr - 0xFF10, val);
@@ -111,7 +113,6 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 		}
 	}
 
-	registers[addr - 0xFF10] = val;
 }
 
 uint8_t Sound::read_reg(uint16_t addr) const
