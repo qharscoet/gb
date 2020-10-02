@@ -21,9 +21,10 @@ private:
 	uint8_t frame_seq_step = 0;
 
 	//const Memory* memory;
-	WaveChannel wave;
 	SquareSweepChannel square1;
 	SquareChannel square2;
+	WaveChannel wave;
+	NoiseChannel noise;
 
 	//mapped to 0xFF10 - 0xFF3F
 	uint8_t registers[0x3F];

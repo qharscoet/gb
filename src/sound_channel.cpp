@@ -191,6 +191,13 @@ void SquareSweepChannel::trigger()
 	}
 }
 
+
+
+
+
+
+/* Wave Channel */
+
 WaveChannel::WaveChannel(uint8_t *data, uint8_t *wave)
 :Channel(data), wave_data(wave, 32)
 {
@@ -262,3 +269,27 @@ void WaveChannel::trigger()
 	timer = (2048 - frequency()) * 2;
 	position = 0;
 }
+
+
+
+/* Noise Channel */
+
+NoiseChannel::NoiseChannel(uint8_t *data)
+:EnvelopeChannel(data)
+{
+}
+
+void NoiseChannel::run_lfsr()
+{
+
+}
+
+void NoiseChannel::step()
+{}
+uint8_t NoiseChannel::get_sample()
+{return 0;}
+void NoiseChannel::write_reg(uint16_t addr, uint8_t val)
+{}
+
+void NoiseChannel::trigger()
+{}

@@ -8,7 +8,7 @@ inline bool get_bit(uint8_t val, uint8_t b)
 }
 
 Sound::Sound()
-:wave(&registers[0xA], &registers[0x20]), square1(&registers[0x00]), square2(&registers[0x5]), sample_timer(CLOCKSPEED / SAMPLERATE)
+:wave(&registers[0xA], &registers[0x20]), square1(&registers[0x00]), square2(&registers[0x5]), noise(&registers[0xF]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
 	buffer.clear();
@@ -31,6 +31,7 @@ void Sound::step(uint8_t cycles)
 					wave.length_tick();
 					square1.length_tick();
 					square2.length_tick();
+					noise.length_tick();
 				}
 
 				if((frame_seq_step & 0x3) == 0x2 )
@@ -42,6 +43,7 @@ void Sound::step(uint8_t cycles)
 				{
 					square1.vol_envelope();
 					square2.vol_envelope();
+					noise.vol_envelope();
 				}
 
 
@@ -51,7 +53,7 @@ void Sound::step(uint8_t cycles)
 			wave.step();
 			square1.step();
 			square2.step();
-			//TODO : add other channels
+			noise.step();
 
 
 			// We only get samples every SAMPLERATE cycles
@@ -67,6 +69,8 @@ void Sound::step(uint8_t cycles)
 					sample += square2.get_sample();
 				if(options.sound.channel3)
 					sample += wave.get_sample();
+				if(options.sound.channel4)
+					sample += noise.get_sample();
 
 				buffer.push_back(sample);
 			}

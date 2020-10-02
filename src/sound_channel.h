@@ -120,7 +120,19 @@ public:
 
 class NoiseChannel: public EnvelopeChannel
 {
+	private:
+		uint16_t lfsr;
 
+		void run_lfsr();
+	public:
+		NoiseChannel(uint8_t *data);
+		~NoiseChannel() = default;
+
+		void step();
+		uint8_t get_sample();
+		void write_reg(uint16_t addr, uint8_t val);
+
+		void trigger();
 };
 
 #endif
