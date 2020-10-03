@@ -305,10 +305,13 @@ void NoiseChannel::run_lfsr()
 
 void NoiseChannel::step()
 {
-	if(--timer == 0)
+	if ((length_enabled && length_counter != 0) || !length_enabled)
 	{
-		timer = frequency();
-		run_lfsr();
+		if (--timer == 0)
+		{
+			timer = frequency();
+			run_lfsr();
+		}
 	}
 }
 

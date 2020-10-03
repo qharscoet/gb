@@ -9,7 +9,7 @@
 class Channel
 {
 protected:
-	uint16_t timer;
+	uint32_t timer;
 	uint8_t volume;
 	uint8_t position;
 
@@ -21,7 +21,7 @@ protected:
 
 	std::span<uint8_t, 5> registers;
 
-	inline uint16_t frequency() { return ((registers[4] & 0x07) << 8) | registers[3]; };
+	inline uint32_t frequency() { return ((registers[4] & 0x07) << 8) | registers[3]; };
 
 	Channel(uint8_t* data);
 	~Channel() = default;
@@ -130,7 +130,7 @@ class NoiseChannel: public EnvelopeChannel
 		void run_lfsr();
 
 		inline bool width_mode() { return registers[3] & 0x8; };
-		inline uint16_t frequency() { return base_divisor[registers[3] & 0x7] << (registers[3] >> 4); };
+		inline uint32_t frequency() { return base_divisor[registers[3] & 0x7] << (registers[3] >> 4); };
 
 	public:
 		NoiseChannel(uint8_t *data);
