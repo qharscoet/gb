@@ -49,6 +49,8 @@ class EnvelopeChannel : public Channel
 	public:
 		virtual void trigger();
 		void vol_envelope();
+
+		virtual void write_reg(uint16_t addr, uint8_t val);
 };
 
 class SquareChannel : public EnvelopeChannel
@@ -121,16 +123,21 @@ public:
 class NoiseChannel: public EnvelopeChannel
 {
 	private:
+		const uint8_t base_divisor[8] = {8, 16, 32, 48, 64, 80, 96, 112};
+
 		uint16_t lfsr;
 
 		void run_lfsr();
+
+		inline bool width_mode() { return registers[3] & 0x8; };
+		inline uint16_t frequency() { return base_divisor[registers[3] & 0x7] << (registers[3] >> 4); };
+
 	public:
 		NoiseChannel(uint8_t *data);
 		~NoiseChannel() = default;
 
 		void step();
 		uint8_t get_sample();
-		void write_reg(uint16_t addr, uint8_t val);
 
 		void trigger();
 };

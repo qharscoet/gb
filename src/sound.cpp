@@ -106,6 +106,9 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 	} else if(addr >= 0xFF1A && addr <= 0xFF1E)
 	{
 		wave.write_reg(addr - 0xFF1A, val);
+	} else if(addr >= 0xFF1F && addr <= 0xFF23)
+	{
+		noise.write_reg(addr - 0xFF1F, val);
 	} else if (addr == NR52) {
 		if(!get_bit(val, 7))
 		{

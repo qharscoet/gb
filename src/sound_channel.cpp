@@ -43,6 +43,27 @@ void EnvelopeChannel::vol_envelope()
 	}
 }
 
+void EnvelopeChannel::write_reg(uint16_t addr, uint8_t val)
+{
+	switch (addr)
+	{
+	case 1:
+		length_counter = (val & 0x3F);
+		break;
+	case 2:
+		// volume = (val & 0xF0) >> 4;
+		break;
+	case 3:
+		break;
+	case 4:
+		if (get_bit(val, 7))
+			trigger();
+
+		length_enabled = get_bit(val, 6);
+		break;
+	}
+}
+
 void EnvelopeChannel::trigger()
 {
 	envelope_timer = registers[2] & 0x7;
@@ -78,25 +99,14 @@ uint8_t SquareChannel::get_sample()
 	}
 	return 0;
 }
+
 void SquareChannel::write_reg(uint16_t addr, uint8_t val)
 {
-	switch(addr)
-	{
-		case 1:
-			length_counter = (val & 0x3F);
-			duty = (val & 0xC0) >> 6;
-			break;
-		case 2:
-			// volume = (val & 0xF0) >> 4;
-			break;
-		case 3:
-			break;
-		case 4:
-			if (get_bit(val, 7))
-				trigger();
+	EnvelopeChannel::write_reg(addr,val);
 
-			length_enabled = get_bit(val, 6);
-		break;
+	if(addr == 1)
+	{
+		duty = (val & 0xC0) >> 6;
 	}
 }
 
@@ -275,21 +285,47 @@ void WaveChannel::trigger()
 /* Noise Channel */
 
 NoiseChannel::NoiseChannel(uint8_t *data)
-:EnvelopeChannel(data)
+:EnvelopeChannel(data), lfsr(0x7FFF)
 {
+	timer = frequency();
 }
 
 void NoiseChannel::run_lfsr()
 {
+	bool result = get_bit(lfsr,0) ^ get_bit(lfsr, 1);
+	lfsr >>= 1;
+	lfsr |= result << 14;
 
+	if(width_mode())
+	{
+		// If in 7bits mode, we also put the result into the 7th bit
+		lfsr = (lfsr & ~0x40) | ( result << 6);
+	}
 }
 
 void NoiseChannel::step()
-{}
+{
+	if(--timer == 0)
+	{
+		timer = frequency();
+		run_lfsr();
+	}
+}
+
+
 uint8_t NoiseChannel::get_sample()
-{return 0;}
-void NoiseChannel::write_reg(uint16_t addr, uint8_t val)
-{}
+{
+	if ((length_enabled && length_counter != 0) || !length_enabled)
+	{
+		return !(lfsr & 1) * volume;
+	}
+	return 0;
+}
 
 void NoiseChannel::trigger()
-{}
+{
+	EnvelopeChannel::trigger();
+
+	lfsr = 0x7FFF;
+	timer = frequency();
+}
