@@ -41,5 +41,5 @@ public:
 	bool handle_events(Emulator &emu);
 	uint8_t get_keystate();
 
-	void play_audio(const uint8_t *samples);
+	void play_audio(const float *samples);
 };

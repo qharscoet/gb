@@ -74,14 +74,21 @@ void Sound::step(uint8_t cycles)
 
 				for(uint8_t i = 0; i < 4; i++)
 				{
-					if((&options.sound.channel1)[i])
-					{
-						if(get_bit(output_sel, i))
-							sample.sample_r += ch_samples[i];
-						if(get_bit(output_sel, i + 4))
-							sample.sample_l += ch_samples[i];
-					}
+					bool options_ch_enabled = (&options.sound.channel1)[i];
+					float fsample = (options_ch_enabled?ch_samples[i]:0.0f) * 2.0f / 15 - 1.0f;
+					if (get_bit(output_sel, i))
+						sample.sample_r += fsample;
+					if (get_bit(output_sel, i + 4))
+						sample.sample_l += fsample;
 				}
+
+				sample.sample_l *= ((registers[NR50 - 0xFF10] & 0x70) >> 4) + 1;
+				sample.sample_r *= ((registers[NR50 - 0xFF10] & 0x07)) + 1;
+
+				/* 4 channels output each at [-1.0, 1.0] and can be multiplied by up to 8 so total values are [-32.0, 32.0]
+				 so we put them back to [-1.0, 1.0] */
+				sample.sample_l /= 32.0f;
+				sample.sample_r /= 32.0f;
 
 				buffer.push_back(sample);
 			}
@@ -89,7 +96,7 @@ void Sound::step(uint8_t cycles)
 	}
 }
 
-const uint8_t* Sound::get_sound_data() const
+const float* Sound::get_sound_data() const
 {
 	if(buffer.size() >= BUFFER_SIZE)
 	{

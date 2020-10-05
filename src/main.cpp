@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
 
 						cycles_total += emu.step(display->get_keystate());
 
-						const uint8_t *samples = emu.get_audio_data();
+						const float *samples = emu.get_audio_data();
 						if (samples != nullptr)
 						{
 							display->play_audio(samples);

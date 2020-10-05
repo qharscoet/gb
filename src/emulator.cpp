@@ -84,7 +84,7 @@ const std::string Emulator::get_game_name() const
 	return rom_filename != ""?memory.get_data(0x0134):"Gameboy Emulator";
 }
 
-const uint8_t* Emulator::get_audio_data() const
+const float* Emulator::get_audio_data() const
 {
 	return apu.get_sound_data();
 }

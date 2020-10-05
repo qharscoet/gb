@@ -442,7 +442,7 @@ int Debug_Display::init_audio()
 	return 1;
 }
 
-void Debug_Display::play_audio(const uint8_t *samples)
+void Debug_Display::play_audio(const float *samples)
 {
 
 	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(float) * 2)
@@ -450,9 +450,8 @@ void Debug_Display::play_audio(const uint8_t *samples)
 		SDL_Delay(1);
 	}
 
-	for (int i = 0; i < BUFFER_SIZE; i++){
-		fsamples[i * 2] = samples[i * 2] * 2.0f / 63 - 1.0f;
-		fsamples[i * 2 + 1] = samples[i * 2 + 1] * 2.0f / 63 - 1.0f;
+	for (int i = 0; i < BUFFER_SIZE * 2; i++){
+		fsamples[i] = samples[i];
 	}
 
 	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float) * 2) == -1)

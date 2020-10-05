@@ -17,8 +17,8 @@ private:
 	static const uint16_t NR52 = 0xFF26;
 
 	struct sample {
-		uint8_t sample_l;
-		uint8_t sample_r;
+		float sample_l;
+		float sample_r;
 	};
 
 	// clocked at 512 Hz, which means every 8192 clocks for the CU at 4Mhz
@@ -46,7 +46,7 @@ public:
 
 	void step(uint8_t cycles);
 
-	const uint8_t* get_sound_data() const;
+	const float* get_sound_data() const;
 	void clear_data();
 
 	char* const get_data(uint16_t addr);
