@@ -213,6 +213,7 @@ WaveChannel::WaveChannel(uint8_t *data, uint8_t *wave)
 {
 	timer = (2048 - frequency()) * 2;
 	position = 0;
+	sample_buffer = 0;
 }
 
 void WaveChannel::write_reg(uint16_t addr, uint8_t val)
@@ -248,6 +249,9 @@ void WaveChannel::step()
 		{
 			timer = (2048 - frequency()) * 2;
 			position = (position + 1) & 0x1F; //Reset at 32;
+
+			const uint8_t val = wave_data[position >> 1];
+			sample_buffer = position & 1 ? val & 0x0F : val >> 4;
 		}
 	}
 }
@@ -258,11 +262,7 @@ uint8_t WaveChannel::get_sample()
 
 	if(enabled && ((length_enabled && length_counter != 0) || !length_enabled))
 	{
-		const uint8_t val = wave_data[position >> 1];
-		uint8_t sample = position & 1 ? val & 0x0F : val >> 4;
-		sample >>= (volume != 0 ? volume - 1 : 4) ;
-
-		return sample;
+		return sample_buffer >> (volume != 0 ? volume - 1 : 4);
 	}
 
 	return 0;

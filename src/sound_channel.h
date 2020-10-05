@@ -107,6 +107,8 @@ private:
 	static const uint16_t wave_addr = 0xFF30;
 	std::span<uint8_t, 32> wave_data;
 
+	uint8_t sample_buffer;
+
 public:
 	WaveChannel(uint8_t *data, uint8_t *wave_data);
 	~WaveChannel() = default;

@@ -65,38 +65,22 @@ void Sound::step(uint8_t cycles)
 
 				sample sample = {0,0};
 
-				// TODO : simplify this
-				if (options.sound.channel1)
+				const uint8_t ch_samples[4] = {
+					square1.get_sample(),
+					square2.get_sample(),
+					wave.get_sample(),
+					noise.get_sample()
+				};
+
+				for(uint8_t i = 0; i < 4; i++)
 				{
-					uint8_t ch_sample = square1.get_sample();
-					if(get_bit(output_sel, 0))
-						sample.sample_r += ch_sample;
-					if (get_bit(output_sel, 4))
-						sample.sample_l += ch_sample;
-				}
-				if (options.sound.channel2)
-				{
-					uint8_t ch_sample = square2.get_sample();
-					if (get_bit(output_sel, 1))
-						sample.sample_r += ch_sample;
-					if (get_bit(output_sel, 5))
-						sample.sample_l += ch_sample;
-				}
-				if(options.sound.channel3)
-				{
-					uint8_t ch_sample = wave.get_sample();
-					if (get_bit(output_sel, 2))
-						sample.sample_r += ch_sample;
-					if (get_bit(output_sel, 6))
-						sample.sample_l += ch_sample;
-				}
-				if(options.sound.channel4)
-				{
-					uint8_t ch_sample = noise.get_sample();
-					if (get_bit(output_sel, 3))
-						sample.sample_r += ch_sample;
-					if (get_bit(output_sel, 7))
-						sample.sample_l += ch_sample;
+					if((&options.sound.channel1)[i])
+					{
+						if(get_bit(output_sel, i))
+							sample.sample_r += ch_samples[i];
+						if(get_bit(output_sel, i + 4))
+							sample.sample_l += ch_samples[i];
+					}
 				}
 
 				buffer.push_back(sample);
