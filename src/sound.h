@@ -16,6 +16,11 @@ private:
 	static const uint16_t NR51 = 0xFF25;
 	static const uint16_t NR52 = 0xFF26;
 
+	struct sample {
+		uint8_t sample_l;
+		uint8_t sample_r;
+	};
+
 	// clocked at 512 Hz, which means every 8192 clocks for the CU at 4Mhz
 	uint16_t frame_sequencer = 0;
 	uint8_t frame_seq_step = 0;
@@ -30,7 +35,7 @@ private:
 	uint8_t registers[0x3F];
 
 	uint32_t sample_timer;
-	std::vector<uint8_t> buffer;
+	std::vector<sample> buffer;
 
 	// void channel_3(uint16_t values[32]);
 

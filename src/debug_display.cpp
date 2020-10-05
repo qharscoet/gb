@@ -40,7 +40,7 @@ using namespace gl;
 
 static const int BUFFER_SIZE = 4096;
 
-static float fsamples[BUFFER_SIZE] = {0.0f};
+static float fsamples[BUFFER_SIZE * 2] = {0.0f};
 
 static GLuint bg_full;
 static GLuint bg_tiles;
@@ -333,7 +333,7 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		ImGui::Begin("Sound viewer", &sound_viewer);
 
-		ImGui::PlotLines("", fsamples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f));
+		ImGui::PlotLines("", fsamples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f), 2 * sizeof(float) /* we use only channel R*/);
 
 		ImGui::End();
 	}
@@ -420,11 +420,11 @@ int Debug_Display::init_audio()
 	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 	want.freq = 48000;
 	want.format = AUDIO_F32;
-	want.channels = 1;
+	want.channels = 2;
 	want.samples = BUFFER_SIZE;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
-	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
 	if (audio_dev == 0)
 	{
 		SDL_Log("Failed to open audio: %s", SDL_GetError());
@@ -445,16 +445,17 @@ int Debug_Display::init_audio()
 void Debug_Display::play_audio(const uint8_t *samples)
 {
 
-	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(float))
+	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(float) * 2)
 	{
 		SDL_Delay(1);
 	}
 
 	for (int i = 0; i < BUFFER_SIZE; i++){
-		fsamples[i] = samples[i] * 2.0f / 63 - 1.0f;
+		fsamples[i * 2] = samples[i * 2] * 2.0f / 63 - 1.0f;
+		fsamples[i * 2 + 1] = samples[i * 2 + 1] * 2.0f / 63 - 1.0f;
 	}
 
-	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float)) == -1)
+	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float) * 2) == -1)
 	{
 		std::cout << SDL_GetError() << std::endl;
 	}

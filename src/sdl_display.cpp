@@ -196,11 +196,11 @@ int SDL_Display::init_audio()
 	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 	want.freq = 48000;
 	want.format = AUDIO_U8;
-	want.channels = 1;
+	want.channels = 2;
 	want.samples = BUFFER_SIZE;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
-	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
 	if (audio_dev == 0)
 	{
 		SDL_Log("Failed to open audio: %s", SDL_GetError());
@@ -220,12 +220,12 @@ int SDL_Display::init_audio()
 
 void SDL_Display::play_audio(const uint8_t *samples)
 {
-	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(uint8_t))
+	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * (sizeof(uint8_t) * 2))
 	{
 		SDL_Delay(1);
 	}
 
-	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE) == -1)
+	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * 2) == -1)
 	{
 		std::cout << SDL_GetError() << std::endl;
 	}

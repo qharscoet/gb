@@ -61,16 +61,43 @@ void Sound::step(uint8_t cycles)
 			{
 				sample_timer = CLOCKSPEED/SAMPLERATE;
 
-				uint8_t sample = 0;
+				uint8_t output_sel = registers[NR51 - 0xFF10];
 
+				sample sample = {0,0};
+
+				// TODO : simplify this
 				if (options.sound.channel1)
-					sample += square1.get_sample();
+				{
+					uint8_t ch_sample = square1.get_sample();
+					if(get_bit(output_sel, 0))
+						sample.sample_r += ch_sample;
+					if (get_bit(output_sel, 4))
+						sample.sample_l += ch_sample;
+				}
 				if (options.sound.channel2)
-					sample += square2.get_sample();
+				{
+					uint8_t ch_sample = square2.get_sample();
+					if (get_bit(output_sel, 1))
+						sample.sample_r += ch_sample;
+					if (get_bit(output_sel, 5))
+						sample.sample_l += ch_sample;
+				}
 				if(options.sound.channel3)
-					sample += wave.get_sample();
+				{
+					uint8_t ch_sample = wave.get_sample();
+					if (get_bit(output_sel, 2))
+						sample.sample_r += ch_sample;
+					if (get_bit(output_sel, 6))
+						sample.sample_l += ch_sample;
+				}
 				if(options.sound.channel4)
-					sample += noise.get_sample();
+				{
+					uint8_t ch_sample = noise.get_sample();
+					if (get_bit(output_sel, 3))
+						sample.sample_r += ch_sample;
+					if (get_bit(output_sel, 7))
+						sample.sample_l += ch_sample;
+				}
 
 				buffer.push_back(sample);
 			}
@@ -82,7 +109,7 @@ const uint8_t* Sound::get_sound_data() const
 {
 	if(buffer.size() >= BUFFER_SIZE)
 	{
-		return &buffer[0];
+		return &(buffer[0].sample_l);
 	}
 
 	return nullptr;
