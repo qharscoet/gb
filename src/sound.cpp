@@ -93,6 +93,10 @@ void Sound::clear_data()
 	buffer.clear();
 }
 
+char* const Sound::get_data(uint16_t addr)
+{
+	return &((char*)registers)[addr];
+}
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {

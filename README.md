@@ -10,11 +10,12 @@ WHAT WORKS
 - GPU (mostly)
 - Inputs
 
-TODO NEXT :
+TODO :
 -----------
 - TODOs in the code
 - Refactor to get rid of duplicated code here and there
 - Sprite overlapping and 10 sprite on one line limit
+- Refactor Memory to not allocate the full 64Kb now that rom/ram and sound are allocated in other classes
 - Sound stereo output and mixing
 
 IN PROGRESS

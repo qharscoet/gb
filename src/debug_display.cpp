@@ -39,7 +39,8 @@ using namespace gl;
 #endif
 
 static const int BUFFER_SIZE = 4096;
-static float debug_samples[BUFFER_SIZE] = {0.0f};
+
+static float fsamples[BUFFER_SIZE] = {0.0f};
 
 static GLuint bg_full;
 static GLuint bg_tiles;
@@ -332,7 +333,7 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		ImGui::Begin("Sound viewer", &sound_viewer);
 
-		ImGui::PlotLines("", debug_samples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f));
+		ImGui::PlotLines("", fsamples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f));
 
 		ImGui::End();
 	}
@@ -449,10 +450,8 @@ void Debug_Display::play_audio(const uint8_t *samples)
 		SDL_Delay(1);
 	}
 
-	float fsamples[BUFFER_SIZE];
 	for (int i = 0; i < BUFFER_SIZE; i++){
-		fsamples[i] = samples[i] * 2.0f / 31 - 1.0f;
-		debug_samples[i] = samples[i] * 2.0f / 47 - 1.0f;
+		fsamples[i] = samples[i] * 2.0f / 63 - 1.0f;
 	}
 
 	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float)) == -1)

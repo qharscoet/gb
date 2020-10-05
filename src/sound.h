@@ -44,6 +44,8 @@ public:
 	const uint8_t* get_sound_data() const;
 	void clear_data();
 
+	char* const get_data(uint16_t addr);
+
 	void write_reg(uint16_t addr, uint8_t value);
 	uint8_t read_reg(uint16_t addr) const;
 };
