@@ -331,6 +331,10 @@ void GPU::draw_objects(uint8_t line)
 		int16_t ajusted_x = attr.x_pos - 0x08;
 		if(ajusted_y <= line && ajusted_y + ysize > line)
 		{
+
+			if(attr.x_pos == 0 || attr.x_pos >= 168)
+				continue;
+
 			uint8_t pixel_line = line - ajusted_y;
 			if(get_bit(attr.attr_flags, 6))
 				pixel_line = ysize - pixel_line -1 ;
@@ -350,6 +354,9 @@ void GPU::draw_objects(uint8_t line)
 				uint8_t color_id = (get_bit(data2, pixel_col) << 1) | (get_bit(data1, pixel_col));
 
 				if(color_id == 0)
+					continue;
+
+				if(ajusted_x + x < 0)
 					continue;
 
 				uint8_t bg_palette = memory->read_8bits(0xFF47);
