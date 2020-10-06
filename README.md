@@ -16,12 +16,10 @@ TODO :
 - Refactor to get rid of duplicated code here and there
 - Sprite overlapping and 10 sprite on one line limit
 - Refactor Memory to not allocate the full 64Kb now that rom/ram and sound are allocated in other classes
-- Sound stereo output and mixing
 
 IN PROGRESS
 ------------
-- Sound Channel 1 frequency sweep
-- Channel 4
+- Cleaning up stuff
 
 Missing:
 --------
