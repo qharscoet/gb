@@ -9,7 +9,7 @@ extern emu_options options;
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 1024
 
 SDL_Display::SDL_Display()
 {
@@ -26,6 +26,11 @@ SDL_Display::~SDL_Display()
 	sdlRenderer = NULL;
 
 	SDL_CloseAudioDevice(audio_dev);
+
+	if (SDL_GetPlatform() == "Windows")
+	{
+		SDL_AudioQuit();
+	}
 
 	//Quit SDL
 	SDL_Quit();
@@ -185,9 +190,10 @@ bool SDL_Display::handle_events(Emulator &emu)
 
 int SDL_Display::init_audio()
 {
+
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+		SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
 		return 0;
 	}
 
@@ -204,8 +210,32 @@ int SDL_Display::init_audio()
 	if (audio_dev == 0)
 	{
 		SDL_Log("Failed to open audio: %s", SDL_GetError());
+
+		for (uint8_t i = 0; i < SDL_GetNumAudioDrivers() && audio_dev == 0; ++i)
+		{
+			const char *driver_name = SDL_GetAudioDriver(i);
+			if (SDL_AudioInit(driver_name))
+			{
+				SDL_Log("Audio driver failed to initialize: %s", driver_name);
+				continue;
+			}
+
+			SDL_Log("trying to open device with driver : %s", driver_name);
+			audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+		}
+
+		if(audio_dev != 0)
+		{
+			SDL_Log("Success");
+		}
+		else
+		{
+			SDL_Log("Failed");
+			return 0;
+		}
 	}
-	else
+
+
 	{
 		if (have.format != want.format)
 		{ /* we let this one thing change. */
@@ -220,13 +250,17 @@ int SDL_Display::init_audio()
 
 void SDL_Display::play_audio(const float *samples)
 {
-	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)))
+	if(audio_dev != 0)
 	{
-		SDL_Delay(1);
+		while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)))
+		{
+			SDL_Delay(1);
+		}
+
+		if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * 2 * sizeof(float)) == -1)
+		{
+			std::cout << SDL_GetError() << std::endl;
+		}
 	}
 
-	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * 2 * sizeof(float)) == -1)
-	{
-		std::cout << SDL_GetError() << std::endl;
-	}
 }

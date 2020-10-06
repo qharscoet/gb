@@ -38,9 +38,10 @@ using namespace gl;
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
 
-static const int BUFFER_SIZE = 4096;
+static const int BUFFER_SIZE = 1024;
 
-static float fsamples[BUFFER_SIZE * 2] = {0.0f};
+static float fsamples[BUFFER_SIZE * 8] = {0.0f};
+static uint16_t sample_offset = 0;
 
 static GLuint bg_full;
 static GLuint bg_tiles;
@@ -272,13 +273,15 @@ void Debug_Display::update(const uint32_t *pixels)
 		uint32_t pixels[256 * 256];
 		emu.gpu.draw_full_bg(pixels);
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
-		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.5f));
+
+		float size = min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
+		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(size, size));
 		ImGui::SameLine();
 
 		uint32_t pixels2[128 * 192];
 		emu.gpu.display_bg_tiles(pixels2);
 		LoadTextureFromPixels(pixels2, &bg_tiles, 128, 192);
-		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(ImGui::GetWindowWidth() * 0.25f, ImGui::GetWindowHeight() * 0.375f));
+		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(size * 0.5f, size * 0.75f));
 
 		ImGui::End();
 	}
@@ -333,7 +336,7 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		ImGui::Begin("Sound viewer", &sound_viewer);
 
-		ImGui::PlotLines("", fsamples, BUFFER_SIZE, 0, NULL, -1.0f, 1.0f, ImVec2(0, 80.0f), 2 * sizeof(float) /* we use only channel R*/);
+		ImGui::PlotLines("", fsamples + (sample_offset >= BUFFER_SIZE * 4?0:BUFFER_SIZE*4), BUFFER_SIZE * 4, 0, NULL, -1.0f, 1.0f, ImVec2(ImGui::GetWindowWidth() *0.9f, 80.0f)/*, 2 * sizeof(float) /* we use only channel R*/);
 
 		ImGui::End();
 	}
@@ -411,7 +414,7 @@ int Debug_Display::init_audio()
 {
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+		SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
 		return 0;
 	}
 
@@ -424,12 +427,35 @@ int Debug_Display::init_audio()
 	want.samples = BUFFER_SIZE;
 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
-	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
 	if (audio_dev == 0)
 	{
 		SDL_Log("Failed to open audio: %s", SDL_GetError());
+
+		for (uint8_t i = 0; i < SDL_GetNumAudioDrivers() && audio_dev == 0; ++i)
+		{
+			const char *driver_name = SDL_GetAudioDriver(i);
+			if (SDL_AudioInit(driver_name))
+			{
+				SDL_Log("Audio driver failed to initialize: %s", driver_name);
+				continue;
+			}
+
+			SDL_Log("trying to open device with driver : %s", driver_name);
+			audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+		}
+
+		if (audio_dev != 0)
+		{
+			SDL_Log("Success");
+		}
+		else
+		{
+			SDL_Log("Failed");
+			return 0;
+		}
 	}
-	else
+
 	{
 		if (have.format != want.format)
 		{ /* we let this one thing change. */
@@ -450,11 +476,13 @@ void Debug_Display::play_audio(const float *samples)
 		SDL_Delay(1);
 	}
 
-	for (int i = 0; i < BUFFER_SIZE * 2; i++){
-		fsamples[i] = samples[i];
+	for (int i = 0; i < BUFFER_SIZE; i++){
+		fsamples[i + sample_offset] = samples[i * 2];
 	}
+	sample_offset += BUFFER_SIZE;
+	if(sample_offset == BUFFER_SIZE * 8) sample_offset = 0;
 
-	if(SDL_QueueAudio(audio_dev, fsamples, BUFFER_SIZE * sizeof(float) * 2) == -1)
+	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * sizeof(float) * 2) == -1)
 	{
 		std::cout << SDL_GetError() << std::endl;
 	}

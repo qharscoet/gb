@@ -1,5 +1,8 @@
 #include "sound.h"
 #include "options.h"
+
+#include <cstring>
+
 extern emu_options options;
 
 inline bool get_bit(uint8_t val, uint8_t b)
@@ -134,7 +137,7 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 	} else if (addr == NR52) {
 		if(!get_bit(val, 7))
 		{
-			memset(registers, 0, 0x3F);
+			std::memset(registers, 0, 0x3F);
 		} else if(!get_bit(registers[NR52 - 0xFF10], 7))
 		{
 			frame_sequencer = 0;

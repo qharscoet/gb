@@ -98,6 +98,7 @@ int main(int argc, char const *argv[])
 			end = std::chrono::steady_clock::now();
 			t_emu = end - start;
 
+			start = std::chrono::steady_clock::now();
 			display->clear();
 			display->update(emu.get_pixel_data());
 			display->render();
@@ -108,6 +109,7 @@ int main(int argc, char const *argv[])
 			auto total_end = std::chrono::steady_clock::now();
 			t_total = total_end - total_start;
 
+			// std::cout << emu.get_times();
 			// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
 			// std::cout << " display time " << t_display.count() << " ms" << "\n";
 

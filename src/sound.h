@@ -9,7 +9,7 @@ class Sound
 private:
 	static constexpr uint32_t SAMPLERATE = 48000;
 	static constexpr uint32_t CLOCKSPEED = 4194304;
-	static constexpr uint32_t BUFFER_SIZE = 4096;
+	static constexpr uint32_t BUFFER_SIZE = 1024;
 
 
 	static const uint16_t NR50 = 0xFF24;

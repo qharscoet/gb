@@ -212,7 +212,7 @@ char *const Memory::get_data(uint16_t addr) const
 	else if (addr >= 0xA000 && addr < 0xC000)
 		return mbc->get_ram_data(addr - 0xA000);
 	else if (addr >= 0xFF10 && addr < 0xFF40)
-		apu->get_data(addr - 0xFF10);
+		return apu->get_data(addr - 0xFF10);
 	else
 		return &mmap[addr];
 }
