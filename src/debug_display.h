@@ -5,8 +5,10 @@
 
 #include "emulator.h"
 
+#include "sdl_audio.h"
 
-class Debug_Display : public Display
+
+class Debug_Display : public Display, public SDL_Audio
 {
 private:
 	SDL_GLContext gl_context;
@@ -24,7 +26,6 @@ private:
 	void update_keystate();
 
 	SDL_AudioDeviceID audio_dev;
-	int init_audio();
 
 public:
 	Debug_Display(Emulator& emu);
@@ -32,7 +33,8 @@ public:
 
 	void set_title(std::string str);
 
-	int init();
+	int display_init();
+	// int audio_init();
 
 	void clear();
 	void update(const uint32_t *pixels);

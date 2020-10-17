@@ -28,15 +28,15 @@ private:
 
 	void update_keystate();
 
-	SDL_AudioDeviceID audio_dev;
-	int init_audio();
+	// SDL_AudioDeviceID audio_dev;
+	// int init_audio();
 public:
 	SDL_Display();
 	~SDL_Display();
 
 	void set_title(std::string str);
 
-	int init();
+	int display_init();
 
 	void clear();
 	void update(const uint32_t *pixels);
@@ -45,7 +45,7 @@ public:
 	bool handle_events(Emulator &emu);
 	uint8_t get_keystate();
 
-	void play_audio(const float *samples);
+	// void play_audio(const float *samples);
 };
 
 #endif

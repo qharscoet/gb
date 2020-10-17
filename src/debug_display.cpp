@@ -117,7 +117,7 @@ Debug_Display::~Debug_Display()
 	SDL_Quit();
 }
 
-int Debug_Display::init()
+int Debug_Display::display_init()
 {
 	// Setup SDL
 	// (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
@@ -195,7 +195,7 @@ int Debug_Display::init()
 	ImGui_ImplSDL2_InitForOpenGL(sdlWindow, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	init_audio();
+	// init_audio();
 
 	return 1;
 }
@@ -410,71 +410,67 @@ void Debug_Display::render()
 	SDL_GL_SwapWindow(sdlWindow);
 }
 
-int Debug_Display::init_audio()
-{
-	if (SDL_Init(SDL_INIT_AUDIO) < 0)
-	{
-		SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
-		return 0;
-	}
+// int Debug_Display::audio_init()
+// {
+// 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+// 	{
+// 		SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
+// 		return 0;
+// 	}
 
-	SDL_AudioSpec want, have;
+// 	SDL_AudioSpec want, have;
 
-	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
-	want.freq = 48000;
-	want.format = AUDIO_F32;
-	want.channels = 2;
-	want.samples = BUFFER_SIZE;
-	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+// 	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
+// 	want.freq = 48000;
+// 	want.format = AUDIO_F32;
+// 	want.channels = 2;
+// 	want.samples = BUFFER_SIZE;
+// 	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
-	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
-	if (audio_dev == 0)
-	{
-		SDL_Log("Failed to open audio: %s", SDL_GetError());
+// 	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+// 	if (audio_dev == 0)
+// 	{
+// 		SDL_Log("Failed to open audio: %s", SDL_GetError());
 
-		for (uint8_t i = 0; i < SDL_GetNumAudioDrivers() && audio_dev == 0; ++i)
-		{
-			const char *driver_name = SDL_GetAudioDriver(i);
-			if (SDL_AudioInit(driver_name))
-			{
-				SDL_Log("Audio driver failed to initialize: %s", driver_name);
-				continue;
-			}
+// 		for (uint8_t i = 0; i < SDL_GetNumAudioDrivers() && audio_dev == 0; ++i)
+// 		{
+// 			const char *driver_name = SDL_GetAudioDriver(i);
+// 			if (SDL_AudioInit(driver_name))
+// 			{
+// 				SDL_Log("Audio driver failed to initialize: %s", driver_name);
+// 				continue;
+// 			}
 
-			SDL_Log("trying to open device with driver : %s", driver_name);
-			audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
-		}
+// 			SDL_Log("trying to open device with driver : %s", driver_name);
+// 			audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+// 		}
 
-		if (audio_dev != 0)
-		{
-			SDL_Log("Success");
-		}
-		else
-		{
-			SDL_Log("Failed");
-			return 0;
-		}
-	}
+// 		if (audio_dev != 0)
+// 		{
+// 			SDL_Log("Success");
+// 		}
+// 		else
+// 		{
+// 			SDL_Log("Failed");
+// 			return 0;
+// 		}
+// 	}
 
-	{
-		if (have.format != want.format)
-		{ /* we let this one thing change. */
-			SDL_Log("We didn't get U8 audio format.");
-		}
-		SDL_PauseAudioDevice(audio_dev, 0); /* start audio playing. */
-											//SDL_Delay(5000);			  /* let the audio callback play some sound for 5 seconds. */
-	}
+// 	{
+// 		if (have.format != want.format)
+// 		{ /* we let this one thing change. */
+// 			SDL_Log("We didn't get U8 audio format.");
+// 		}
+// 		SDL_PauseAudioDevice(audio_dev, 0); /* start audio playing. */
+// 											//SDL_Delay(5000);			  /* let the audio callback play some sound for 5 seconds. */
+// 	}
 
-	return 1;
-}
+// 	return 1;
+// }
 
 void Debug_Display::play_audio(const float *samples)
 {
 
-	while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(float) * 2)
-	{
-		SDL_Delay(1);
-	}
 
 	for (int i = 0; i < BUFFER_SIZE; i++){
 		fsamples[i + sample_offset] = samples[i * 2];
@@ -482,8 +478,14 @@ void Debug_Display::play_audio(const float *samples)
 	sample_offset += BUFFER_SIZE;
 	if(sample_offset == BUFFER_SIZE * 8) sample_offset = 0;
 
-	if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * sizeof(float) * 2) == -1)
-	{
-		std::cout << SDL_GetError() << std::endl;
-	}
+	SDL_Audio::play_audio(samples);
+
+	// while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * sizeof(float) * 2)
+	// {
+	// 	SDL_Delay(1);
+	// }
+	// if(SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * sizeof(float) * 2) == -1)
+	// {
+	// 	std::cout << SDL_GetError() << std::endl;
+	// }
 }

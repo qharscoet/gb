@@ -10,8 +10,13 @@
 #include "emulator.h"
 #include "options.h"
 
+#include "display.h"
 #include "debug_display.h"
 #include "sdl_display.h"
+
+
+#include "audio.h"
+#include "sdl_audio.h"
 
 emu_options options;
 
@@ -29,19 +34,23 @@ void options_init()
 int main(int argc, char const *argv[])
 {
 	Emulator emu;
-	Display *display;
+	std::shared_ptr<Display> display;
+	std::shared_ptr<Audio> audio;
 
 #ifndef NDEBUG
-	display = new Debug_Display(emu);
+	display = std::make_shared<Debug_Display>(emu);
+	audio = std::dynamic_pointer_cast<Audio>(display);
 	options.debug_ui = true;
 #else
-	display = new SDL_Display();
+	display = std::make_shared<SDL_Display>();
+	audio = std::make_shared<SDL_Audio>();
 	options.debug_ui = false;
 #endif
 
 	options_init();
 	emu.init();
-	display->init();
+	display->display_init();
+	audio->audio_init();
 
 	if(argc > 1) {
 		emu.set_rom_file(argv[1]);
@@ -71,13 +80,13 @@ int main(int argc, char const *argv[])
 			auto start = total_start;
 			auto end = std::chrono::steady_clock::now();
 
+			start = std::chrono::steady_clock::now();
 			if (emu.is_running())
 			{
 
 				const uint16_t CYCLES_BY_FRAME = 17556;
 				uint16_t cycles_total = 0;
 
-				start = std::chrono::steady_clock::now();
 				if (!options.pause)
 				{
 					while (cycles_total < CYCLES_BY_FRAME)
@@ -88,7 +97,7 @@ int main(int argc, char const *argv[])
 						const float *samples = emu.get_audio_data();
 						if (samples != nullptr)
 						{
-							display->play_audio(samples);
+							audio->play_audio(samples);
 							emu.clear_audio();
 						}
 					}
@@ -118,20 +127,31 @@ int main(int argc, char const *argv[])
 
 		if (options.display_changed)
 		{
-			delete display;
+				display.reset();
+				audio.reset();
 
 			if (options.debug_ui)
-				display = new Debug_Display(emu);
+			{
+				display = std::make_shared<Debug_Display>(emu);
+				audio = std::dynamic_pointer_cast<Audio>(display); //dynamic_cast<Audio *>(display);
+			}
 			else
-				display = new SDL_Display();
+			{
+				display = std::make_shared<SDL_Display>();
+				audio = std::make_shared<SDL_Audio>();
+			}
 
-			display->init();
+			display->display_init();
 			display->set_title(emu.get_game_name());
+
+			audio->audio_init();
 
 			options.display_changed = false;
 		}
 	}
 
-	delete display;
+	display.reset();
+	audio.reset();
+
 	return 0;
 }
