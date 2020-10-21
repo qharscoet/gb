@@ -213,7 +213,7 @@ void GPU::draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t til
 	pixels[row][col] = (255 << 24) | (color << 16) | (color << 8) | color;
 }
 
-void GPU::draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_t tile_addr, uint8_t n)
+void GPU::draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_t tile_addr)
 {
 	const uint16_t PALETTE = 0xFF47;
 	uint8_t palette = memory->read_8bits(PALETTE);
@@ -308,7 +308,7 @@ void GPU::draw_bg(uint8_t line)
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
 		uint8_t pixel_col = bg_x_tile & 0x7;
-		draw_tile_line(line, i, pixel_line, tile_data_addr, 8 - pixel_col);
+		draw_tile_line(line, i, pixel_line, tile_data_addr);
 	}
 }
 
@@ -337,7 +337,7 @@ void GPU::draw_window(uint8_t line)
 	uint16_t tileRow = (bg_y_tile / 8) * 32;
 	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
-	for (int i = window_x - 7 ; i < LCD_WIDTH; i++)
+	for (int i = window_x - 7 ; i < LCD_WIDTH; i += 8)
 	{
 		uint8_t bg_x_tile = i - (window_x - 7) ;
 		uint16_t tileCol = bg_x_tile / 8;
@@ -353,7 +353,7 @@ void GPU::draw_window(uint8_t line)
 
 		uint8_t pixel_col = bg_x_tile & 0x7;
 
-		draw_pixel(line, i, pixel_line, pixel_col, tile_data_addr);
+		draw_tile_line(line, i, pixel_line, tile_data_addr);
 	}
 }
 
