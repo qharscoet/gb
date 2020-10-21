@@ -213,6 +213,37 @@ void GPU::draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t til
 	pixels[row][col] = (255 << 24) | (color << 16) | (color << 8) | color;
 }
 
+void GPU::draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_t tile_addr, uint8_t n)
+{
+	const uint16_t PALETTE = 0xFF47;
+	uint8_t palette = memory->read_8bits(PALETTE);
+
+	tile_pix_row *= 2; //each line is 2 bytes
+	uint16_t data = memory->read_16bits(tile_addr + tile_pix_row);
+	uint8_t data2 = (data & 0xFF00) >> 8;
+	uint8_t data1 = data & 0x00FF;
+	// uint8_t data1 = memory->read_8bits(tile_addr + tile_pix_row);
+	// uint8_t data2 = memory->read_8bits(tile_addr + tile_pix_row + 1);
+
+	for(int pix_col = 0; pix_col < 8 ; pix_col++)
+	{
+		uint8_t screen_col = col + pix_col;
+
+		if( screen_col >= 0 && screen_col < LCD_WIDTH)
+		{
+			uint8_t tile_pix_col = 7 - pix_col; // pixel 0 is bit 7 etc
+
+			uint8_t color_id = get_color_id(data1, data2, tile_pix_col);
+			color_id = (palette >> (color_id << 1)) & 0x03;
+
+			uint8_t color = colors[color_id];
+
+			// TODO : maybe rework
+			pixels[row][screen_col] = (255 << 24) | (color << 16) | (color << 8) | color;
+		}
+	}
+}
+
 void GPU::draw_bg(uint8_t line)
 {
 	const uint16_t SCX = 0xFF43;
@@ -238,7 +269,31 @@ void GPU::draw_bg(uint8_t line)
 	// pixel line inside the tile
 	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
-	for(int i = 0; i < LCD_WIDTH; i++)
+	// for(int i = 0; i < LCD_WIDTH; i++)
+	// {
+	// 	uint8_t bg_x_tile = scroll_x + i;
+	// 	uint16_t tile_col_offset = bg_x_tile/8;
+
+	// 	uint16_t tile_addr = bg_map_addr + tile_row_offset + tile_col_offset;
+	// 	uint8_t tile_id = memory->read_8bits(tile_addr);
+
+	// 	uint16_t tile_data_addr = 0;
+	// 	if(use_unsigned)
+	// 		tile_data_addr = tile_data_bank_addr + tile_id * 16;
+	// 	else
+	// 		tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
+
+	// 	uint8_t pixel_col = bg_x_tile & 0x7;
+
+	// 	draw_pixel(line, i, pixel_line, pixel_col, tile_data_addr);
+	// }
+
+
+	/*	We draw on a tile basis instead of pixel to only have to fetch
+		the data from memory once per tile.
+		So on the first tile we may be out of screen if scroll_x is in the middle of a tile
+	*/
+	for(int i = -(scroll_x & 0x7); i < LCD_WIDTH; i += 8)
 	{
 		uint8_t bg_x_tile = scroll_x + i;
 		uint16_t tile_col_offset = bg_x_tile/8;
@@ -253,10 +308,8 @@ void GPU::draw_bg(uint8_t line)
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
 		uint8_t pixel_col = bg_x_tile & 0x7;
-
-		draw_pixel(line, i, pixel_line, pixel_col, tile_data_addr);
+		draw_tile_line(line, i, pixel_line, tile_data_addr, 8 - pixel_col);
 	}
-
 }
 
 void GPU::draw_window(uint8_t line)
