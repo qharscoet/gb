@@ -401,6 +401,8 @@ void GPU::draw_objects(uint8_t line)
 
 			uint8_t data1 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line);
 			uint8_t data2 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line + 1);
+			uint8_t bg_palette = memory->read_8bits(0xFF47);
+			uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4) ? 0xFF49 : 0xFF48);
 
 			// Backward because smallest X had priority
 			for(int x = 7; x >= 0; x--)
@@ -417,7 +419,6 @@ void GPU::draw_objects(uint8_t line)
 				if(ajusted_x + x < 0)
 					continue;
 
-				uint8_t bg_palette = memory->read_8bits(0xFF47);
 				uint8_t bg_color_0 = bg_palette  & 0x03;
 
 				// Priority check, if it's behind the bg we don't draw
@@ -426,7 +427,6 @@ void GPU::draw_objects(uint8_t line)
 				if (get_bit(attr.attr_flags, 7) && ((pixels[line][ajusted_x + x] & 0xFF) != colors[bg_color_0]))
 					continue;
 
-				uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags, 4) ? 0xFF49 : 0xFF48);
 				color_id = (palette >> (color_id << 1)) & 0x03;
 
 				uint8_t col = colors[color_id];
