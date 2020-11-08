@@ -175,9 +175,12 @@ bool SDL_Display::handle_events(Emulator &emu)
 				0											// forbid multiple selections
 			);
 
-			emu.save();
-			emu.set_rom_file(selection);
-			emu.reset();
+			if (selection)
+			{
+				emu.save();
+				emu.set_rom_file(selection);
+				emu.reset();
+			}
 		}
 
 	}
