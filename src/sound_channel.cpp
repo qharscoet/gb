@@ -4,6 +4,10 @@ inline bool get_bit(uint8_t val, uint8_t b)
 {
 	return val & (1 << b);
 }
+inline bool get_bit(uint16_t val, uint8_t b)
+{
+	return val & (1 << b);
+}
 
 Channel::Channel(uint8_t* data)
 :timer(0), enabled(true), registers(data, 5), length_enabled(false)

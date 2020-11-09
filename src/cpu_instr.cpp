@@ -546,7 +546,7 @@ uint8_t CPU::rotate(uint8_t val, bool left, bool carry)
 	set_flag(flag_id::C, dropped_bit);
 
 	if(left)
-		val = (val << 1) | new_bit0;
+		val = (val << 1) | (uint8_t)new_bit0;
 	else
 		val = (val >> 1) | (new_bit0 << 7);
 

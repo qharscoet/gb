@@ -43,11 +43,11 @@ uint8_t MBC::read_ram(uint16_t addr) const
 	return ram_enabled ? ram[current_ram * 0x2000 + addr] : 0;
 }
 
-uint8_t MBC::rom_banks_count() const
+size_t MBC::rom_banks_count() const
 {
 	return rom.size()/0x4000;
 }
-uint8_t MBC::ram_banks_count() const
+size_t MBC::ram_banks_count() const
 {
 	return ram.size()/0x2000;
 }

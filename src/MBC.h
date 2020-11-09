@@ -45,8 +45,8 @@ public:
 	uint8_t read_rom(uint16_t addr) const;
 	uint8_t read_ram(uint16_t addr) const;
 
-	uint8_t rom_banks_count() const;
-	uint8_t ram_banks_count() const;
+	size_t rom_banks_count() const;
+	size_t ram_banks_count() const;
 
 	bool use_ram() const;
 	void dump_ram(std::ostream &file) const;
