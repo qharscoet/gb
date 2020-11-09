@@ -139,7 +139,7 @@ void Emulator::load_save()
 void Emulator::set_rom_file(std::string filename)
 {
 	rom_filename = filename;
-	reset();
+	//reset();
 }
 
 bool Emulator::is_running() const

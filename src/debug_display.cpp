@@ -359,6 +359,21 @@ bool Debug_Display::handle_events(Emulator &emu)
 			return 0;
 		}
 
+		if(event.type == SDL_DROPFILE)
+		{
+			char *filename = event.drop.file;
+			if(std::strcmp(strrchr(filename, '.'), ".gb") == 0)
+			{
+				emu.save();
+				emu.set_rom_file(filename);
+				emu.reset();
+			} else {
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error opening file", "Please drop a .gb file", sdlWindow);
+			}
+			
+			SDL_free(filename); 
+		}
+
 		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)
 			options.pause = !options.pause;
 
