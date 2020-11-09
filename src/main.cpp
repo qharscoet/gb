@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <iostream>
-#include <chrono>
 
 #include <cassert>
 #ifdef _WIN32
@@ -75,12 +74,6 @@ int main(int argc, char const *argv[])
 		}
 		else
 		{
-			std::chrono::duration<double, std::milli> t_emu, t_display, t_total;
-			auto total_start = std::chrono::steady_clock::now();
-			auto start = total_start;
-			auto end = std::chrono::steady_clock::now();
-
-			start = std::chrono::steady_clock::now();
 			if (emu.is_running())
 			{
 
@@ -104,25 +97,9 @@ int main(int argc, char const *argv[])
 				}
 			}
 
-			end = std::chrono::steady_clock::now();
-			t_emu = end - start;
-
-			start = std::chrono::steady_clock::now();
 			display->clear();
 			display->update(emu.get_pixel_data());
 			display->render();
-
-			end = std::chrono::steady_clock::now();
-			t_display = end - start;
-
-			auto total_end = std::chrono::steady_clock::now();
-			t_total = total_end - total_start;
-
-			// std::cout << emu.get_times();
-			// std::cout << " emu time " << t_emu.count() << " ms "<< "\n";
-			// std::cout << " display time " << t_display.count() << " ms" << "\n";
-
-			// std::cout << "total time " <<  t_total.count() << " ms " << std::endl;
 		}
 
 		if (options.display_changed)
