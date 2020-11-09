@@ -1,7 +1,6 @@
 #include "display.h"
 
 #include <SDL2/SDL.h>
-#undef main
 
 #include "emulator.h"
 

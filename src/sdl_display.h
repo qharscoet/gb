@@ -4,7 +4,6 @@
 #include "display.h"
 
 #include <SDL2/SDL.h>
-#undef main
 
 class SDL_Display : public Display
 {

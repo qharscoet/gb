@@ -43,6 +43,7 @@ void SDL_Display::set_title(std::string str)
 
 int SDL_Display::display_init()
 {
+	SDL_SetMainReady();
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
