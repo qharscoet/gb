@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <filesystem>
 
 extern emu_options options;
 
@@ -81,7 +82,16 @@ const uint32_t* Emulator::get_pixel_data() const
 
 const std::string Emulator::get_game_name() const
 {
-	return rom_filename != ""?std::string(memory.get_data(0x0134), 16):"Gameboy Emulator";
+	std::string str;
+	if(rom_filename != "")
+	{
+		str = std::string(memory.get_data(0x0134), 16);
+		str.resize(str.find('\0'));
+	} else
+	{
+		str = "GameBoy Emulator";
+	}
+	return str;// rom_filename != ""?std::string(memory.get_data(0x0134), 16).resize(str.find('\0')):"Gameboy Emulator";
 }
 
 const float* Emulator::get_audio_data() const
@@ -94,11 +104,16 @@ void Emulator::clear_audio()
 	apu.clear_data();
 }
 
+const std::string Emulator::get_rom_dir() const
+{
+	return std::filesystem::path(rom_filename).remove_filename().string();
+}
+
 void Emulator::save() const
 {
 	if(memory.use_external_ram()){
 		std::ofstream file;
-		file.open(get_game_name() + ".sav", std::ios::out | std::ios::binary | std::ios::trunc);
+		file.open(get_rom_dir() + get_game_name() + ".sav", std::ios::out | std::ios::binary | std::ios::trunc);
 		if(file.is_open()){
 			memory.dump_ram(file);
 			file.close();
@@ -111,7 +126,7 @@ void Emulator::load_save()
 	if (memory.use_external_ram())
 	{
 		std::ifstream file;
-		file.open(get_game_name() + ".sav", std::ios::in | std::ios::binary);
+		file.open(get_rom_dir() + get_game_name() + ".sav", std::ios::in | std::ios::binary);
 
 		if(file.is_open())
 		{

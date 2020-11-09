@@ -30,6 +30,8 @@ private:
 	GPU gpu;
 	Sound apu;
 
+	const std::string get_rom_dir() const;
+
 public:
 	Emulator();
 	~Emulator();
