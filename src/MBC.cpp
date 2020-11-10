@@ -45,11 +45,13 @@ uint8_t MBC::read_ram(uint16_t addr) const
 
 size_t MBC::rom_banks_count() const
 {
-	return rom.size()/0x4000;
+	//return rom.size()/0x4000;
+	return rom.size() >> 14;
 }
 size_t MBC::ram_banks_count() const
 {
-	return ram.size()/0x2000;
+	//return ram.size()/0x2000;
+	return ram.size() >> 13;
 }
 
 bool MBC::use_ram() const
@@ -90,11 +92,14 @@ void MBC1::write(uint16_t addr, uint8_t value)
 	}
 	else if (addr < 0x6000)
 	{
-
+		value &= 0x03;
 		if (rom_ram_mode)
 			current_ram = value;
 		else
+		{
 			current_rom = (value << 5) | (current_rom & 0x1F);
+			current_rom &= rom_banks_count() -1;
+		}
 	}
 	else
 	{

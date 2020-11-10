@@ -1,6 +1,6 @@
 #include "memory.h"
 
-inline uint32_t kilobytes(uint32_t n) {return 1024 * n; }
+inline uint32_t kilobytes(uint32_t n) { return n << 10; } // 1024 * n;}
 
 Memory::Memory()
 {
