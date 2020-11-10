@@ -9,6 +9,7 @@
 #include "emulator.h"
 #include "options.h"
 
+#define SDL_MAIN_HANDLED
 #include "display.h"
 #include "debug_display.h"
 #include "sdl_display.h"

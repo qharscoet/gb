@@ -86,12 +86,14 @@ const std::string Emulator::get_game_name() const
 	if(rom_filename != "")
 	{
 		str = std::string(memory.get_data(0x0134), 16);
-		str.resize(str.find('\0'));
+		size_t pos = str.find('\0');
+		if(pos != std::string::npos)
+			str.resize(pos);
 	} else
 	{
 		str = "GameBoy Emulator";
 	}
-	return str;// rom_filename != ""?std::string(memory.get_data(0x0134), 16).resize(str.find('\0')):"Gameboy Emulator";
+	return str;
 }
 
 const float* Emulator::get_audio_data() const
