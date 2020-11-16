@@ -17,7 +17,7 @@ class Memory
 {
 private:
 	// TODO : change mmap to not allocate areas managed by other components (MBC and audio atm)
-	char* mmap;
+	uint8_t* mmap;
 	uint8_t joypad_keys;
 
 	MBC* mbc;
@@ -55,7 +55,7 @@ public:
 
 	void request_interrupt(interrupt_id id);
 
-	char* const get_data(uint16_t addr) const;
+	uint8_t* const get_data(uint16_t addr) const;
 
 	template <size_t size>
 	std::span<uint8_t, size> get_data_span(uint16_t addr) const;
@@ -70,7 +70,7 @@ public:
 template <size_t size>
 std::span<uint8_t, size> Memory::get_data_span(uint16_t addr) const
 {
-	return std::span<uint8_t, size>(&((uint8_t *)mmap)[addr], size);
+	return std::span<uint8_t, size>(&mmap[addr], size);
 }
 
 #endif

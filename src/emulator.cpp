@@ -85,7 +85,7 @@ const std::string Emulator::get_game_name() const
 	std::string str;
 	if(rom_filename != "")
 	{
-		str = std::string(memory.get_data(0x0134), 16);
+		str = std::string((char*)(memory.get_data(0x0134)), 16);
 		size_t pos = str.find('\0');
 		if(pos != std::string::npos)
 			str.resize(pos);

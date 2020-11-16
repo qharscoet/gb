@@ -20,8 +20,8 @@ enum class mbc_type : uint8_t
 
 private:
 
-	std::vector<char> rom;
-	std::vector<char> ram;
+	std::vector<uint8_t> rom;
+	std::vector<uint8_t> ram;
 
 protected:
 	mbc_type type;
@@ -52,8 +52,8 @@ public:
 	void dump_ram(std::ostream &file) const;
 	void load_ram(std::istream &file);
 
-	char * get_rom_data(uint16_t addr);
-	char * get_ram_data(uint16_t addr);
+	uint8_t* get_rom_data(uint16_t addr);
+	uint8_t* get_ram_data(uint16_t addr);
 };
 
 

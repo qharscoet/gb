@@ -10,7 +10,7 @@ MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 	ram.resize(ramsize);
 
 	file.seekg(0);
-	file.read(&rom[0], romsize);
+	file.read((char*)(&rom[0]), romsize);
 
 	current_rom = 1;
 	current_ram = 0;
@@ -61,12 +61,12 @@ bool MBC::use_ram() const
 
 void MBC::dump_ram(std::ostream &file) const
 {
-	file.write(&ram[0], ram.size());
+	file.write((char*)(&ram[0]), ram.size());
 }
 
 void MBC::load_ram(std::istream &file)
 {
-	file.read(&ram[0], ram.size());
+	file.read((char*)(&ram[0]), ram.size());
 }
 
 void MBC::write(uint16_t addr, uint8_t value)
@@ -125,12 +125,12 @@ void MBC5::write(uint16_t addr, uint8_t value)
 	}
 }
 
-char * MBC::get_rom_data(uint16_t addr)
+uint8_t* MBC::get_rom_data(uint16_t addr)
 {
 	return &rom[current_rom * 0x4000 + addr];
 }
 
-char * MBC::get_ram_data(uint16_t addr)
+uint8_t* MBC::get_ram_data(uint16_t addr)
 {
 	return &ram[current_ram * 0x2000 + addr];
 }

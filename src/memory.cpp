@@ -4,7 +4,7 @@ inline uint32_t kilobytes(uint32_t n) { return n << 10; } // 1024 * n;}
 
 Memory::Memory()
 {
-	mmap = new char[MEMSIZE];
+	mmap = new uint8_t[MEMSIZE];
 	std::memset(mmap, 0, MEMSIZE);
 
 	mbc = nullptr;
@@ -38,7 +38,7 @@ void Memory::DMATransfer(uint8_t src)
 void Memory::load_content(std::istream &file)
 {
 	reset();
-	file.read(mmap, 0x8000);
+	file.read((char*)mmap, 0x8000);
 
 	uint32_t romsize = ( kilobytes(32) )<< mmap[0x148];
 	uint32_t ramsize = 0;
@@ -133,10 +133,6 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 		apu->write_reg(addr, value);
 	} else {
 
-		// this is ROM space and can't be written,
-		if (addr < 0x8000)
-			return;
-
 		//echo ram
 		if (addr >= 0xE000 && addr < 0xFE00)
 			addr -= 0x2000;
@@ -205,7 +201,7 @@ void Memory::update_joypad(uint8_t keys)
 	joypad_keys = ~keys;
 }
 
-char *const Memory::get_data(uint16_t addr) const
+uint8_t *const Memory::get_data(uint16_t addr) const
 {
 	if (addr >= 0x4000 && addr < 0x8000)
 		return mbc->get_rom_data(addr - 0x4000);
