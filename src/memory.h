@@ -6,6 +6,8 @@
 
 #include <fstream>
 
+#include <span>
+
 #include "MBC.h"
 #include "sound.h"
 
@@ -54,11 +56,21 @@ public:
 	void request_interrupt(interrupt_id id);
 
 	char* const get_data(uint16_t addr) const;
+
+	template <size_t size>
+	std::span<uint8_t, size> get_data_span(uint16_t addr) const;
+
 	void dump_ram(std::ostream &file) const;
 	void load_ram(std::istream &file);
 
 	bool use_external_ram() const;
 	bool use_mbc() const;
 };
+
+template <size_t size>
+std::span<uint8_t, size> Memory::get_data_span(uint16_t addr) const
+{
+	return std::span<uint8_t, size>(&((uint8_t *)mmap)[addr], size);
+}
 
 #endif

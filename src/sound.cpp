@@ -10,8 +10,8 @@ inline bool get_bit(uint8_t val, uint8_t b)
 	return val & (1 << b);
 }
 
-Sound::Sound()
-:wave(&registers[0xA], &registers[0x20]), square1(&registers[0x00]), square2(&registers[0x5]), noise(&registers[0xF]), sample_timer(CLOCKSPEED / SAMPLERATE)
+Sound::Sound(std::span<uint8_t, 0x2F> regs)
+:registers(regs), wave(&regs[0xA], &regs[0x20]), square1(&regs[0x00]), square2(&regs[0x5]), noise(&regs[0xF]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
 	buffer.reserve(BUFFER_SIZE);
 	buffer.clear();
@@ -116,7 +116,8 @@ void Sound::clear_data()
 
 char* const Sound::get_data(uint16_t addr)
 {
-	return &((char*)registers)[addr];
+	// return &((char*)registers)[addr];
+	return (char*)(registers.data() + addr);
 }
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
@@ -137,7 +138,7 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 	} else if (addr == NR52) {
 		if(!get_bit(val, 7))
 		{
-			std::memset(registers, 0, 0x3F);
+			std::memset(registers.data(), 0, 0x2F);
 		} else if(!get_bit(registers[NR52 - 0xFF10], 7))
 		{
 			frame_sequencer = 0;
