@@ -32,8 +32,8 @@ private:
 	NoiseChannel noise;
 
 	//mapped to 0xFF10 - 0xFF3F
-	//uint8_t registers[0x2F];
-	std::span<uint8_t, 0x2F> registers;
+	//uint8_t registers[0x30];
+	std::span<uint8_t, 0x30> registers;
 
 	uint32_t sample_timer;
 	std::vector<sample> buffer;
@@ -41,7 +41,7 @@ private:
 	// void channel_3(uint16_t values[32]);
 
 public:
-	Sound(std::span<uint8_t, 0x2F> regs);
+	Sound(std::span<uint8_t, 0x30> regs);
 	~Sound() = default;
 
 
