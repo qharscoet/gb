@@ -8,12 +8,19 @@ Memory::Memory()
 	std::memset(mmap, 0, MEMSIZE);
 
 	mbc = nullptr;
+	is_cgb = false;
 }
 
 Memory::~Memory()
 {
 	delete[] mmap;
 	delete mbc;
+
+	if(is_cgb)
+	{
+		delete vram_banks;
+		delete wram_banks;
+	}
 }
 
 void Memory::set_apu(Sound* apu)
@@ -74,6 +81,17 @@ void Memory::load_content(std::istream &file)
 		default:
 			break;
 	}
+
+
+	if(mmap[0x143] == 0xC0 || mmap[0x143] == 0x80)
+	{
+		is_cgb = true;
+		vram_banks = new uint8_t[2* VRAM_BANK_SIZE];
+		wram_banks = new uint8_t[7 * WRAM_BANK_SIZE];
+
+		memset(vram_banks, 0, 2 *  VRAM_BANK_SIZE);
+		memset(wram_banks, 0, 7 * WRAM_BANK_SIZE);
+	}
 }
 
 void Memory::load_content(const uint8_t* data, uint32_t size)
@@ -96,6 +114,16 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 	else if (addr >= 0xFF10 && addr < 0xFF40)
 	{
 		ret = apu->read_reg(addr);
+	}
+	else if (is_cgb && (addr >= 0xD000 && addr < 0xE000))
+	{
+		uint8_t bank_nb = mmap[0xFF70] & 0x7;
+		ret = wram_banks[bank_nb * WRAM_BANK_SIZE + (addr - 0xD000)];
+	}
+	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
+	{
+		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
+		ret = vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)];
 	}
 	else
 	{
@@ -131,6 +159,18 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	else if (addr >= 0xFF10 && addr < 0xFF40)
 	{
 		apu->write_reg(addr, value);
+
+	}
+	else if(is_cgb && (addr >= 0xD000 && addr < 0xE000))
+	{
+		uint8_t bank_nb = mmap[0xFF70] & 0x7;
+		wram_banks[bank_nb * WRAM_BANK_SIZE + (addr - 0xD000)] = value;
+	}
+	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
+	{
+		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
+		vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)] = value;
+
 	} else {
 
 		//echo ram

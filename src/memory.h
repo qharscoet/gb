@@ -12,12 +12,19 @@
 #include "sound.h"
 
 #define MEMSIZE 0x10000
+#define VRAM_BANK_SIZE 0x2000
+#define WRAM_BANK_SIZE 0x1000
 
 class Memory
 {
 private:
 	// TODO : change mmap to not allocate areas managed by other components (MBC and audio atm)
 	uint8_t* mmap;
+
+	bool is_cgb;
+	uint8_t* vram_banks;
+	uint8_t* wram_banks;
+
 	uint8_t joypad_keys;
 
 	MBC* mbc;
