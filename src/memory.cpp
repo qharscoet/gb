@@ -63,6 +63,12 @@ void Memory::load_content(std::istream &file)
 		case 0x03:
 			mbc = new MBC1(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
 			break;
+		case 0x0F:
+		case 0x10:
+		case 0x11:
+		case 0x12:
+		case 0x13:
+			mbc = new MBC3(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
 		case 0x19:
 		case 0x1A:
 		case 0x1B:
