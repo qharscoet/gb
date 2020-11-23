@@ -118,7 +118,10 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 	else if (is_cgb && (addr >= 0xD000 && addr < 0xE000))
 	{
 		uint8_t bank_nb = mmap[0xFF70] & 0x7;
-		ret = wram_banks[bank_nb * WRAM_BANK_SIZE + (addr - 0xD000)];
+		if (bank_nb == 0)
+			bank_nb = 1;
+
+		ret = wram_banks[(bank_nb - 1 ) * WRAM_BANK_SIZE + (addr - 0xD000)];
 	}
 	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
 	{
@@ -164,7 +167,12 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	else if(is_cgb && (addr >= 0xD000 && addr < 0xE000))
 	{
 		uint8_t bank_nb = mmap[0xFF70] & 0x7;
-		wram_banks[bank_nb * WRAM_BANK_SIZE + (addr - 0xD000)] = value;
+		//Writing 00h selects bank 1
+		if (bank_nb == 0)
+			bank_nb = 1;
+
+		//wram_banks only contains banks 1-7, so bank 1 is at wram_banks[0]
+		wram_banks[(bank_nb - 1) * WRAM_BANK_SIZE + (addr - 0xD000)] = value;
 	}
 	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
 	{
@@ -272,4 +280,9 @@ bool Memory::use_external_ram() const
 bool Memory::use_mbc() const
 {
 	return mmap[0x0147] != 0;
+}
+
+bool Memory::cgb_enabled() const
+{
+	return is_cgb;
 }

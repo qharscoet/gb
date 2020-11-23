@@ -72,6 +72,7 @@ public:
 
 	bool use_external_ram() const;
 	bool use_mbc() const;
+	bool cgb_enabled() const;
 };
 
 template <size_t size>
