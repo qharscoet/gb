@@ -80,10 +80,9 @@ bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, i
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
 	if(update)
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA,
-						GL_UNSIGNED_BYTE, pixels);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
 
 	*out_texture = image_texture;
 	return true;
@@ -216,7 +215,7 @@ void Debug_Display::update(const uint32_t *pixels)
 			if (ImGui::MenuItem("Open"))
 			{
 				fileDialog.Open();
-				fileDialog.SetTypeFilters({".gb"});
+				fileDialog.SetTypeFilters({".gb", ".gbc"});
 			}
 
 			ImGui::EndMenu();
@@ -371,8 +370,8 @@ bool Debug_Display::handle_events(Emulator &emu)
 			} else {
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error opening file", "Please drop a .gb file", sdlWindow);
 			}
-			
-			SDL_free(filename); 
+
+			SDL_free(filename);
 		}
 
 		if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_P)

@@ -15,6 +15,9 @@ private:
 
 	static constexpr uint8_t colors[4] = {0xFF, 0xCC, 0x77, 0};
 
+	// 2 sets (BG & OBJ) of 8 4-colors palettes, each color on 2 bytes
+	PaletteData cgb_palettes[2];
+
 	uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t clock_counter;
 
@@ -38,6 +41,7 @@ public:
 	void step(uint8_t cycles);
 
 	const uint32_t* get_pixel_data() const;
+	PaletteData* const get_palette_data();
 
 // TODO: fix build to properly exclude debug_display in Release mode
 //#ifndef NDEBUG

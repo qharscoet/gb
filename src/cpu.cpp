@@ -36,7 +36,7 @@ void CPU::init()
 {
 	assert(memory != nullptr);
 
-	write_r8(r8::A, 0x01);
+	write_r8(r8::A, memory->cgb_enabled()?0x11:0x01);
 	write_r8(r8::F, 0xB0);
 	// write_r8(r8::B, 0x00);
 	// write_r8(r8::C, 0x13);

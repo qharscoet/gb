@@ -15,6 +15,17 @@
 #define VRAM_BANK_SIZE 0x2000
 #define WRAM_BANK_SIZE 0x1000
 
+union palette
+{
+	union color{
+		uint8_t hl[2];
+		uint16_t value;
+	} palette[8][4];
+	uint8_t array[8][4][2];
+};
+
+typedef palette PaletteData;
+
 class Memory
 {
 private:
@@ -29,6 +40,9 @@ private:
 
 	MBC* mbc;
 	Sound* apu;
+
+	PaletteData* cgb_palette_data;
+
 
 	void DMATransfer(uint8_t src);
 
@@ -46,6 +60,7 @@ public:
 	~Memory();
 
 	void set_apu(Sound* apu);
+	void set_palette(PaletteData* palette);
 
 	void reset();
 

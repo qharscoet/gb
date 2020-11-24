@@ -28,6 +28,11 @@ void Memory::set_apu(Sound* apu)
 	this->apu = apu;
 }
 
+void Memory::set_palette(PaletteData *palette)
+{
+	this->cgb_palette_data = palette;
+}
+
 void Memory::reset()
 {
 	std::memset(mmap, 0, MEMSIZE);
@@ -128,6 +133,18 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
 		ret = vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)];
 	}
+	else if (is_cgb && (addr == 0xFF69 || addr == 0xFF6B))
+	{
+		bool background = (addr == 0xFF69);
+
+		uint8_t spec  = mmap[addr - 1];
+
+		uint8_t pal_nb = (spec >> 3) & 0x7;
+		uint8_t col_nb = (spec >> 1) & 0x3;
+		bool hl = spec & 0x1;
+
+		return cgb_palette_data[background].palette[pal_nb][col_nb].hl[hl];
+	}
 	else
 	{
 		//echo ram
@@ -179,7 +196,31 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
 		vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)] = value;
 
-	} else {
+	}
+	else if (is_cgb && (addr == 0xFF69 || addr == 0xFF6B))
+	{
+		bool background = (addr == 0xFF69);
+
+		uint8_t spec  = mmap[addr - 1];
+
+		bool increment = spec & 0x80;
+		uint8_t pal_nb = (spec >> 3) & 0x7;
+		uint8_t col_nb = (spec >> 1) & 0x3;
+		bool hl = spec & 0x1;
+
+		cgb_palette_data[!background].palette[pal_nb][col_nb].hl[hl] = value;
+
+		if(increment)
+		{
+			mmap[addr - 1] = ( (spec & 0x80 ) | ((spec + 1) & 0x3F) );
+		}
+
+	}
+	else if ( is_cgb && ((addr >= 0xFF51 && addr <= 0xFF55) || addr == 0xFF4D))
+	{
+		//TODO: handle new DMA and speed switch
+	}
+	else {
 
 		//echo ram
 		if (addr >= 0xE000 && addr < 0xFE00)

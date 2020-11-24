@@ -36,6 +36,10 @@ bool Emulator::load_rom(std::string filename)
 
 	if(file.is_open()){
 		memory.load_content(file);
+		if (memory.cgb_enabled())
+		{
+			memory.set_palette(gpu.get_palette_data());
+		}
 		file.close();
 
 		load_save();

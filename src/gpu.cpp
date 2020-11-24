@@ -36,6 +36,10 @@ const uint32_t* GPU::get_pixel_data() const
 	return pixels[0];
 }
 
+PaletteData* const GPU::get_palette_data()
+{
+	return cgb_palettes;
+}
 
 void GPU::step(uint8_t cycles)
 {
@@ -365,6 +369,8 @@ void GPU::draw_objects(uint8_t line)
 	const uint16_t OBJ0 = 0xFE00;
 	const uint16_t OBJ_BANK = 0x8000;
 
+	const bool is_cgb = memory->cgb_enabled();
+
 	struct spr_attribute {
 		uint8_t y_pos;
 		uint8_t x_pos;
@@ -373,7 +379,7 @@ void GPU::draw_objects(uint8_t line)
 			struct {
 				uint8_t cgb_palette:3;
 				bool vram_bank:1;
-				bool palette:1;
+				bool dmg_palette:1;
 				bool x_flip:1;
 				bool y_flip:1;
 				bool priority:1;
@@ -416,7 +422,12 @@ void GPU::draw_objects(uint8_t line)
 			uint8_t data1 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line);
 			uint8_t data2 = memory->read_8bits(OBJ_BANK + attr.tile_number * 16 + pixel_line + 1);
 			uint8_t bg_palette = memory->read_8bits(0xFF47);
-			uint8_t palette = memory->read_8bits(get_bit(attr.attr_flags.value, 4) ? 0xFF49 : 0xFF48);
+			uint8_t palette;
+
+			if(is_cgb)
+				palette = attr.attr_flags.fields.cgb_palette;
+			else
+				palette = memory->read_8bits(get_bit(attr.attr_flags.value, 4) ? 0xFF49 : 0xFF48);
 
 			// Backward because smallest X had priority
 			for(int x = 7; x >= 0; x--)
@@ -441,11 +452,24 @@ void GPU::draw_objects(uint8_t line)
 				if (get_bit(attr.attr_flags.value, 7) && ((pixels[line][ajusted_x + x] & 0xFF) != colors[bg_color_0]))
 					continue;
 
-				color_id = (palette >> (color_id << 1)) & 0x03;
+				uint32_t color;
+				if(is_cgb)
+				{
+					uint16_t col = cgb_palettes[1].palette[palette][color_id].value;
+					uint8_t red = ((col & 0x1F)*255)/31;
+					uint8_t green = (((col >> 5) & 0x1F)*255)/31;
+					uint8_t blue = (((col >> 10) & 0x1F)*255)/31;
+					color = (255 << 24) | (red << 16) | (green << 8) | blue;
+				}
+				else
+				{
+					color_id = (palette >> (color_id << 1)) & 0x03;
+					uint8_t col = colors[color_id];
+					color = (255 << 24) | (col << 16) | (col << 8) | col;
+				}
 
-				uint8_t col = colors[color_id];
 
-				pixels[line][ajusted_x + x] = (255 << 24) | (col << 16) | (col << 8) | col;
+				pixels[line][ajusted_x + x] = color;
 			}
 		}
 	}
