@@ -96,6 +96,9 @@ void Memory::load_content(std::istream &file)
 
 		memset(vram_banks, 0, 2 *  VRAM_BANK_SIZE);
 		memset(wram_banks, 0, 7 * WRAM_BANK_SIZE);
+	} else
+	{
+		is_cgb = false;
 	}
 }
 
@@ -163,6 +166,14 @@ uint16_t Memory::read_16bits(uint16_t addr) const
 	uint8_t msb = read_8bits(addr);
 
 	return (uint16_t)(msb << 8) | (uint16_t)(lsb);
+}
+
+uint8_t Memory::read_vram(uint16_t addr, bool bank) const
+{
+	if(is_cgb)
+		return vram_banks[bank * VRAM_BANK_SIZE + (addr - 0x8000)];
+	else
+		return mmap[addr];
 }
 
 void Memory::write_8bits(uint16_t addr, uint8_t value)

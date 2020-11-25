@@ -15,6 +15,20 @@ private:
 
 	static constexpr uint8_t colors[4] = {0xFF, 0xCC, 0x77, 0};
 
+	union attributes
+	{
+		struct
+		{
+			uint8_t cgb_palette : 3;
+			bool vram_bank : 1;
+			bool dmg_palette : 1; //Used only for obj in non-CGB modes
+			bool x_flip : 1;
+			bool y_flip : 1;
+			bool priority : 1;
+		} fields;
+		uint8_t value;
+	};
+
 	// 2 sets (BG & OBJ) of 8 4-colors palettes, each color on 2 bytes
 	PaletteData cgb_palettes[2];
 
@@ -26,7 +40,7 @@ private:
 	void compareLYLYC();
 
 	void draw_pixel(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint8_t tile_pix_col, uint16_t tile_addr);
-	void draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_t tile_addr);
+	void draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_t tile_addr, attributes* attr);
 
 	void draw_bg(uint8_t line);
 	void draw_window(uint8_t line);
