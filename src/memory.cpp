@@ -47,6 +47,22 @@ void Memory::DMATransfer(uint8_t src)
 	//TODO : check for timings and stuff
 }
 
+void Memory::HDMATransfer(uint8_t length_mode)
+{
+	uint16_t src = mmap[0xFF51] << 8 | (mmap[0xFF52] & 0xF0); // 4 lower bits ignored
+	uint16_t dst = mmap[0xFF53] << 8 | mmap[0xFF54];
+	dst &= 0x1FF0; // Only bits 12-4 as starting adress is always in the 0x8000 - 0x9FF0 range;
+	dst += 0x8000;
+
+	uint16_t length = ((length_mode & 0x7F) + 1 ) << 4;
+	if(!(length_mode & 0x80))
+	{
+		memcpy(mmap + dst, mmap + src, length);
+	}
+
+	// TODO : handle HBlanc DMA mode and vram/banks
+}
+
 void Memory::load_content(std::istream &file)
 {
 	reset();
@@ -227,9 +243,13 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 		}
 
 	}
-	else if ( is_cgb && ((addr >= 0xFF51 && addr <= 0xFF55) || addr == 0xFF4D))
+	else if ( is_cgb && addr == 0xFF55)
 	{
-		//TODO: handle new DMA and speed switch
+		HDMATransfer(value);
+	}
+	else if( is_cgb && addr == 0xFF4D)
+	{
+		//TODO: handle speed switch
 	}
 	else {
 

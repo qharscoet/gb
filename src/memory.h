@@ -45,6 +45,7 @@ private:
 
 
 	void DMATransfer(uint8_t src);
+	void HDMATransfer(uint8_t length_mode);
 
 public:
 	enum class interrupt_id : uint8_t
