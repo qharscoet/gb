@@ -44,7 +44,7 @@ static float fsamples[BUFFER_SIZE * 8] = {0.0f};
 static uint16_t sample_offset = 0;
 
 static GLuint bg_full;
-static GLuint bg_tiles;
+static GLuint bg_tiles[2];
 static GLuint screen;
 
 static MemoryEditor mem_edit;
@@ -92,7 +92,8 @@ Debug_Display::Debug_Display(Emulator &emu)
 :emu(emu)
 {
 	bg_full = 0;
-	bg_tiles = 0;
+	bg_tiles[0] = 0;
+	bg_tiles[1]= 0;
 	screen = 0;
 }
 
@@ -100,7 +101,7 @@ Debug_Display::~Debug_Display()
 {
 
 	glDeleteTextures(1, &bg_full);
-	glDeleteTextures(1, &bg_tiles);
+	glDeleteTextures(2, bg_tiles);
 	glDeleteTextures(1, &screen);
 
 	// Cleanup
@@ -276,12 +277,17 @@ void Debug_Display::update(const uint32_t *pixels)
 
 		float size = min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
 		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(size, size));
-		ImGui::SameLine();
 
 		uint32_t pixels2[128 * 192];
-		emu.gpu.display_bg_tiles(pixels2);
-		LoadTextureFromPixels(pixels2, &bg_tiles, 128, 192);
-		ImGui::Image((void *)(intptr_t)bg_tiles, ImVec2(size * 0.5f, size * 0.75f));
+		uint8_t bank_cnt = emu.is_gameboy_color() + 1;
+
+		for(uint8_t i = 0; i < bank_cnt; i++)
+		{
+			ImGui::SameLine();
+			emu.gpu.display_bg_tiles(pixels2, i);
+			LoadTextureFromPixels(pixels2, &bg_tiles[i], 128, 192);
+			ImGui::Image((void *)(intptr_t)bg_tiles[i], ImVec2(size * 0.5f, size * 0.75f));
+		}
 
 		ImGui::End();
 	}

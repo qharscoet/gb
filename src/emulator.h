@@ -47,6 +47,7 @@ public:
 
 	const uint32_t* get_pixel_data() const;
 	const std::string get_game_name() const;
+	const bool is_gameboy_color() const;
 
 	const float* get_audio_data() const;
 	void clear_audio();
