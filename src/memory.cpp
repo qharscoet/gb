@@ -55,12 +55,18 @@ void Memory::HDMATransfer(uint8_t length_mode)
 	dst += 0x8000;
 
 	uint16_t length = ((length_mode & 0x7F) + 1 ) << 4;
-	if(!(length_mode & 0x80))
+	//if(!(length_mode & 0x80))
 	{
-		memcpy(mmap + dst, mmap + src, length);
+		// memcpy(mmap + dst, mmap + src, length);
+
+		//This is so that the transfer will occur in the right bank
+		for(uint16_t i = 0; i < length ; i++)
+		{
+			write_8bits(dst + i, read_8bits(src + i));
+		}
 	}
 
-	// TODO : handle HBlanc DMA mode and vram/banks
+	// TODO : handle HBlank DMA mode
 }
 
 void Memory::load_content(std::istream &file)
@@ -97,6 +103,7 @@ void Memory::load_content(std::istream &file)
 		case 0x12:
 		case 0x13:
 			mbc = new MBC3(static_cast<MBC::mbc_type>(mmap[0x147]), romsize, ramsize, file);
+			break;
 		case 0x19:
 		case 0x1A:
 		case 0x1B:
