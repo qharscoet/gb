@@ -16,7 +16,6 @@ MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 	current_ram = 0;
 
 	ram_enabled = false;
-	rom_ram_mode = false;
 }
 
 void MBC::reset()
@@ -74,7 +73,9 @@ void MBC::write(uint16_t addr, uint8_t value)
 
 MBC1::MBC1(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 :MBC(type, romsize, ramsize, file)
-{}
+{
+	rom_ram_mode = false;
+}
 
 void MBC1::write(uint16_t addr, uint8_t value)
 {
@@ -105,6 +106,51 @@ void MBC1::write(uint16_t addr, uint8_t value)
 	{
 		rom_ram_mode = value;
 	}
+}
+
+MBC3::MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file)
+	:MBC(type, romsize, ramsize, file)
+{
+	memset(RTC_reg, 0, 5);
+}
+
+void MBC3::write(uint16_t addr, uint8_t value)
+{
+	// external RAM enable
+	if (addr < 0x2000)
+	{
+		ram_enabled = ((value & 0x0F) == 0xA);
+	}
+	else if (addr < 0x4000)
+	{
+		if (value == 0)
+			value = 1;
+
+		current_rom = value & 0x7F;
+	}
+	else if (addr < 0x6000)
+	{
+		current_ram = value;
+	}
+	else
+	{
+		//TODO: handle latch
+	}
+}
+
+void MBC3::write_ram(uint16_t addr, uint8_t value)
+{
+	if (current_ram >= 0x08 && current_ram <= 0x0C)
+		RTC_reg[addr - 0x08] = value;
+	else if (current_ram <= 0x03)
+		MBC::write_ram(addr, value);
+}
+uint8_t MBC3::read_ram(uint16_t addr) const
+{
+	if (current_ram >= 0x08 && current_ram <= 0x0C)
+		return RTC_reg[addr - 0x08];
+	else if (current_ram <= 0x03)
+		return MBC::read_ram(addr);
 }
 
 MBC5::MBC5(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)

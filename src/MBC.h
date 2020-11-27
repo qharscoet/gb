@@ -29,7 +29,6 @@ protected:
 	uint8_t current_ram;
 
 	bool ram_enabled;
-	bool rom_ram_mode;
 
 public:
 
@@ -39,11 +38,11 @@ public:
 
 	void reset();
 	virtual void write(uint16_t addr, uint8_t value);
-	void write_ram(uint16_t addr, uint8_t value);
+	virtual void write_ram(uint16_t addr, uint8_t value);
 	void write_ram(uint16_t addr, uint16_t value);
 
 	uint8_t read_rom(uint16_t addr) const;
-	uint8_t read_ram(uint16_t addr) const;
+	virtual uint8_t read_ram(uint16_t addr) const;
 
 	size_t rom_banks_count() const;
 	size_t ram_banks_count() const;
@@ -59,15 +58,27 @@ public:
 
 class MBC1 : public MBC
 {
+	private:
+		bool rom_ram_mode;
 	public:
 		MBC1(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
 		void write(uint16_t addr, uint8_t value);
 };
 
-class MBC5 : public MBC
+class MBC3 : public MBC
 {
 	private:
-		bool upper_rom_bank;
+		uint8_t RTC_reg[5]; //Clock registers;
+	public:
+		MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file);
+		void write(uint16_t addr, uint8_t value);
+
+		void write_ram(uint16_t addr, uint8_t value);
+		uint8_t read_ram(uint16_t addr) const;
+};
+
+class MBC5 : public MBC
+{
 	public:
 		MBC5(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file);
 		void write(uint16_t addr, uint8_t value);
