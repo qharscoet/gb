@@ -276,6 +276,13 @@ void GPU::draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_
 
 			// TODO : maybe rework
 			pixels[row][screen_col] = color;//(255 << 24) | (color << 16) | (color << 8) | color;
+			bg_color_prio_line[screen_col] = color_id;
+
+			if(attr != NULL)
+			{
+				// We store prio flag in left nibble
+				bg_color_prio_line[screen_col] |= (attr->fields.priority << 4);
+			}
 		}
 	}
 }
@@ -458,9 +465,12 @@ void GPU::draw_objects(uint8_t line)
 				uint8_t bg_color_0 = bg_palette  & 0x03;
 
 				// Priority check, if it's behind the bg we don't draw
-				// TODO: use real BG color at that px instead of what's already drawn
 				// TODO: overlapping
-				if (get_bit(attr.attr_flags.value, 7) && ((pixels[line][ajusted_x + x] & 0xFF) != colors[bg_color_0]))
+				// BG prio flag is stored in bits 0xF0. If DMG flag is 0 so is ok
+				if(bg_color_prio_line[ajusted_x + x] >> 4)
+					continue;
+
+				if (get_bit(attr.attr_flags.value, 7) && (bg_color_prio_line[ajusted_x + x] & 0x0F) != 0)
 					continue;
 
 				uint32_t color;

@@ -35,6 +35,8 @@ private:
 	uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
 	uint16_t clock_counter;
 
+	uint8_t bg_color_prio_line[LCD_WIDTH];
+
 	Memory *memory;
 
 	void compareLYLYC();
