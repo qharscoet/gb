@@ -100,7 +100,11 @@ const std::string Emulator::get_game_name() const
 	return str;
 }
 
+const bool Emulator::is_gameboy_color() const
+{
 	return memory.cgb_enabled();
+}
+
 const float* Emulator::get_audio_data() const
 {
 	return apu.get_sound_data();

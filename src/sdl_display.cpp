@@ -155,7 +155,8 @@ bool SDL_Display::handle_events(Emulator &emu)
 		if(event.type == SDL_DROPFILE)
 		{
 			char *filename = event.drop.file;
-			if(std::strcmp(strrchr(filename, '.'), ".gb") == 0)
+			if (std::strcmp(strrchr(filename, '.'), ".gb") == 0 ||
+				std::strcmp(strrchr(filename, '.'), ".gbc") == 0)
 			{
 				emu.save();
 				emu.set_rom_file(filename);
@@ -163,15 +164,15 @@ bool SDL_Display::handle_events(Emulator &emu)
 			} else {
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error opening file", "Please drop a .gb file", sdlWindow);
 			}
-			
-			SDL_free(filename); 
+
+			SDL_free(filename);
 		}
 
 		if(event.type == SDL_KEYDOWN)
 		{
 			switch(event.key.keysym.scancode)
 			{
-				case SDL_SCANCODE_P: 
+				case SDL_SCANCODE_P:
 					options.pause = !options.pause;
 					break;
 				case SDL_SCANCODE_F1:
@@ -182,11 +183,11 @@ bool SDL_Display::handle_events(Emulator &emu)
 					emu.reset();
 					break;
 				case SDL_SCANCODE_O: {
-					char const *lFilterPatterns[1] = {"*.gb"};
+					char const *lFilterPatterns[2] = {"*.gb", "*.gbc"};
 					char const *selection = tinyfd_openFileDialog( // there is also a wchar_t version
 						"Open ROM",									// title
 						NULL,										// optional initial directory
-						1,											// number of filter patterns
+						2,											// number of filter patterns
 						lFilterPatterns,							// char const * lFilterPatterns[2] = { "*.txt", "*.jpg" };
 						NULL,										// optional filter description
 						0											// forbid multiple selections
