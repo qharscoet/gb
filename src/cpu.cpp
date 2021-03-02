@@ -218,23 +218,27 @@ void CPU::step_timers(uint8_t cycles)
 		// static const uint16_t fq_mask[4] = { 0x400, 0x10, 0x40, 0x100 };
 
 		static const uint16_t fq_mask[4] = { 0x3FF, 0xF, 0x3F, 0xFF };
-		//We mask the timer to simulate an "overflow" of specific values
-		if(((timer_cycle_count + cycles) & fq_mask[fq_bits]) < (timer_cycle_count & fq_mask[fq_bits])  )
-		{
-			uint8_t value = memory->read_8bits(TIMA);
 
-			if(value == 255)
+		//We execute the overflow check cycle by cycle because there may be multiple overflows
+		while(cycles--) {
+			//We mask the timer to simulate an "overflow" of specific values
+			if(((timer_cycle_count + 1 /*cycles*/) & fq_mask[fq_bits]) < (timer_cycle_count & fq_mask[fq_bits])  )
 			{
-				memory->write_8bits(TIMA, memory->read_8bits(TMA));
-				memory->request_interrupt(Memory::interrupt_id::TIMER);
-				//TODO: timing to check if TMA is written at the same time
-			} else
-			{
-				memory->write_8bits(TIMA, value + 1);
+				uint8_t value = memory->read_8bits(TIMA);
+
+				if(value == 255)
+				{
+					memory->write_8bits(TIMA, memory->read_8bits(TMA));
+					memory->request_interrupt(Memory::interrupt_id::TIMER);
+					//TODO: timing to check if TMA is written at the same time
+				} else
+				{
+					memory->write_8bits(TIMA, value + 1);
+				}
 			}
+			timer_cycle_count += 1; //cycles;
 		}
 
-		timer_cycle_count += cycles;
 	}
 }
 
