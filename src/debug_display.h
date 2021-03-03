@@ -21,10 +21,10 @@ private:
 	};
 
 	uint8_t keystate;
+	SDL_AudioDeviceID audio_dev;
 
 	void update_keystate();
-
-	SDL_AudioDeviceID audio_dev;
+	void draw_camera_outline(float base_x, float base_y, float size);
 
 public:
 	Debug_Display(Emulator& emu);

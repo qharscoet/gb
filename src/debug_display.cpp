@@ -201,6 +201,78 @@ int Debug_Display::display_init()
 	return 1;
 }
 
+void Debug_Display::draw_camera_outline(float base_x, float base_y, float size)
+{
+	static const uint16_t SCX = 0xFF43;
+	static const uint16_t SCY = 0xFF42;
+	const uint8_t scroll_x = emu.memory.read_8bits(SCX);
+	const uint8_t scroll_y = emu.memory.read_8bits(SCY);
+
+	const float ratio = size / 256.0f;
+
+	ImVec2 bg_pos = ImVec2(base_x, base_y);
+
+	const float x = bg_pos.x + scroll_x * ratio;
+	const float y = bg_pos.y + scroll_y * ratio;
+
+	ImDrawList *draw_list = ImGui::GetWindowDrawList();
+	ImColor col = ImColor(255, 0, 0);
+	if (scroll_x + LCD_WIDTH < 256 && scroll_y + LCD_HEIGHT < 256)
+	{
+		draw_list->AddRect(ImVec2(x, y), ImVec2(x + LCD_WIDTH * ratio, y + LCD_HEIGHT * ratio), ImColor(255, 0, 0), 0.0f, 0);
+	}
+	else
+	{
+		const float x_max = bg_pos.x + size;
+		const float y_max = bg_pos.y + size;
+		//Top line
+		if (scroll_x + LCD_WIDTH > 256)
+		{
+			draw_list->AddLine(ImVec2(x, y), ImVec2(x_max, y), col);
+			draw_list->AddLine(ImVec2(bg_pos.x, y), ImVec2(bg_pos.x + (x + LCD_WIDTH * ratio) - x_max, y), col);
+		}
+		else
+		{
+			draw_list->AddLine(ImVec2(x, y), ImVec2(x + LCD_WIDTH * ratio, y), col);
+		}
+
+		//Bottom line
+		const float local_y = (scroll_y + LCD_HEIGHT > 256) ? bg_pos.y + (y + LCD_HEIGHT * ratio) - y_max : y + LCD_HEIGHT * ratio;
+		if (scroll_x + LCD_WIDTH >= 256)
+		{
+			draw_list->AddLine(ImVec2(x, local_y), ImVec2(x_max, local_y), col);
+			draw_list->AddLine(ImVec2(bg_pos.x, local_y), ImVec2(bg_pos.x + (x + LCD_WIDTH * ratio) - x_max, local_y), col);
+		}
+		else
+		{
+			draw_list->AddLine(ImVec2(x, local_y), ImVec2(x + LCD_WIDTH * ratio, local_y), col);
+		}
+
+		//Left Line
+		if (scroll_y + LCD_HEIGHT > 256)
+		{
+			draw_list->AddLine(ImVec2(x, y), ImVec2(x, y_max), col);
+			draw_list->AddLine(ImVec2(x, bg_pos.y), ImVec2(x, bg_pos.y + (y + LCD_HEIGHT * ratio) - y_max), col);
+		}
+		else
+		{
+			draw_list->AddLine(ImVec2(x, y), ImVec2(x, y + LCD_HEIGHT * ratio), col);
+		}
+
+		//Right Line
+		const float local_x = (scroll_x + LCD_WIDTH > 256) ? bg_pos.x + (x + LCD_WIDTH * ratio) - x_max : x + LCD_WIDTH * ratio;
+		if (scroll_y + LCD_HEIGHT > 256)
+		{
+			draw_list->AddLine(ImVec2(local_x, y), ImVec2(local_x, y_max), col);
+			draw_list->AddLine(ImVec2(local_x, bg_pos.y), ImVec2(local_x, bg_pos.y + (y + LCD_HEIGHT * ratio) - y_max), col);
+		}
+		else
+		{
+			draw_list->AddLine(ImVec2(local_x, y), ImVec2(local_x, y + LCD_HEIGHT * ratio), col);
+		}
+	}
+}
+
 void Debug_Display::update(const uint32_t *pixels)
 {
 	// Start the Dear ImGui frame
@@ -255,10 +327,11 @@ void Debug_Display::update(const uint32_t *pixels)
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-		ImGui::SetCursorPos({screen_display_size * 0.05f, screen_display_size * 0.05f});
 
+		const float screen_ratio = min(screen_display_size * 0.9f/(float)LCD_WIDTH, screen_display_size * 0.9f/(float)LCD_HEIGHT);
+		ImGui::SetCursorPos({screen_display_size * 0.05f, screen_display_size * 0.05f + (screen_display_size * 0.95f - LCD_HEIGHT * screen_ratio)*0.5f});
 		LoadTextureFromPixels(pixels, &screen, LCD_WIDTH, LCD_HEIGHT);
-		ImGui::Image((void *)(intptr_t)screen, ImVec2(screen_display_size * 0.90f, screen_display_size * 0.90f));
+		ImGui::Image((void *)(intptr_t)screen, ImVec2( LCD_WIDTH * screen_ratio,  LCD_HEIGHT * screen_ratio));
 
 		ImGui::End();
 	}
@@ -275,8 +348,11 @@ void Debug_Display::update(const uint32_t *pixels)
 		emu.gpu.draw_full_bg(pixels);
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
 
+		const ImVec2 bg_pos = ImGui::GetCursorScreenPos();
 		float size = min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
 		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(size, size));
+
+		draw_camera_outline(bg_pos.x, bg_pos.y, size);
 
 		uint32_t pixels2[128 * 192];
 		uint8_t bank_cnt = emu.is_gameboy_color() + 1;
