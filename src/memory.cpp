@@ -43,28 +43,80 @@ void Memory::reset()
 void Memory::DMATransfer(uint8_t src)
 {
 	uint16_t addr  = src << 8;
-	memcpy(mmap + 0xFE00, mmap + addr, 160);
+	for(int i = 0; i < 160; i++)
+	{
+		write_8bits(0xFE00 + i, read_8bits(addr + i));
+	}
+	// memcpy(mmap + 0xFE00, mmap + addr, 160);
 	//TODO : check for timings and stuff
 }
 
-void Memory::HDMATransfer(uint8_t length_mode)
+void Memory::do_HDMATransfer(uint16_t length)
 {
 	uint16_t src = mmap[0xFF51] << 8 | (mmap[0xFF52] & 0xF0); // 4 lower bits ignored
 	uint16_t dst = mmap[0xFF53] << 8 | mmap[0xFF54];
 	dst &= 0x1FF0; // Only bits 12-4 as starting adress is always in the 0x8000 - 0x9FF0 range;
 	dst += 0x8000;
 
-	uint16_t length = ((length_mode & 0x7F) + 1 ) << 4;
-	//if(!(length_mode & 0x80))
+	for (uint16_t i = 0; i < length; i++)
+	{
+		write_8bits(dst + i, read_8bits(src + i));
+	}
+
+	src += length;
+	dst += length;
+
+	mmap[0xFF51] = src >> 8;
+	mmap[0xFF52] = src & 0xF0;
+	mmap[0xFF53] = dst >> 8;
+	mmap[0xFF54] = dst & 0xF0;
+}
+
+void Memory::HDMATransfer(uint8_t length_mode, bool start)
+{
+	uint16_t src = mmap[0xFF51] << 8 | (mmap[0xFF52] & 0xF0); // 4 lower bits ignored
+	uint16_t dst = mmap[0xFF53] << 8 | mmap[0xFF54];
+	dst &= 0x1FF0; // Only bits 12-4 as starting adress is always in the 0x8000 - 0x9FF0 range;
+	dst += 0x8000;
+
+	// if write to FF55 (start) and transfer active and written value has bit 7 at 0
+	if(start && !(mmap[0xFF55] & 0x80) && !(length_mode & 0x80) )
+	{
+		mmap[0xFF55] |= 0x80;
+		return;
+	}
+
+	uint16_t length = (((start? length_mode: mmap[0xFF55] ) & 0x7F) + 1 ) << 4;
+
+	// If we triggered a general purpose HDMA by writing to FF55
+	if(start && !(length_mode & 0x80))
 	{
 		// memcpy(mmap + dst, mmap + src, length);
+		do_HDMATransfer(length);
 
-		//This is so that the transfer will occur in the right bank
-		for(uint16_t i = 0; i < length ; i++)
-		{
-			write_8bits(dst + i, read_8bits(src + i));
-		}
+		mmap[0xFF55] = 0xFF;
 	}
+	// if we progress in HBlank mode transfer
+	else if(!(length_mode & 0x80)){
+
+		do_HDMATransfer(0x10);
+
+		length -= 0x10;
+		mmap[0xFF55] = ((length >> 4) - 1);
+
+		if(length == 0)
+		{
+			mmap[0xFF51] = 0xFF;
+			mmap[0xFF52] = 0xFF;
+			mmap[0xFF53] = 0xFF;
+			mmap[0xFF54] = 0xFF;
+			mmap[0xFF55] = 0xFF;
+		}
+	//If we trigger HBlank mode transfer
+	} else {
+		mmap[0xFF55] &= 0x7F;
+	}
+
 
 	// TODO : handle HBlank DMA mode
 }
@@ -258,7 +310,7 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	}
 	else if ( is_cgb && addr == 0xFF55)
 	{
-		HDMATransfer(value);
+		HDMATransfer(value, true);
 	}
 	else if( is_cgb && addr == 0xFF4D)
 	{

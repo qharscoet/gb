@@ -140,6 +140,8 @@ void GPU::step(uint8_t cycles)
 				if (get_bit(stat_val, 3))
 					req_int = true;
 
+				if (memory->cgb_enabled() && !(memory->read_8bits(0xFF55) & 0x80))
+					memory->HDMATransfer(0, false);
 			}
 		break;
 	}

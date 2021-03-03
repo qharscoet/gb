@@ -45,7 +45,7 @@ private:
 
 
 	void DMATransfer(uint8_t src);
-	void HDMATransfer(uint8_t length_mode);
+	void do_HDMATransfer(uint16_t length);
 
 public:
 	enum class interrupt_id : uint8_t
@@ -57,6 +57,7 @@ public:
 		JOYPAD
 	};
 
+	void HDMATransfer(uint8_t length_mode, bool start);
 	Memory();
 	~Memory();
 
