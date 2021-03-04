@@ -136,7 +136,7 @@ void GPU::step(uint8_t cycles)
 				draw_scanline(curr_line);
 
 				//We go into mode 0, Hblank
-				stat_val &= 0xFC0;
+				stat_val &= 0xFC;
 				if (get_bit(stat_val, 3))
 					req_int = true;
 
