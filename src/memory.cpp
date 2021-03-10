@@ -190,55 +190,48 @@ void Memory::load_content(const uint8_t* data, uint32_t size)
 
 uint8_t Memory::read_8bits(uint16_t addr) const
 {
+	using read_func = std::function<uint8_t(uint16_t)>;
+	static const auto read_rom = [this](uint16_t addr) { return mbc->read_rom(addr - 0x4000); };
+	static const auto read_ram = [this](uint16_t addr) { return mbc->read_ram(addr - 0xA000); };
+	static const auto default_read = [this](uint16_t addr) { return mmap[addr]; };
+
+	static const auto read_wram = [this](uint16_t addr) {
+		if (is_cgb && addr >= 0xD000)
+		{
+			uint8_t bank_nb = mmap[0xFF70] & 0x7;
+			if (bank_nb == 0)
+				bank_nb = 1;
+
+			return wram_banks[(bank_nb - 1) * WRAM_BANK_SIZE + (addr - 0xD000)];
+		}
+		else
+		{
+			return mmap[addr];
+		}
+	};
+	static const auto read_vram = [this](uint16_t addr) {
+		if (is_cgb)
+		{
+			uint8_t bank_nb = mmap[0xFF4F] & 0x1;
+			return vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)];
+		}
+		else
+		{
+			return mmap[addr];
+		}
+	};
+
+	static const read_func f_array[8] = {
+							default_read, default_read,
+							read_rom, read_rom,
+							read_vram, read_ram,
+							read_wram, default_read };
+
+
 	uint8_t ret = 0;
 
-	if (addr >= 0x4000 && addr < 0x8000)
-	{
-		ret = mbc->read_rom(addr - 0x4000);
-	}
-	else if (addr >= 0xA000 && addr < 0xC000)
-	{
-		ret = mbc->read_ram(addr - 0xA000);
-	}
-	else if (addr >= 0xFF10 && addr < 0xFF40)
-	{
-		ret = apu->read_reg(addr);
-	}
-	else if (is_cgb && (addr >= 0xD000 && addr < 0xE000))
-	{
-		uint8_t bank_nb = mmap[0xFF70] & 0x7;
-		if (bank_nb == 0)
-			bank_nb = 1;
-
-		ret = wram_banks[(bank_nb - 1 ) * WRAM_BANK_SIZE + (addr - 0xD000)];
-	}
-	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
-	{
-		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
-		ret = vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)];
-	}
-	else if (is_cgb && (addr == 0xFF69 || addr == 0xFF6B))
-	{
-		bool background = (addr == 0xFF69);
-
-		uint8_t spec  = mmap[addr - 1];
-
-		uint8_t pal_nb = (spec >> 3) & 0x7;
-		uint8_t col_nb = (spec >> 1) & 0x3;
-		bool hl = spec & 0x1;
-
-		return cgb_palette_data[background].palette[pal_nb][col_nb].hl[hl];
-	}
-	else
-	{
-		//echo ram
-		if(addr >= 0xE000 && addr < 0xFE00)
-			addr -= 0x2000;
-
-		ret = mmap[addr];
-	}
-
-	return ret;
+	uint8_t idx = (addr & 0xF000) >> 13;
+	return f_array[idx](addr);
 }
 
 uint16_t Memory::read_16bits(uint16_t addr) const
