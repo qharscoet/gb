@@ -81,6 +81,7 @@ public:
 	void request_interrupt(interrupt_id id);
 
 	uint8_t* const get_data(uint16_t addr) const;
+	uint8_t* const get_vram_data(uint16_t addr, int bank) const;
 
 	template <size_t size>
 	std::span<uint8_t, size> get_data_span(uint16_t addr) const;

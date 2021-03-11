@@ -373,7 +373,26 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 		ImGui::SetNextWindowPos({io.DisplaySize.x, ImGui::GetFrameHeight()}, ImGuiCond_Appearing, {1.0f, 0.0f});
 		ImGui::Begin("VRAM Editor", &vram_editor_open);
-		mem_edit.DrawContents(emu.memory.get_data(0x8000), 0x2000, 0x8000);
+		if(emu.is_gameboy_color())
+		{
+			if (ImGui::BeginTabBar("MyTabBar", ImGuiTabBarFlags_None))
+			{
+				if (ImGui::BeginTabItem("BANK0"))
+				{
+					mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 0), 0x2000, 0x8000);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("BANK1"))
+				{
+					mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 1), 0x2000, 0x8000);
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+		} else {
+			mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 0), 0x2000, 0x8000);
+		}
+
 		ImGui::End();
 	}
 	//  Memory viewer custom

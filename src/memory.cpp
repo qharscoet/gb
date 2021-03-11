@@ -408,10 +408,20 @@ uint8_t *const Memory::get_data(uint16_t addr) const
 		return mbc->get_rom_data(addr - 0x4000);
 	else if (addr >= 0xA000 && addr < 0xC000)
 		return mbc->get_ram_data(addr - 0xA000);
+	else if (is_cgb && (addr >= 0x8000 && addr < 0xA000))
+	{
+		uint8_t bank_nb = mmap[0xFF4F] & 0x1;
+		return &vram_banks[bank_nb * VRAM_BANK_SIZE + (addr - 0x8000)];
+	}
 	// else if (addr >= 0xFF10 && addr < 0xFF40)
 	// 	return apu->get_data(addr - 0xFF10);
 	else
 		return &mmap[addr];
+}
+
+uint8_t *const Memory::get_vram_data(uint16_t addr, int bank) const
+{
+	return is_cgb ? &vram_banks[bank * VRAM_BANK_SIZE + (addr - 0x8000)] : &mmap[addr];
 }
 
 void Memory::dump_ram(std::ostream &file) const
