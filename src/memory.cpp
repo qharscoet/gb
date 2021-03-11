@@ -221,11 +221,34 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 		}
 	};
 
+	static const auto read_echo_reg = [this](uint16_t addr) {
+		if (addr >= 0xE000 && addr < 0xFE00){
+			return mmap[addr - 0x2000]; // Echo ram, should not be used
+		}
+
+		//Special handling of CGB palettes
+		if (is_cgb && (addr == 0xFF69 || addr == 0xFF6B))
+		{
+			bool background = (addr == 0xFF69);
+
+			uint8_t spec = mmap[addr - 1];
+
+			uint8_t pal_nb = (spec >> 3) & 0x7;
+			uint8_t col_nb = (spec >> 1) & 0x3;
+			bool hl = spec & 0x1;
+
+			return cgb_palette_data[background].palette[pal_nb][col_nb].hl[hl];
+		}
+		else {
+			return mmap[addr];
+		}
+	};
+
 	static const read_func f_array[8] = {
 							default_read, default_read,
 							read_rom, read_rom,
 							read_vram, read_ram,
-							read_wram, default_read };
+							read_wram, read_echo_reg };
 
 
 	uint8_t ret = 0;
