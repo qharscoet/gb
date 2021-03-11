@@ -717,4 +717,25 @@ void GPU::display_bg_tiles(uint32_t* pixels, bool bank) const
 	}
 }
 
+uint32_t GPU::get_palette_color(bool bg, uint8_t palette, uint8_t col_id)
+{
+	uint32_t color_u32;
+	if( memory->cgb_enabled())
+	{
+		uint16_t color = cgb_palettes[bg].palette[palette][col_id].value;
+		uint8_t red = ((color & 0x1F) * 255) / 31;
+		uint8_t green = (((color >> 5) & 0x1F) * 255) / 31;
+		uint8_t blue = (((color >> 10) & 0x1F) * 255) / 31;
+		color_u32 = (255 << 24) | (red << 16) | (green << 8) | blue;
+	} else {
+		//We only care about col_id here
+		palette = memory->read_8bits(0xFF47);
+		col_id = (palette >> (col_id << 1)) & 0x03;
+		uint8_t color = colors[col_id];
+		color_u32 = (255 << 24) | (color << 16) | (color << 8) | color;
+	}
+
+	return color_u32;
+}
+
 //#endif

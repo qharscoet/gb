@@ -365,6 +365,57 @@ void Debug_Display::update(const uint32_t *pixels)
 			ImGui::Image((void *)(intptr_t)bg_tiles[i], ImVec2(size * 0.5f, size * 0.75f));
 		}
 
+		if (ImGui::CollapsingHeader("Palettes", ImGuiTreeNodeFlags_None))
+		{
+			static char color_name[50];
+			if (emu.is_gameboy_color())
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(20.0f, 5.f));
+				if (ImGui::BeginTable("PaletteTable", 2, ImGuiTableFlags_SizingFixedSame))
+				{
+					// ImGui::TableSetupColumn("BG");
+					// ImGui::TableSetupColumn("OBJ");
+					// ImGui::TableHeadersRow();
+
+					for (int palette_id = 0; palette_id < 8; palette_id++)
+					{
+						ImGui::TableNextRow();
+						for(int column = 0; column < 2; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							for (int color_id = 0; color_id < 4; color_id++)
+							{
+								/* Our colors are ARBG and somehow imgui wants ABGR */
+								ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.gpu.get_palette_color(column, palette_id, color_id));
+								float tmp = color.x;
+								color.x = color.z;
+								color.z = tmp;
+
+								sprintf_s(color_name,"Palette %s %d color %d", column == 0?"BG":"OBJ", palette_id, color_id);
+								ImGui::ColorButton(color_name, color, 0, ImVec2(40, 40));
+								ImGui::SameLine();
+							}
+						}
+					}
+					ImGui::EndTable();
+				}
+				ImGui::PopStyleVar();
+			} else {
+				for (int color_id = 0; color_id < 4; color_id++)
+				{
+					/* Our colors are ARBG and somehow imgui wants ABGR */
+					ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.gpu.get_palette_color(0, 0, color_id));
+					float tmp = color.x;
+					color.x = color.z;
+					color.z = tmp;
+
+					sprintf_s(color_name, "Palette color %d", color_id);
+					ImGui::ColorButton(color_name, color, 0, ImVec2(80, 80));
+					ImGui::SameLine();
+				}
+			}
+		}
+
 		ImGui::End();
 	}
 
