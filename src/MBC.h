@@ -69,6 +69,8 @@ class MBC3 : public MBC
 {
 	private:
 		uint8_t RTC_reg[5]; //Clock registers;
+		uint8_t latched_reg[5];
+		bool is_latched;
 	public:
 		MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file);
 		void write(uint16_t addr, uint8_t value);

@@ -110,9 +110,10 @@ void MBC1::write(uint16_t addr, uint8_t value)
 }
 
 MBC3::MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file)
-	:MBC(type, romsize, ramsize, file)
+	:MBC(type, romsize, ramsize, file), is_latched(false)
 {
 	memset(RTC_reg, 0, 5);
+	memset(latched_reg, 0, 5);
 }
 
 void MBC3::write(uint16_t addr, uint8_t value)
@@ -135,7 +136,14 @@ void MBC3::write(uint16_t addr, uint8_t value)
 	}
 	else
 	{
-		//TODO: handle latch
+		if(!is_latched && value == 0x01)
+		{
+			is_latched = true;
+			memcpy(latched_reg, RTC_reg, 5);
+		} else if(value == 0x00)
+		{
+			is_latched = false;
+		}
 	}
 }
 
@@ -149,7 +157,7 @@ void MBC3::write_ram(uint16_t addr, uint8_t value)
 uint8_t MBC3::read_ram(uint16_t addr) const
 {
 	if (current_ram >= 0x08 && current_ram <= 0x0C)
-		return RTC_reg[current_ram - 0x08];
+		return is_latched ? latched_reg[current_ram - 0x08] : RTC_reg[current_ram - 0x08];
 	else if (current_ram <= 0x03)
 		return MBC::read_ram(addr);
 	else
