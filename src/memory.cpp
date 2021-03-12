@@ -114,7 +114,7 @@ void Memory::HDMATransfer(uint8_t length_mode, bool start)
 		}
 	//If we trigger HBlank mode transfer
 	} else {
-		mmap[0xFF55] &= 0x7F;
+		mmap[0xFF55] = length_mode & 0x7F;
 	}
 
 
