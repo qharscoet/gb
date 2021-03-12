@@ -95,6 +95,8 @@ int main(int argc, char const *argv[])
 							emu.clear_audio();
 						}
 					}
+
+					emu.update_rtc();
 				}
 			}
 

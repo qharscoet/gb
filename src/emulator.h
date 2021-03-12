@@ -30,6 +30,8 @@ private:
 	GPU gpu;
 	Sound apu;
 
+	uint8_t frame_count;
+
 	const std::string get_rom_dir() const;
 
 public:
@@ -44,6 +46,8 @@ public:
 	void quit();
 	void reset();
 	void stop();
+
+	void update_rtc();
 
 	const uint32_t* get_pixel_data() const;
 	const std::string get_game_name() const;

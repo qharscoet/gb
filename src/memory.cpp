@@ -1,4 +1,5 @@
 #include "memory.h"
+#include <functional>
 
 inline uint32_t kilobytes(uint32_t n) { return n << 10; } // 1024 * n;}
 
@@ -433,6 +434,11 @@ void Memory::load_ram(std::istream &file)
 {
 	if (mbc->use_ram())
 		mbc->load_ram(file);
+}
+
+void Memory::update_rtc()
+{
+	mbc->rtc_add_second();
 }
 
 bool Memory::use_external_ram() const

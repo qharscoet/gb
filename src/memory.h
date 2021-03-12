@@ -91,6 +91,7 @@ public:
 
 	bool use_external_ram() const;
 	bool use_mbc() const;
+	void update_rtc();
 	bool cgb_enabled() const;
 };
 

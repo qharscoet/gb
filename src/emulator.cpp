@@ -12,6 +12,7 @@ Emulator::Emulator()
 :cpu(&memory), gpu(&memory), apu(memory.get_data_span<0x30>(0xFF10)), state(emu_state::IDLE)
 {
 	memory.set_apu(&apu);
+	frame_count = 0;
 }
 
 Emulator::~Emulator()
@@ -77,6 +78,14 @@ uint8_t Emulator::step(uint8_t keys)
 	// }
 
 	return cycles;
+}
+
+void Emulator::update_rtc()
+{
+	if(frame_count++ >= 60){
+		memory.update_rtc();
+		frame_count = 0;
+	}
 }
 
 const uint32_t* Emulator::get_pixel_data() const

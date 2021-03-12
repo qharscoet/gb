@@ -53,6 +53,11 @@ size_t MBC::ram_banks_count() const
 	return ram.size() >> 13;
 }
 
+void MBC::rtc_add_second()
+{
+	//Do nothing
+}
+
 bool MBC::use_ram() const
 {
 	return ram.size() > 0;
@@ -114,6 +119,36 @@ MBC3::MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file
 {
 	memset(RTC_reg, 0, 5);
 	memset(latched_reg, 0, 5);
+}
+
+void MBC3::rtc_add_second()
+{
+	enum { RTC_S = 0, RTC_M, RTC_H, RTC_DL, RTC_DH};
+	if(RTC_reg[RTC_S]++ == 60) // Seconds
+	{
+		RTC_reg[RTC_S] = 0;
+		if(RTC_reg[RTC_M]++ == 60) //Minutes
+		{
+			RTC_reg[RTC_M] = 0;
+			if (RTC_reg[RTC_H]++ == 24) //Hours
+			{
+				RTC_reg[RTC_H] = 0;
+
+				if(RTC_reg[RTC_DL]++ == 0xFF) // 8 lower bits overflow
+				{
+					RTC_reg[RTC_DH]++;
+					//If last bit is there we have overflowed and we set carry bit
+					if((RTC_reg[RTC_DH] & 0x1) == 0)
+					{
+						RTC_reg[RTC_DH] |= (1 << 7);
+					}
+
+					RTC_reg[RTC_DH] &= 0xC1;
+				}
+			}
+		}
+	}
+
 }
 
 void MBC3::write(uint16_t addr, uint8_t value)

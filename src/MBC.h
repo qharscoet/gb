@@ -47,6 +47,8 @@ public:
 	size_t rom_banks_count() const;
 	size_t ram_banks_count() const;
 
+	virtual void rtc_add_second();
+
 	bool use_ram() const;
 	void dump_ram(std::ostream &file) const;
 	void load_ram(std::istream &file);
@@ -73,6 +75,7 @@ class MBC3 : public MBC
 		bool is_latched;
 	public:
 		MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file);
+		void rtc_add_second();
 		void write(uint16_t addr, uint8_t value);
 
 		void write_ram(uint16_t addr, uint8_t value);
