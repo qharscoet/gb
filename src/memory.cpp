@@ -455,3 +455,8 @@ bool Memory::cgb_enabled() const
 {
 	return is_cgb;
 }
+
+void Memory::set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+	mbc->set_rtc(days, hours, minutes, seconds);
+}

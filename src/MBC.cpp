@@ -59,6 +59,9 @@ void MBC::rtc_add_second()
 	//Do nothing
 }
 
+void MBC::set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds)
+{}
+
 bool MBC::use_ram() const
 {
 	return ram.size() > 0;
@@ -149,7 +152,19 @@ void MBC3::rtc_add_second()
 			}
 		}
 	}
+}
 
+void MBC3::set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+	enum { RTC_S = 0, RTC_M, RTC_H, RTC_DL, RTC_DH};
+	if(seconds < 60) RTC_reg[RTC_S] = seconds;
+	if(minutes < 60) RTC_reg[RTC_M] = minutes;
+	if(hours < 24) RTC_reg[RTC_H] = hours;
+
+	if(days < 512) {
+		RTC_reg[RTC_DL] = days & 0xFF;
+		RTC_reg[RTC_DH] |= days >> 8;
+	}
 }
 
 void MBC3::write(uint16_t addr, uint8_t value)

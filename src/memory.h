@@ -93,6 +93,8 @@ public:
 	bool use_mbc() const;
 	void update_rtc();
 	bool cgb_enabled() const;
+
+	void set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds);
 };
 
 template <size_t size>

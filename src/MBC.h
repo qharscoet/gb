@@ -48,6 +48,7 @@ public:
 	size_t ram_banks_count() const;
 
 	virtual void rtc_add_second();
+	virtual void set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds);
 
 	bool use_ram() const;
 	virtual void dump_ram(std::ostream &file) const;
@@ -75,7 +76,10 @@ class MBC3 : public MBC
 		bool is_latched;
 	public:
 		MBC3(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream& file);
+
 		void rtc_add_second();
+		virtual void set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds);
+
 		void write(uint16_t addr, uint8_t value);
 
 		void write_ram(uint16_t addr, uint8_t value);

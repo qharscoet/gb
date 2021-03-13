@@ -460,6 +460,12 @@ void Debug_Display::update(const uint32_t *pixels)
 	if(options_open)
 	{
 		ImGui::Begin("Debug options", &options_open);
+		if (ImGui::Button("Reset Gameboy"))
+		{
+			emu.save();
+			emu.reset();
+		}
+
 		ImGui::Checkbox("Pause", &options.pause);
 		if(ImGui::Checkbox("Debug UI", &options.debug_ui)){
 			options.display_changed = true;
@@ -475,10 +481,19 @@ void Debug_Display::update(const uint32_t *pixels)
 			ImGui::TreePop();
 		}
 
-		if (ImGui::Button("Reset", ImVec2(80, 0)))
+		if(ImGui::TreeNode("Set RTC"))
 		{
-			emu.save();
-			emu.reset();
+			ImGui::Text("Only works with compatible games");
+			static int days,hours,minutes,seconds;
+			ImGui::SliderInt("Days",&days,0,511);
+			ImGui::SliderInt("Hours",&hours,0,23);
+			ImGui::SliderInt("Minutes",&minutes,0,59);
+			ImGui::SliderInt("Seconds",&seconds,0,59);
+
+			if(ImGui::Button("Send to game"))
+			{
+				emu.memory.set_rtc(days, hours, minutes, seconds);
+			}
 		}
 
 		ImGui::End();
