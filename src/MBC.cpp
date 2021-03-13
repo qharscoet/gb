@@ -1,6 +1,7 @@
 #include "MBC.h"
 
 #include <algorithm>
+#include <ctime>
 
 MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 {
@@ -197,6 +198,31 @@ uint8_t MBC3::read_ram(uint16_t addr) const
 		return MBC::read_ram(addr);
 	else
 		return 0;
+}
+
+void MBC3::dump_ram(std::ostream &file) const
+{
+	MBC::dump_ram(file);
+	file.write((char*)(&RTC_reg[0]), 5);
+	std::time_t now = std::time(nullptr);
+
+	file.write((char*)&now, sizeof(std::time_t));
+}
+
+void MBC3::load_ram(std::istream &file)
+{
+	MBC::load_ram(file);
+	file.read((char*)(&RTC_reg[0]), 5);
+
+	std::time_t timestamp;
+	file.read((char*)&timestamp, sizeof(std::time_t));
+
+	//TODO : refactor this loop ?
+	std::time_t now = std::time(nullptr);
+	for(int i = 0; i < now - timestamp; i++)
+	{
+		rtc_add_second();
+	}
 }
 
 MBC5::MBC5(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)

@@ -50,8 +50,8 @@ public:
 	virtual void rtc_add_second();
 
 	bool use_ram() const;
-	void dump_ram(std::ostream &file) const;
-	void load_ram(std::istream &file);
+	virtual void dump_ram(std::ostream &file) const;
+	virtual void load_ram(std::istream &file);
 
 	uint8_t* get_rom_data(uint16_t addr);
 	uint8_t* get_ram_data(uint16_t addr);
@@ -80,6 +80,11 @@ class MBC3 : public MBC
 
 		void write_ram(uint16_t addr, uint8_t value);
 		uint8_t read_ram(uint16_t addr) const;
+
+		/* We need to handle the RTC registers in the save file and save timestamp
+			to simulate the passage of time while the console is off */
+		void dump_ram(std::ostream &file) const;
+		void load_ram(std::istream &file);
 };
 
 class MBC5 : public MBC
