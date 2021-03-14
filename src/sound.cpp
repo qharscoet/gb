@@ -31,9 +31,9 @@ void Sound::step(uint8_t cycles)
 			{
 				if(!(frame_seq_step & 1))
 				{
-					wave.length_tick();
 					square1.length_tick();
 					square2.length_tick();
+					wave.length_tick();
 					noise.length_tick();
 				}
 
@@ -58,6 +58,11 @@ void Sound::step(uint8_t cycles)
 			square2.step();
 			noise.step();
 
+			/* Update NR52 channel status on reading */
+			registers[NR52 - 0xFF10] = (registers[NR52 - 0xFF10] & ~(1 << 0)) | (square1.is_on() << 0);
+			registers[NR52 - 0xFF10] = (registers[NR52 - 0xFF10] & ~(1 << 1)) | (square2.is_on() << 1);
+			registers[NR52 - 0xFF10] = (registers[NR52 - 0xFF10] & ~(1 << 2)) | (wave.is_on() << 2);
+			registers[NR52 - 0xFF10] = (registers[NR52 - 0xFF10] & ~(1 << 3)) | (noise.is_on() << 3);
 
 			// We only get samples every SAMPLERATE cycles
 			if (--sample_timer == 0)
@@ -122,7 +127,7 @@ char* const Sound::get_data(uint16_t addr)
 
 void Sound::write_reg(uint16_t addr, uint8_t val)
 {
-	registers[addr - 0xFF10] = val;
+
 	if(addr >= 0xFF10 && addr <= 0xFF14)
 	{
 		square1.write_reg(addr - 0xFF10, val);
@@ -136,15 +141,23 @@ void Sound::write_reg(uint16_t addr, uint8_t val)
 	{
 		noise.write_reg(addr - 0xFF1F, val);
 	} else if (addr == NR52) {
+		// If we write 0 in bit 7
 		if(!get_bit(val, 7))
 		{
 			std::memset(registers.data(), 0, 0x30);
-		} else if(!get_bit(registers[NR52 - 0xFF10], 7))
+		}
+		//If we write 1 in bit 7 and bit 7 was 0
+		else if(!get_bit(registers[NR52 - 0xFF10], 7))
 		{
 			frame_sequencer = 0;
 			frame_seq_step = 0;
 		}
+
+		//Only bit 7 is writable in NR52
+		val &= 0x80;
 	}
+
+	registers[addr - 0xFF10] = val;
 
 }
 

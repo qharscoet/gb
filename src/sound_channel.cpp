@@ -21,6 +21,12 @@ void Channel::length_tick()
 	}
 }
 
+bool Channel::is_on()
+{
+	return ((length_enabled && length_counter != 0) || !length_enabled)
+			&& volume > 0;
+}
+
 EnvelopeChannel::EnvelopeChannel(uint8_t *data)
 : Channel(data)
 {}
@@ -284,6 +290,10 @@ void WaveChannel::trigger()
 	position = 0;
 }
 
+bool WaveChannel::is_on()
+{
+	return Channel::is_on() && get_bit(registers[0], 7);
+}
 
 
 /* Noise Channel */

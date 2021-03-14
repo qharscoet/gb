@@ -35,6 +35,7 @@ public:
 	virtual void write_reg(uint16_t addr, uint8_t val) = 0;
 
 	void length_tick();
+	virtual bool is_on();
 };
 
 class EnvelopeChannel : public Channel
@@ -119,6 +120,7 @@ public:
 	void write_reg(uint16_t addr, uint8_t val);
 
 	void trigger();
+	bool is_on();
 };
 
 
