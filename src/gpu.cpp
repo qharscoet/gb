@@ -68,9 +68,9 @@ void GPU::step(uint8_t cycles)
 	switch(lcd_mode){
 		//H-blank
 		case 0:
-			if(clock_counter >= 51)
+			if(clock_counter >= 204) //51 *4)
 			{
-				clock_counter -= 51;
+				clock_counter -= 204;
 				curr_line++;
 
 				if(curr_line == 144)
@@ -96,9 +96,9 @@ void GPU::step(uint8_t cycles)
 		break;
 		// Vblank
 		case 1:
-			if(clock_counter >= 114)
+			if(clock_counter >= 576)//114 *4)
 			{
-				clock_counter -= 114;
+				clock_counter -= 576;
 				curr_line++;
 
 				if(curr_line == 154)
@@ -116,9 +116,9 @@ void GPU::step(uint8_t cycles)
 		break;
 		// OAM read
 		case 2:
-			if (clock_counter >= 20)
+			if (clock_counter >= 80)//20 *4)
 			{
-				clock_counter -= 20;
+				clock_counter -= 80;
 
 				//We go into mode 3
 				stat_val |= 0x3;
@@ -129,9 +129,9 @@ void GPU::step(uint8_t cycles)
 		break;
 		// Pixel transfer
 		case 3:
-			if(clock_counter >= 43)
+			if(clock_counter >= 172)//43 *4)
 			{
-				clock_counter -= 43;
+				clock_counter -= 172;
 
 				draw_scanline(curr_line);
 

@@ -332,6 +332,7 @@ void Memory::write_8bits(uint16_t addr, uint8_t value)
 	else if( is_cgb && addr == 0xFF4D)
 	{
 		//TODO: handle speed switch
+		mmap[addr] = value;
 	}
 	else {
 

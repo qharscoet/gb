@@ -68,8 +68,13 @@ uint8_t Emulator::step(uint8_t keys)
 	// 	while(cycles_total < CYCLES_BY_FRAME)
 	// 	{
 			memory.update_joypad(keys);
-			uint8_t cycles = cpu.step();
+			uint8_t cycles = cpu.step() *4;
 
+			uint8_t speed_multiplier = cpu.is_double_speed() + 1;
+			cycles /= speed_multiplier;
+			if(cycles == 0)
+				cycles = 1;
+				
 			gpu.step(cycles);
 			apu.step(cycles);
 			// cycles_total += cycles;

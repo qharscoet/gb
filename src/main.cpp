@@ -78,8 +78,8 @@ int main(int argc, char const *argv[])
 			if (emu.is_running())
 			{
 
-				const uint16_t CYCLES_BY_FRAME = 17556;
-				uint16_t cycles_total = 0;
+				const uint32_t CYCLES_BY_FRAME = 17556 *4;
+				uint32_t cycles_total = 0;
 
 				if (!options.pause)
 				{

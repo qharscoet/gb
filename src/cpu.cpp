@@ -174,6 +174,11 @@ bool CPU::get_flag(flag_id f)
 	return (*flags) & (1 << bit);
 }
 
+bool CPU::is_double_speed()
+{
+	return memory->read_8bits(0xFF4D) & (1 <<  7);
+}
+
 uint8_t CPU::step()
 {
 	uint8_t cycles = 0;
@@ -547,6 +552,23 @@ uint8_t CPU::execute()
 		case 0x76:	halt();	break;
 		case 0xF3:	di();	break;
 		case 0xFB:	ei();	break;
+		case 0x10: {
+				uint8_t next = read_pc8();
+				if(next == 0x00){
+					//STOP
+					// Switch speed prepare
+					uint8_t KEY_1 = memory->read_8bits(0xFF4D);
+					if ( KEY_1 & 0x1)
+					{
+						KEY_1 &= ~(0x1); // Clear bit 0
+						KEY_1 ^= (1 << 7); // Switch bit 7
+						memory->write_8bits(0xFF4D, KEY_1);
+					}
+				} else {
+					*pc--;
+				}
+			}
+			break;
 		//TODO : case 10 00 => STOP
 
 		// Roates and shift

@@ -20,7 +20,7 @@ Sound::Sound(std::span<uint8_t, 0x30> regs)
 
 void Sound::step(uint8_t cycles)
 {
-	cycles *= 4;
+	// cycles *= 4;
 	for(uint8_t i = 0; i < cycles; i++)
 	{
 		if (get_bit(registers[NR52 - 0xFF10], 7))
@@ -60,7 +60,7 @@ void Sound::step(uint8_t cycles)
 
 
 			// We only get samples every SAMPLERATE cycles
-			if(--sample_timer == 0)
+			if (--sample_timer == 0)
 			{
 				sample_timer = CLOCKSPEED/SAMPLERATE;
 

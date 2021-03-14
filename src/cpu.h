@@ -265,6 +265,8 @@ public:
 	void reset();
 	void init();
 	uint8_t step();
+
+	bool is_double_speed();
 };
 
 inline void CPU::set_flag(flag_id f, bool b)
