@@ -43,8 +43,9 @@ PaletteData* const GPU::get_palette_data()
 
 void GPU::step(uint8_t cycles)
 {
-	uint8_t stat_val = memory->read_8bits(STAT);
+	uint8_t stat_val = memory->read_8bits(STAT) | 0x80;
 	uint8_t curr_line = memory->read_8bits(LY);
+	uint8_t prev_line = curr_line;
 
 	//LCD is disabled
 	if(!get_bit(memory->read_8bits(LCDC_C), 7))
@@ -150,10 +151,11 @@ void GPU::step(uint8_t cycles)
 		memory->request_interrupt(Memory::interrupt_id::STAT);
 
 	//TODO : check if we really need to call this everytime
-	compareLYLYC();
-
 	memory->write_8bits(STAT, stat_val);
 	memory->write_8bits(LY, curr_line);
+	if(prev_line != curr_line)
+		compareLYLYC();
+
 }
 
 void GPU::compareLYLYC()
