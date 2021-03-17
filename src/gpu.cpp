@@ -471,11 +471,17 @@ void GPU::draw_objects(uint8_t line)
 				// Priority check, if it's behind the bg we don't draw
 				// TODO: overlapping
 				// BG prio flag is stored in bits 0xF0. If DMG flag is 0 so is ok
-				if(bg_color_prio_line[ajusted_x + x] >> 4)
-					continue;
 
-				if (get_bit(attr.attr_flags.value, 7) && (bg_color_prio_line[ajusted_x + x] & 0x0F) != 0)
-					continue;
+				// If BG color is 0 we draw the sprite regardless of the priority flags as it's transparent
+				if ((bg_color_prio_line[ajusted_x + x] & 0x0F) != 0) {
+					//BG has priority so we don't draw this pixel
+					if(bg_color_prio_line[ajusted_x + x] >> 4)
+						continue;
+
+					//If BG prio flag is 0, we do the same check in OAM
+					if (get_bit(attr.attr_flags.value, 7))
+						continue;
+				}
 
 				uint32_t color;
 				if(is_cgb)
