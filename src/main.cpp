@@ -24,6 +24,7 @@ emu_options options;
 void options_init()
 {
 	options.pause = false;
+	options.cgb_disabled = false;
 
 	options.sound.channel1 = true;
 	options.sound.channel2 = true;

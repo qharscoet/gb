@@ -321,7 +321,7 @@ void Debug_Display::update(const uint32_t *pixels)
 	{
 
 		const float screen_display_size = io.DisplaySize.y / 1.5f;
-		ImGui::SetNextWindowPos({io.DisplaySize.x/2.0f, io.DisplaySize.y/2.0f}, 0, {0.5f, 0.5f});
+		// ImGui::SetNextWindowPos({io.DisplaySize.x/2.0f, io.DisplaySize.y/2.0f}, 0, {0.5f, 0.5f});
 		ImGui::SetNextWindowSize({screen_display_size, screen_display_size});
 		ImGui::Begin("Emu screen", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize); // Create a window called "Hello, world!" and append into it.
 
@@ -471,6 +471,7 @@ void Debug_Display::update(const uint32_t *pixels)
 			options.display_changed = true;
 		}
 
+		ImGui::Checkbox("Disable CGB (Needs Reset)", &options.cgb_disabled);
 		if(ImGui::TreeNode("Sound Options"))
 		{
 			ImGui::Checkbox("Enable Channel 1", &options.sound.channel1);

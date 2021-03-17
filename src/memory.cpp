@@ -1,6 +1,9 @@
 #include "memory.h"
 #include <functional>
 
+#include "options.h"
+extern emu_options options;
+
 inline uint32_t kilobytes(uint32_t n) { return n << 10; } // 1024 * n;}
 
 Memory::Memory()
@@ -169,8 +172,7 @@ void Memory::load_content(std::istream &file)
 			break;
 	}
 
-
-	if(mmap[0x143] == 0xC0 || mmap[0x143] == 0x80)
+	if ((mmap[0x143] == 0xC0 || mmap[0x143] == 0x80) && !options.cgb_disabled)
 	{
 		is_cgb = true;
 		vram_banks = new uint8_t[2* VRAM_BANK_SIZE];
