@@ -189,7 +189,7 @@ void GPU::draw_scanline(uint8_t line)
 	// 	pixels[line][i] = 128;
 	// }
 	uint8_t lcd_control = memory->read_8bits(LCDC_C);
-	if(get_bit(lcd_control, 0))
+	if(get_bit(lcd_control, 0) || memory->cgb_enabled())
 	{
 		draw_bg(line);
 
@@ -379,7 +379,7 @@ void GPU::draw_window(uint8_t line)
 		uint16_t tileCol = bg_x_tile / 8;
 
 		uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
-		uint8_t tile_id = memory->read_8bits(tile_addr);
+		uint8_t tile_id = memory->read_vram(tile_addr,0);
 
 		if (is_cgb)
 			bg_map_attr.value = memory->read_vram(tile_addr, 1);
