@@ -7,12 +7,15 @@ WHAT WORKS
 ----------
 
 - CPU
-- GPU (mostly)
+- GPU
 - Inputs
+- MBC 1/3/5
+- Sound
+- GameBoy Color
 
 TODO :
 -----------
-- TODOs in the code
+
 - Refactor to get rid of duplicated code here and there
 - Sprite overlapping and 10 sprite on one line limit
 - Refactor Memory to not allocate the full 64Kb now that rom/ram and sound are allocated in other classes
@@ -20,14 +23,18 @@ TODO :
 IN PROGRESS
 ------------
 - Cleaning up stuff
+- Looking up how Link Cable works
 
 Missing:
 --------
 
-- MBC other than MBC1 and 5
 - Link Cable support
-- Upgrade to CGB
 - Lots of undiscovered bugs
+
+Compile Dependencies:
+---------------------
+- SDL2
+- GLEW
 
 External librairies used:
 ---------------------
