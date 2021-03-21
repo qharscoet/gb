@@ -85,6 +85,38 @@ uint8_t Emulator::step(uint8_t keys)
 	return cycles;
 }
 
+void Emulator::step_serial()
+{
+	static const uint16_t SB = 0xFF01;
+	static const uint16_t SC = 0xFF02;
+
+	uint8_t serial_control = memory.read_8bits(SC);
+	if (serial_control & (1 << 7))
+	{
+		if (serial_control & 1)
+		{
+			//We are master and requested transfer
+			//TODO: send content of SB to other gameboy
+			//TODO: receive result as both are done at the same time
+			// memory.write_8bits(SB, serial_byte);
+			serial_control &= ~(1 << 7); //Reset bit 7
+			memory.write_8bits(SC, serial_control);
+			memory.request_interrupt(Memory::interrupt_id::IO);
+		}
+	}
+
+	//If we received something we are probably the slave
+	if (serial_byte != 0)
+	{
+		memory.write_8bits(SB, serial_byte);
+
+		//TODO: send our content back
+		serial_control &= ~(1 << 7); //Reset bit 7
+		memory.write_8bits(SC, serial_control);
+		memory.request_interrupt(Memory::interrupt_id::IO);
+	}
+}
+
 void Emulator::update_rtc()
 {
 	if(frame_count++ >= 60){

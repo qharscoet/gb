@@ -31,6 +31,7 @@ private:
 	Sound apu;
 
 	uint8_t frame_count;
+	uint8_t serial_byte;
 
 	const std::string get_rom_dir() const;
 
@@ -46,6 +47,8 @@ public:
 	void quit();
 	void reset();
 	void stop();
+
+	void step_serial();
 
 	void update_rtc();
 
