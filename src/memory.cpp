@@ -240,7 +240,7 @@ uint8_t Memory::read_8bits(uint16_t addr) const
 			uint8_t col_nb = (spec >> 1) & 0x3;
 			bool hl = spec & 0x1;
 
-			return cgb_palette_data[background].palette[pal_nb][col_nb].hl[hl];
+			return cgb_palette_data[!background].palette[pal_nb][col_nb].hl[hl];
 		}
 		else {
 			return mmap[addr];
