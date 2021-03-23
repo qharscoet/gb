@@ -32,6 +32,7 @@ private:
 
 	uint8_t frame_count;
 	uint8_t serial_byte;
+	void step_serial();
 
 	const std::string get_rom_dir() const;
 
@@ -48,7 +49,6 @@ public:
 	void reset();
 	void stop();
 
-	void step_serial();
 
 	void update_rtc();
 
