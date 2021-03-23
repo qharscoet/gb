@@ -6,6 +6,7 @@
 #include <chrono>
 #include <filesystem>
 
+#include "network.h"
 extern emu_options options;
 
 Emulator::Emulator()
@@ -13,6 +14,7 @@ Emulator::Emulator()
 {
 	memory.set_apu(&apu);
 	frame_count = 0;
+	serial_byte = 0;
 }
 
 Emulator::~Emulator()
@@ -75,6 +77,7 @@ uint8_t Emulator::step(uint8_t keys)
 			if(cycles == 0)
 				cycles = 1;
 				
+			step_serial();
 			gpu.step(cycles);
 			apu.step(cycles);
 			// cycles_total += cycles;
@@ -95,25 +98,30 @@ void Emulator::step_serial()
 	{
 		if (serial_control & 1)
 		{
-			//We are master and requested transfer
-			//TODO: send content of SB to other gameboy
-			//TODO: receive result as both are done at the same time
-			// memory.write_8bits(SB, serial_byte);
-			serial_control &= ~(1 << 7); //Reset bit 7
-			memory.write_8bits(SC, serial_control);
-			memory.request_interrupt(Memory::interrupt_id::IO);
+			if(send_byte(memory.read_8bits(SB), true))
+			{
+				// receive result as both are done at the same time
+				receive_byte(&serial_byte, true);
+				memory.write_8bits(SB, serial_byte);
+				serial_byte = 0;
+				serial_control &= ~(1 << 7); //Reset bit 7
+				memory.write_8bits(SC, serial_control);
+				memory.request_interrupt(Memory::interrupt_id::IO);
+			}
 		}
-	}
-
-	//If we received something we are probably the slave
-	if (serial_byte != 0)
-	{
-		memory.write_8bits(SB, serial_byte);
-
-		//TODO: send our content back
-		serial_control &= ~(1 << 7); //Reset bit 7
-		memory.write_8bits(SC, serial_control);
-		memory.request_interrupt(Memory::interrupt_id::IO);
+		else {
+			//If we received something we are probably the slave
+			if (receive_byte(&serial_byte, false))
+			{
+				//send our content back
+				send_byte(memory.read_8bits(SB), true);
+				memory.write_8bits(SB, serial_byte);
+				serial_byte = 0;
+				serial_control &= ~(1 << 7); //Reset bit 7
+				memory.write_8bits(SC, serial_control);
+				memory.request_interrupt(Memory::interrupt_id::IO);
+			}
+		}
 	}
 }
 
@@ -225,4 +233,39 @@ void Emulator::reset()
 void Emulator::stop()
 {
 	state = emu_state::IDLE;
+}
+void Emulator::listen_network()
+{
+	init_network();
+	init_listen_socket();
+}
+void Emulator::connect_network()
+{
+	init_network();
+	init_connect_socket();
+}
+
+void Emulator::close_network()
+{
+	close_socket();
+}
+
+enum network_state Emulator::is_connected()
+{
+	return get_network_state();
+}
+
+bool Emulator::send_byte(const uint8_t byte, bool blocking)
+{
+	if(is_connected())
+		return send_data((char*)&byte, 1, blocking);
+
+	return 0;
+}
+bool Emulator::receive_byte(uint8_t *byte, bool blocking)
+{
+	if(is_connected())
+		return receive_data((char*)byte, 1, blocking);
+
+	return 0;
 }

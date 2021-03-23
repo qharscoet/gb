@@ -497,6 +497,31 @@ void Debug_Display::update(const uint32_t *pixels)
 			}
 		}
 
+		if(ImGui::TreeNode("Link Cable"))
+		{
+			if(!emu.is_connected())
+			{
+				if (ImGui::Button("Listen"))
+				{
+					emu.listen_network();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Connect"))
+				{
+					emu.connect_network();
+				}
+			}
+			switch(emu.is_connected())
+			{
+				case 0 : ImGui::Text("Not connected"); break;
+				case 1 : ImGui::Text("Connected as client"); break;
+				case 2 : ImGui::Text("Connected as server"); break;
+			}
+			ImGui::Text("serial_byte : %02X", emu.serial_byte);
+			ImGui::Text("serial_control : %02X", emu.memory.read_8bits(0xFF02));
+			ImGui::Text("SB : %02X", emu.memory.read_8bits(0xFF01));
+		}
+
 		ImGui::End();
 	}
 
