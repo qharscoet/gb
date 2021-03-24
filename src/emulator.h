@@ -6,6 +6,8 @@
 #include "sound.h"
 
 #include <string>
+#include <thread>
+#include <atomic>
 
 class Emulator
 {
@@ -31,9 +33,15 @@ private:
 	Sound apu;
 
 	uint8_t frame_count;
-	uint8_t serial_byte;
-	void step_serial();
 
+	uint8_t serial_byte;
+	std::thread serial_thread;
+	std::atomic<bool> serial_stop;
+	void step_serial();
+	void serial_run();
+
+	bool send_byte(const uint8_t byte, bool blocking);
+	bool receive_byte(uint8_t *byte, bool blocking);
 	const std::string get_rom_dir() const;
 
 public:
@@ -68,6 +76,10 @@ public:
 	bool is_running() const;
 	bool is_exiting() const;
 	bool needs_reload() const;
+	void listen_network();
+	void connect_network();
+	void close_network();
+	enum network_state is_connected();
 };
 
 #endif

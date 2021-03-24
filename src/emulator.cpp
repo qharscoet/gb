@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "network.h"
+
 extern emu_options options;
 
 Emulator::Emulator()
@@ -15,12 +16,17 @@ Emulator::Emulator()
 	memory.set_apu(&apu);
 	frame_count = 0;
 	serial_byte = 0;
+	serial_stop = false;
 }
 
 Emulator::~Emulator()
 {
 	save();
-}
+	if (serial_thread.joinable()){
+		serial_stop = true;
+		serial_thread.join();
+	}
+	this->close_network();
 
 void Emulator::init()
 {
@@ -57,6 +63,15 @@ void Emulator::start()
 {
 	cpu.reset();
 	cpu.init();
+
+	if (serial_thread.joinable())
+	{
+		serial_stop = true;
+		serial_thread.join();
+	}
+	serial_stop = false;
+	serial_thread = std::thread(&Emulator::serial_run, this);
+
 	state = emu_state::RUNNING;
 }
 
@@ -77,7 +92,7 @@ uint8_t Emulator::step(uint8_t keys)
 			if(cycles == 0)
 				cycles = 1;
 				
-			step_serial();
+			// step_serial();
 			gpu.step(cycles);
 			apu.step(cycles);
 			// cycles_total += cycles;
@@ -86,6 +101,14 @@ uint8_t Emulator::step(uint8_t keys)
 	// }
 
 	return cycles;
+}
+
+void Emulator::serial_run()
+{
+	while(!serial_stop)
+	{
+			step_serial();
+	}
 }
 
 void Emulator::step_serial()
