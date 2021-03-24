@@ -340,7 +340,6 @@ void GPU::draw_bg(uint8_t line)
 		else
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
-		uint8_t pixel_col = bg_x_tile & 0x7;
 		draw_tile_line(line, i, pixel_line, tile_data_addr, is_cgb?&bg_map_attr:NULL);
 	}
 }
@@ -367,7 +366,7 @@ void GPU::draw_window(uint8_t line)
 	uint8_t bg_y_tile = line - window_y;
 
 	// each tile is 8x8 and each row is 32 block
-	uint16_t tileRow = (bg_y_tile / 8) * 32;
+	uint16_t tile_row_offset = (bg_y_tile / 8) * 32;
 	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
 	bool is_cgb = memory->cgb_enabled();
@@ -376,9 +375,9 @@ void GPU::draw_window(uint8_t line)
 	for (int i = window_x - 7 ; i < LCD_WIDTH; i += 8)
 	{
 		uint8_t bg_x_tile = i - (window_x - 7) ;
-		uint16_t tileCol = bg_x_tile / 8;
+		uint16_t tile_col_offset = bg_x_tile / 8;
 
-		uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
+		uint16_t tile_addr = bg_map_addr + tile_row_offset + tile_col_offset;
 		uint8_t tile_id = memory->read_vram(tile_addr,0);
 
 		if (is_cgb)
@@ -389,8 +388,6 @@ void GPU::draw_window(uint8_t line)
 			tile_data_addr = tile_data_bank_addr + tile_id * 16;
 		else
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
-
-		// uint8_t pixel_col = bg_x_tile & 0x7;
 
 		draw_tile_line(line, i, pixel_line, tile_data_addr, is_cgb ? &bg_map_attr : NULL);
 	}

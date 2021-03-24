@@ -9,8 +9,11 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 
 file(GLOB SOURCES "./src/*.cpp")
 file(GLOB IMGUI "./src/imgui/*.cpp")
+file(GLOB HQX_S "./src/hqx/*.c")
 
 add_executable(gb ${SOURCES} ${IMGUI} "./src/tinyfiledialogs/tinyfiledialogs.c")
+
+add_executable(gb ${SOURCES} ${IMGUI} ${HQX_S} "./src/tinyfiledialogs/tinyfiledialogs.c")
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(GLEW REQUIRED)

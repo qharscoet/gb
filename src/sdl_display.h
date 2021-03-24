@@ -15,6 +15,8 @@ private:
 	SDL_Renderer *sdlRenderer;
 	SDL_Window *sdlWindow;
 
+	int size_multiplier = 1;
+
 	uint32_t prev_time;
 	uint32_t curr_time;
 
@@ -26,6 +28,8 @@ private:
 	uint8_t keystate;
 
 	void update_keystate();
+
+	void switch_size(int multiplier);
 
 	// SDL_AudioDeviceID audio_dev;
 	// int init_audio();
