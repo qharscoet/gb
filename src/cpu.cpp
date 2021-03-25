@@ -565,7 +565,8 @@ uint8_t CPU::execute()
 						memory->write_8bits(0xFF4D, KEY_1);
 					}
 				} else {
-					*pc--;
+					// Do we really want to exécute the opcode after 0x10 ?
+					(*pc)--;
 				}
 			}
 			break;
