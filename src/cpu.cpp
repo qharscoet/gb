@@ -4,6 +4,7 @@
 #include <functional>
 
 #include <cassert>
+#include <cstring>
 
 CPU::CPU()
 {

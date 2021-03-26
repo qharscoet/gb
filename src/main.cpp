@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 #include <cassert>
 #ifdef _WIN32

@@ -10,6 +10,10 @@
 
 
 #include "hqx/hqx.h"
+
+#include <cstdio>
+#undef min
+
 extern emu_options options;
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
@@ -334,7 +338,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 
-		const float screen_ratio = min(screen_display_size * 0.9f/(float)LCD_WIDTH, screen_display_size * 0.9f/(float)LCD_HEIGHT);
+		const float screen_ratio = std::min(screen_display_size * 0.9f/(float)LCD_WIDTH, screen_display_size * 0.9f/(float)LCD_HEIGHT);
 		ImGui::SetCursorPos({screen_display_size * 0.05f, screen_display_size * 0.05f + (screen_display_size * 0.95f - LCD_HEIGHT * screen_ratio)*0.5f});
 		if(current_scale != 1)
 		{
@@ -368,7 +372,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
 
 		const ImVec2 bg_pos = ImGui::GetCursorScreenPos();
-		float size = min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
+		float size = std::min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
 		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(size, size));
 
 		draw_camera_outline(bg_pos.x, bg_pos.y, size);
@@ -410,7 +414,7 @@ void Debug_Display::update(const uint32_t *pixels)
 								color.x = color.z;
 								color.z = tmp;
 
-								sprintf_s(color_name,"Palette %s %d color %d", column == 0?"BG":"OBJ", palette_id, color_id);
+								snprintf(color_name, sizeof(color_name),"Palette %s %d color %d", column == 0?"BG":"OBJ", palette_id, color_id);
 								ImGui::ColorButton(color_name, color, 0, ImVec2(40, 40));
 								ImGui::SameLine();
 							}
@@ -428,7 +432,7 @@ void Debug_Display::update(const uint32_t *pixels)
 					color.x = color.z;
 					color.z = tmp;
 
-					sprintf_s(color_name, "Palette color %d", color_id);
+					snprintf(color_name, sizeof(color_name), "Palette color %d", color_id);
 					ImGui::ColorButton(color_name, color, 0, ImVec2(80, 80));
 					ImGui::SameLine();
 				}

@@ -22,6 +22,10 @@
 #ifndef __HQX_COMMON_H_
 #define __HQX_COMMON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -137,5 +141,9 @@ static inline void Interp10(uint32_t * pc, uint32_t c1, uint32_t c2, uint32_t c3
     //*pc = (c1*14+c2+c3)/16;
     *pc = Interpolate_3(c1, 14, c2, 1, c3, 1, 4);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

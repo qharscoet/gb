@@ -1,9 +1,9 @@
 #include "sdl_audio.h"
 
 #ifndef NDEBUG
-#define SDL_Log(fmt,...) SDL_Log(fmt, __VA_ARGS__)
-#else 
-#define SDL_Log(fmt,...) 
+#define SDL_Log(fmt,...) SDL_Log(fmt __VA_OPT__(, ) __VA_ARGS__)
+#else
+#define SDL_Log(fmt,...)
 #endif
 
 SDL_Audio::SDL_Audio()
