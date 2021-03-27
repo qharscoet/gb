@@ -19,6 +19,10 @@ find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
+if (UNIX)
+    target_link_libraries(gb PRIVATE pthread)
+endif (UNIX)
+
 # According to docs SDL2::SDL2 is only an imported target for >3.19
 if(${CMAKE_VERSION} VERSION_LESS "3.19.0")
     target_link_libraries(gb PRIVATE SDL2)
