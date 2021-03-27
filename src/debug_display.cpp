@@ -550,6 +550,11 @@ void Debug_Display::update(const uint32_t *pixels)
 				{
 					emu.connect_network();
 				}
+			} else {
+				if(ImGui::Button("Disconnect"))
+				{
+					emu.close_network();
+				}
 			}
 			switch(emu.is_connected())
 			{
@@ -560,6 +565,8 @@ void Debug_Display::update(const uint32_t *pixels)
 			ImGui::Text("serial_byte : %02X", emu.serial_byte);
 			ImGui::Text("serial_control : %02X", emu.memory.read_8bits(0xFF02));
 			ImGui::Text("SB : %02X", emu.memory.read_8bits(0xFF01));
+
+			ImGui::TreePop();
 		}
 
 		ImGui::End();
