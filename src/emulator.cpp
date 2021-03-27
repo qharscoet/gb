@@ -28,6 +28,8 @@ Emulator::~Emulator()
 	}
 	this->close_network();
 
+}
+
 void Emulator::init()
 {
 	options.pause = false;
@@ -91,7 +93,7 @@ uint8_t Emulator::step(uint8_t keys)
 			cycles /= speed_multiplier;
 			if(cycles == 0)
 				cycles = 1;
-				
+
 			// step_serial();
 			gpu.step(cycles);
 			apu.step(cycles);

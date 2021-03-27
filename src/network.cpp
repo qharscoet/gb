@@ -196,7 +196,13 @@ int receive_data(char* buf, int length, uint8_t blocking)
 	int sel = select(0, &set, NULL, NULL, blocking?NULL:&timeout);
 	if (FD_ISSET(other_socket, &set))
 	{
-		return recv(other_socket, buf, length, 0);
+		int recv_bytes = recv(other_socket, buf, length, 0);
+		if(!recv_bytes)
+		{
+			close_socket();
+		}
+
+		return recv_bytes;
 	}
 
 	return 0;
