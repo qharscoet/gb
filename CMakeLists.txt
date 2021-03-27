@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 # set the project name and version
 project(gb VERSION 1.0)
@@ -9,13 +9,24 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 
 file(GLOB SOURCES "./src/*.cpp")
 file(GLOB IMGUI "./src/imgui/*.cpp")
+file(GLOB HQX_S "./src/hqx/*.c")
 
-add_executable(gb ${SOURCES} ${IMGUI} "./src/tinyfiledialogs/tinyfiledialogs.c")
+# add_subdirectory (hqx)
 
-find_package(SDL2 CONFIG REQUIRED)
+add_executable(gb ${SOURCES} ${IMGUI} ${HQX_S} "./src/tinyfiledialogs/tinyfiledialogs.c")
+
+find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-target_link_libraries(gb PRIVATE SDL2::SDL2 GLEW::GLEW)
+# According to docs SDL2::SDL2 is only an imported target for >3.19
+if(${CMAKE_VERSION} VERSION_LESS "3.19.0")
+    target_link_libraries(gb PRIVATE SDL2)
+else()
+    target_link_libraries(gb PRIVATE SDL2::SDL2 )
+endif()
+
+target_link_libraries(gb PRIVATE OpenGL::GL GLEW::GLEW)
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     if(MSVC)

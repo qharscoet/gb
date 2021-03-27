@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 #include <cassert>
 #ifdef _WIN32
@@ -55,6 +56,7 @@ int main(int argc, char const *argv[])
 
 	if(argc > 1) {
 		emu.set_rom_file(argv[1]);
+		emu.reset();
 	}
 
 	while(!emu.is_exiting())

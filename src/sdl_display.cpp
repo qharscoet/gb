@@ -2,6 +2,7 @@
 #include "options.h"
 
 #include "tinyfiledialogs/tinyfiledialogs.h"
+#include "hqx/hqx.h"
 
 
 extern emu_options options;
@@ -20,10 +21,12 @@ SDL_Display::~SDL_Display()
 	// /!\ Do not forget to free all textures !
 
 	//Destroy window
+	SDL_DestroyTexture(sdlTexture);
 	SDL_DestroyRenderer(sdlRenderer);
 	SDL_DestroyWindow(sdlWindow);
 	sdlWindow = NULL;
 	sdlRenderer = NULL;
+	sdlTexture = NULL;
 
 	// SDL_CloseAudioDevice(audio_dev);
 
@@ -79,6 +82,7 @@ int SDL_Display::display_init()
 		prev_time = curr_time = SDL_GetTicks();
 	}
 
+	hqxInit();
 	// init_audio();
 
 	return 1;
@@ -101,12 +105,30 @@ void SDL_Display::update(const uint32_t* pixels)
 	{
 		void* argb_pixels;
 		int pitch;
+
+		uint32_t* render_pixels;
+		if(size_multiplier != 1){
+			render_pixels = new uint32_t[LCD_WIDTH * size_multiplier * LCD_HEIGHT * size_multiplier];
+			switch(size_multiplier)
+			{
+				case 2: hq2x_32(pixels, render_pixels, LCD_WIDTH, LCD_HEIGHT); break;
+				case 3: hq3x_32(pixels, render_pixels, LCD_WIDTH, LCD_HEIGHT); break;
+				case 4: hq4x_32(pixels, render_pixels, LCD_WIDTH, LCD_HEIGHT); break;
+				default:break;
+			}
+			pixels = render_pixels;
+		}
+
 		SDL_LockTexture(sdlTexture, NULL, &argb_pixels, &pitch);
 
-		memcpy(argb_pixels, pixels, LCD_WIDTH * LCD_HEIGHT * sizeof(uint32_t));
+		memcpy(argb_pixels, pixels, LCD_WIDTH * size_multiplier *  LCD_HEIGHT * size_multiplier* sizeof(uint32_t));
 
 		SDL_UnlockTexture(sdlTexture);
 		SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+
+		if(size_multiplier != 1){
+			delete[] render_pixels;
+		}
 
 		prev_time = curr_time;
 	}
@@ -207,6 +229,20 @@ bool SDL_Display::handle_events(Emulator &emu)
 				case SDL_SCANCODE_1:
 					emu.connect_network();
 					break;
+				case SDL_SCANCODE_KP_1:
+					switch_size(1);
+					break;
+				case SDL_SCANCODE_KP_2:
+					switch_size(2);
+					break;
+				case SDL_SCANCODE_KP_3:
+					switch_size(3);
+					break;
+				case SDL_SCANCODE_KP_4:
+					switch_size(4);
+					break;
+
+
 				default:
 					break;
 			}
@@ -216,6 +252,22 @@ bool SDL_Display::handle_events(Emulator &emu)
 	update_keystate();
 
 	return 1;
+}
+
+void SDL_Display::switch_size(int multiplier)
+{
+	if(size_multiplier != multiplier)
+	{
+		size_multiplier = multiplier;
+		SDL_DestroyTexture(sdlTexture);
+		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH * size_multiplier, LCD_HEIGHT * size_multiplier);
+
+		if (sdlTexture == NULL)
+		{
+			std::cout << "Texture could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+			return;
+		}
+	}
 }
 
 

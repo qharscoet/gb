@@ -21,6 +21,19 @@ inline uint8_t get_color_id(uint8_t data1, uint8_t data2, uint8_t col)
 	return (get_bit(data2, col) << 1) | ((uint8_t)get_bit(data1, col));
 }
 
+inline uint32_t get_color_u32(uint16_t col)
+{
+	uint8_t red = (col >> 0) & 0x1F;   // ((col & 0x1F) * 255) / 31;
+	uint8_t green = (col >> 5) & 0x1F; // (((col >> 5) & 0x1F) * 255) / 31;
+	uint8_t blue = (col >> 10) & 0x1F; // (((col >> 10) & 0x1F) * 255) / 31;
+
+	red = (red << 3) | (red >> 2);
+	green = (green << 3) | (green >> 2);
+	blue = (blue << 3) | (blue >> 2);
+
+	return (255 << 24) | (red << 16) | (green << 8) | blue;
+}
+
 GPU::GPU(Memory* memory)
 {
 	this->memory = memory;
@@ -262,10 +275,7 @@ void GPU::draw_tile_line(uint8_t row, uint8_t col, uint8_t tile_pix_row, uint16_
 			if (attr != NULL)
 			{
 				uint16_t col = cgb_palettes[0].palette[palette][color_id].value;
-				uint8_t red = ((col & 0x1F) * 255) / 31;
-				uint8_t green = (((col >> 5) & 0x1F) * 255) / 31;
-				uint8_t blue = (((col >> 10) & 0x1F) * 255) / 31;
-				color = (255 << 24) | (red << 16) | (green << 8) | blue;
+				color = get_color_u32(col);
 			}
 			else
 			{
@@ -340,7 +350,6 @@ void GPU::draw_bg(uint8_t line)
 		else
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
 
-		uint8_t pixel_col = bg_x_tile & 0x7;
 		draw_tile_line(line, i, pixel_line, tile_data_addr, is_cgb?&bg_map_attr:NULL);
 	}
 }
@@ -367,7 +376,7 @@ void GPU::draw_window(uint8_t line)
 	uint8_t bg_y_tile = line - window_y;
 
 	// each tile is 8x8 and each row is 32 block
-	uint16_t tileRow = (bg_y_tile / 8) * 32;
+	uint16_t tile_row_offset = (bg_y_tile / 8) * 32;
 	uint8_t pixel_line = bg_y_tile & 0x7; // tile is 8x8 so we take %8
 
 	bool is_cgb = memory->cgb_enabled();
@@ -376,9 +385,9 @@ void GPU::draw_window(uint8_t line)
 	for (int i = window_x - 7 ; i < LCD_WIDTH; i += 8)
 	{
 		uint8_t bg_x_tile = i - (window_x - 7) ;
-		uint16_t tileCol = bg_x_tile / 8;
+		uint16_t tile_col_offset = bg_x_tile / 8;
 
-		uint16_t tile_addr = bg_map_addr + tileRow + tileCol;
+		uint16_t tile_addr = bg_map_addr + tile_row_offset + tile_col_offset;
 		uint8_t tile_id = memory->read_vram(tile_addr,0);
 
 		if (is_cgb)
@@ -389,8 +398,6 @@ void GPU::draw_window(uint8_t line)
 			tile_data_addr = tile_data_bank_addr + tile_id * 16;
 		else
 			tile_data_addr = tile_data_bank_addr + ((int8_t)tile_id + 128) * 16;
-
-		// uint8_t pixel_col = bg_x_tile & 0x7;
 
 		draw_tile_line(line, i, pixel_line, tile_data_addr, is_cgb ? &bg_map_attr : NULL);
 	}
@@ -487,10 +494,7 @@ void GPU::draw_objects(uint8_t line)
 				if(is_cgb)
 				{
 					uint16_t col = cgb_palettes[1].palette[palette][color_id].value;
-					uint8_t red = ((col & 0x1F)*255)/31;
-					uint8_t green = (((col >> 5) & 0x1F)*255)/31;
-					uint8_t blue = (((col >> 10) & 0x1F)*255)/31;
-					color = (255 << 24) | (red << 16) | (green << 8) | blue;
+					color = get_color_u32(col);
 				}
 				else
 				{
@@ -584,10 +588,7 @@ void GPU::draw_full_bg(uint32_t *pixels) const
 					if ( is_cgb)
 					{
 						uint16_t col = cgb_palettes[0].palette[palette][color_id].value;
-						uint8_t red = ((col & 0x1F) * 255) / 31;
-						uint8_t green = (((col >> 5) & 0x1F) * 255) / 31;
-						uint8_t blue = (((col >> 10) & 0x1F) * 255) / 31;
-						color = (255 << 24) | (red << 16) | (green << 8) | blue;
+						color = get_color_u32(col);
 					}
 					else
 					{
@@ -703,10 +704,7 @@ void GPU::display_bg_tiles(uint32_t* pixels, bool bank) const
 					if(in_use)
 					{
 						uint16_t col = cgb_palettes[in_use - 1].palette[palette][color_id].value;
-						uint8_t red = ((col & 0x1F) * 255) / 31;
-						uint8_t green = (((col >> 5) & 0x1F) * 255) / 31;
-						uint8_t blue = (((col >> 10) & 0x1F) * 255) / 31;
-						color = (255 << 24) | (red << 16) | (green << 8) | blue;
+						color = get_color_u32(col);
 					}
 					else
 					{
@@ -731,10 +729,7 @@ uint32_t GPU::get_palette_color(bool bg, uint8_t palette, uint8_t col_id)
 	if( memory->cgb_enabled())
 	{
 		uint16_t color = cgb_palettes[bg].palette[palette][col_id].value;
-		uint8_t red = ((color & 0x1F) * 255) / 31;
-		uint8_t green = (((color >> 5) & 0x1F) * 255) / 31;
-		uint8_t blue = (((color >> 10) & 0x1F) * 255) / 31;
-		color_u32 = (255 << 24) | (red << 16) | (green << 8) | blue;
+		color_u32 = get_color_u32(color);
 	} else {
 		//We only care about col_id here
 		palette = memory->read_8bits(0xFF47);

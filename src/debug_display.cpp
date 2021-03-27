@@ -8,6 +8,12 @@
 
 #include "options.h"
 
+
+#include "hqx/hqx.h"
+
+#include <cstdio>
+#undef min
+
 extern emu_options options;
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
@@ -59,6 +65,8 @@ static bool sound_viewer = true;
 
 static int begin, size;
 
+static uint32_t* scaled_pixels;
+static int current_scale = 1;
 
 // Simple helper function to load an image into a OpenGL texture with common settings
 bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, int h)
@@ -95,6 +103,8 @@ Debug_Display::Debug_Display(Emulator &emu)
 	bg_tiles[0] = 0;
 	bg_tiles[1]= 0;
 	screen = 0;
+
+	hqxInit();
 }
 
 Debug_Display::~Debug_Display()
@@ -328,9 +338,22 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 
-		const float screen_ratio = min(screen_display_size * 0.9f/(float)LCD_WIDTH, screen_display_size * 0.9f/(float)LCD_HEIGHT);
+		const float screen_ratio = std::min(screen_display_size * 0.9f/(float)LCD_WIDTH, screen_display_size * 0.9f/(float)LCD_HEIGHT);
 		ImGui::SetCursorPos({screen_display_size * 0.05f, screen_display_size * 0.05f + (screen_display_size * 0.95f - LCD_HEIGHT * screen_ratio)*0.5f});
-		LoadTextureFromPixels(pixels, &screen, LCD_WIDTH, LCD_HEIGHT);
+		if(current_scale != 1)
+		{
+			switch (current_scale)
+			{
+				case 2:	hq2x_32(pixels, scaled_pixels, LCD_WIDTH, LCD_HEIGHT);break;
+				case 3:	hq3x_32(pixels, scaled_pixels, LCD_WIDTH, LCD_HEIGHT);break;
+				case 4:	hq4x_32(pixels, scaled_pixels, LCD_WIDTH, LCD_HEIGHT);break;
+				default:	break;
+			}
+			pixels = scaled_pixels;
+		}
+
+
+		LoadTextureFromPixels(pixels, &screen, LCD_WIDTH * current_scale, LCD_HEIGHT * current_scale);
 		ImGui::Image((void *)(intptr_t)screen, ImVec2( LCD_WIDTH * screen_ratio,  LCD_HEIGHT * screen_ratio));
 
 		ImGui::End();
@@ -349,7 +372,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
 
 		const ImVec2 bg_pos = ImGui::GetCursorScreenPos();
-		float size = min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
+		float size = std::min(ImGui::GetWindowWidth() * 0.5f, ImGui::GetWindowHeight() * 0.9f);
 		ImGui::Image((void *)(intptr_t)bg_full, ImVec2(size, size));
 
 		draw_camera_outline(bg_pos.x, bg_pos.y, size);
@@ -391,7 +414,7 @@ void Debug_Display::update(const uint32_t *pixels)
 								color.x = color.z;
 								color.z = tmp;
 
-								sprintf_s(color_name,"Palette %s %d color %d", column == 0?"BG":"OBJ", palette_id, color_id);
+								snprintf(color_name, sizeof(color_name),"Palette %s %d color %d", column == 0?"BG":"OBJ", palette_id, color_id);
 								ImGui::ColorButton(color_name, color, 0, ImVec2(40, 40));
 								ImGui::SameLine();
 							}
@@ -409,7 +432,7 @@ void Debug_Display::update(const uint32_t *pixels)
 					color.x = color.z;
 					color.z = tmp;
 
-					sprintf_s(color_name, "Palette color %d", color_id);
+					snprintf(color_name, sizeof(color_name), "Palette color %d", color_id);
 					ImGui::ColorButton(color_name, color, 0, ImVec2(80, 80));
 					ImGui::SameLine();
 				}
@@ -472,6 +495,21 @@ void Debug_Display::update(const uint32_t *pixels)
 		}
 
 		ImGui::Checkbox("Disable CGB (Needs Reset)", &options.cgb_disabled);
+
+		static int scale_choice = 0;
+		if(ImGui::Combo("Scaling Mode", &scale_choice, "No scale\0hq2x\0hq3x\0hq4x\0\0"))
+		{
+
+			if(current_scale != 0)
+			{
+				delete[] scaled_pixels;
+			}
+			current_scale = scale_choice + 1;
+			scaled_pixels = new uint32_t[LCD_WIDTH *current_scale * LCD_HEIGHT * current_scale];
+			glDeleteTextures(1, &screen);
+			screen = 0;
+		}
+
 		if(ImGui::TreeNode("Sound Options"))
 		{
 			ImGui::Checkbox("Enable Channel 1", &options.sound.channel1);
@@ -495,6 +533,8 @@ void Debug_Display::update(const uint32_t *pixels)
 			{
 				emu.memory.set_rtc(days, hours, minutes, seconds);
 			}
+
+			ImGui::TreePop();
 		}
 
 		if(ImGui::TreeNode("Link Cable"))

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <cstring>
 
 MBC::MBC(mbc_type type, uint32_t romsize, uint32_t ramsize, std::istream &file)
 {
