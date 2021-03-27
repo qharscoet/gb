@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include "gpu.h"
 #include "sound.h"
+#include "network.h"
 
 #include <string>
 #include <thread>

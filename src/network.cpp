@@ -3,31 +3,69 @@
 /* Mosly c/c'ed code from MSDN Winsock tutorial
 	 need to cleanup and make it compilable on linux */
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ifdef _WIN32
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
+	#pragma comment(lib, "ws2_32.lib")
+	#define close(socket) closesocket(socket)
+	#define SHUT_RDWR SD_BOTH
+#else
+	#include <unistd.h>
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netdb.h>
+	#include <errno.h>
+
+	typedef int SOCKET;
+	#define INVALID_SOCKET -1
+	#define SOCKET_ERROR -1
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #define DEFAULT_PORT "27015"
-#pragma comment(lib, "ws2_32.lib")
+
 
 SOCKET other_socket = INVALID_SOCKET;
 enum network_state state = NOT_CONNECTED;
 
 int init_network()
 {
-	WSADATA wsaData;
-	int iResult;
+	// No need to init WSADATA or equivalanet on unix systems
+	#ifdef _WIN32
+		WSADATA wsaData;
+		int iResult;
 
-	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0)
-	{
-		printf("WSAStartup failed: %d\n", iResult);
+		// Initialize Winsock
+		iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (iResult != 0)
+		{
+			printf("WSAStartup failed: %d\n", iResult);
+			return 1;
+		}
+
+		return iResult;
+	#else
 		return 1;
-	}
+	#endif
+}
 
-	return iResult;
+void cleanup()
+{
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
+}
+
+int get_error(){
+#ifdef _WIN32
+	return WSAGetLastError();
+#else
+	return errno;
+#endif
 }
 
 uint64_t init_listen_socket()
@@ -47,7 +85,7 @@ uint64_t init_listen_socket()
 	if (iResult != 0)
 	{
 		printf("getaddrinfo failed: %d\n", iResult);
-		WSACleanup();
+		cleanup();
 		return 1;
 	}
 
@@ -55,9 +93,9 @@ uint64_t init_listen_socket()
 	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (ListenSocket == INVALID_SOCKET)
 	{
-		printf("Error at socket(): %ld\n", WSAGetLastError());
+		printf("Error at socket(): %d\n", get_error());
 		freeaddrinfo(result);
-		WSACleanup();
+		cleanup();
 		return 1;
 	}
 
@@ -65,10 +103,10 @@ uint64_t init_listen_socket()
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		printf("bind failed with error: %d\n", WSAGetLastError());
+		printf("bind failed with error: %d\n", get_error());
 		freeaddrinfo(result);
-		closesocket(ListenSocket);
-		WSACleanup();
+		close(ListenSocket);
+		cleanup();
 		return 1;
 	}
 
@@ -76,9 +114,9 @@ uint64_t init_listen_socket()
 
 	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		printf("Listen failed with error: %ld\n", WSAGetLastError());
-		closesocket(ListenSocket);
-		WSACleanup();
+		printf("Listen failed with error: %d\n", get_error());
+		close(ListenSocket);
+		cleanup();
 		return 1;
 	}
 
@@ -89,9 +127,9 @@ uint64_t init_listen_socket()
 	ClientSocket = accept(ListenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET)
 	{
-		printf("accept failed: %d\n", WSAGetLastError());
-		closesocket(ListenSocket);
-		WSACleanup();
+		printf("accept failed: %d\n", get_error());
+		close(ListenSocket);
+		cleanup();
 		return 1;
 	}
 
@@ -109,7 +147,7 @@ int init_connect_socket()
 					*ptr = NULL,
 					hints;
 
-	ZeroMemory(&hints, sizeof(hints));
+	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -119,7 +157,7 @@ int init_connect_socket()
 	if (iResult != 0)
 	{
 		printf("getaddrinfo failed: %d\n", iResult);
-		WSACleanup();
+		cleanup();
 		return 1;
 	}
 
@@ -135,9 +173,9 @@ int init_connect_socket()
 
 	if (ConnectSocket == INVALID_SOCKET)
 	{
-		printf("Error at socket(): %ld\n", WSAGetLastError());
+		printf("Error at socket(): %d\n", get_error());
 		freeaddrinfo(result);
-		WSACleanup();
+		cleanup();
 		return 1;
 	}
 
@@ -145,7 +183,7 @@ int init_connect_socket()
 	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		closesocket(ConnectSocket);
+		close(ConnectSocket);
 		ConnectSocket = INVALID_SOCKET;
 	}
 
@@ -159,7 +197,7 @@ int init_connect_socket()
 	if (ConnectSocket == INVALID_SOCKET)
 	{
 		printf("Unable to connect to server!\n");
-		WSACleanup();
+		cleanup();
 		return 1;
 	}
 
@@ -179,7 +217,7 @@ int send_data(const char* buf, int length, uint8_t blocking)
 	FD_ZERO(&set);
 	FD_SET(other_socket, &set);
 	timeval timeout = {0, 0};
-	int sel = select(0, NULL, &set, NULL, blocking?NULL:&timeout);
+	int sel = select(other_socket + 1, NULL, &set, NULL, blocking?NULL:&timeout);
 	if (FD_ISSET(other_socket, &set))
 	{
 		return send(other_socket, buf, length, 0);
@@ -193,7 +231,7 @@ int receive_data(char* buf, int length, uint8_t blocking)
 	FD_ZERO(&set);
 	FD_SET(other_socket, &set);
 	timeval timeout = {0, 0};
-	int sel = select(0, &set, NULL, NULL, blocking?NULL:&timeout);
+	int sel = select(other_socket + 1, &set, NULL, NULL, blocking?NULL:&timeout);
 	if (FD_ISSET(other_socket, &set))
 	{
 		int recv_bytes = recv(other_socket, buf, length, 0);
@@ -212,20 +250,20 @@ int close_socket()
 {
 	if(other_socket != INVALID_SOCKET)
 	{
-		int iResult = shutdown(other_socket, SD_BOTH);
+		int iResult = shutdown(other_socket, SHUT_RDWR);
 		if (iResult == SOCKET_ERROR)
 		{
-			printf("shutdown failed with error: %d\n", WSAGetLastError());
-			closesocket(other_socket);
-			WSACleanup();
+			printf("shutdown failed with error: %d\n", get_error());
+			close(other_socket);
+			cleanup();
 			state = NOT_CONNECTED;
 			return 1;
 		}
 
 		// cleanup
-		closesocket(other_socket);
+		close(other_socket);
 	}
-	WSACleanup();
+	cleanup();
 	state = NOT_CONNECTED;
 
 	return 0;

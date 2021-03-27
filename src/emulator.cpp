@@ -6,8 +6,6 @@
 #include <chrono>
 #include <filesystem>
 
-#include "network.h"
-
 extern emu_options options;
 
 Emulator::Emulator()
