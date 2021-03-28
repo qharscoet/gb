@@ -8,8 +8,8 @@ enum network_state
 };
 
 int init_network();
-uint64_t init_listen_socket();
-int init_connect_socket ();
+uint64_t init_listen_socket(const char *port);
+int init_connect_socket (const char* addr, const char* port);
 int close_socket();
 enum network_state get_network_state();
 

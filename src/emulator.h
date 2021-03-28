@@ -77,8 +77,8 @@ public:
 	bool is_running() const;
 	bool is_exiting() const;
 	bool needs_reload() const;
-	void listen_network();
-	void connect_network();
+	void listen_network(const char* port = nullptr);
+	void connect_network(const char* addr = nullptr, const char* port = nullptr);
 	void close_network();
 	enum network_state is_connected();
 };

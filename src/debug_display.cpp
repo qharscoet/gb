@@ -6,6 +6,12 @@
 #include "imgui/imgui_memory_editor.h"
 #include "imgui/imfilebrowser.h"
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include "options.h"
 
 
@@ -94,6 +100,19 @@ bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, i
 
 	*out_texture = image_texture;
 	return true;
+}
+
+static void HelpMarker(const char *desc)
+{
+	ImGui::TextDisabled("(?)");
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
 }
 
 Debug_Display::Debug_Display(Emulator &emu)
@@ -541,15 +560,29 @@ void Debug_Display::update(const uint32_t *pixels)
 		{
 			if(!emu.is_connected())
 			{
+				static char addr[16];
+				static char port[6];
+				if(ImGui::InputText("addr", addr, 16, ImGuiInputTextFlags_CharsDecimal))
+				{
+					struct sockaddr_in sa;
+					int result = inet_pton(AF_INET, addr, &(sa.sin_addr));
+					if (result != 1)
+					{
+						addr[0] = '\0';
+					}
+				}
+				ImGui::SameLine(); HelpMarker("addr must be an ipv4\n");
+				ImGui::InputText("port", port, 6, ImGuiInputTextFlags_CharsDecimal);
 				if (ImGui::Button("Listen"))
 				{
-					emu.listen_network();
+					emu.listen_network(port[0] == '\0' ? nullptr : port);
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Connect"))
 				{
-					emu.connect_network();
+					emu.connect_network(addr[0] == '\0'?nullptr:addr,port[0] == '\0'?nullptr:port);
 				}
+				ImGui::SameLine(); HelpMarker("Leave empty for 127.0.0.1 and default port\nConnect only uses the port field\n");
 			} else {
 				if(ImGui::Button("Disconnect"))
 				{
