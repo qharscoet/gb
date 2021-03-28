@@ -68,8 +68,10 @@ int get_error(){
 #endif
 }
 
-uint64_t init_listen_socket()
+uint64_t init_listen_socket(const char *port)
 {
+	if(port == NULL) port = DEFAULT_PORT;
+
 	int iResult;
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 
@@ -80,7 +82,7 @@ uint64_t init_listen_socket()
 	hints.ai_flags = AI_PASSIVE;
 
 	// Resolve the local address and port to be used by the server
-	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(NULL, port, &hints, &result);
 
 	if (iResult != 0)
 	{
@@ -140,8 +142,13 @@ uint64_t init_listen_socket()
 	return ClientSocket;
 }
 
-int init_connect_socket()
+int init_connect_socket(const char* addr, const char* port)
 {
+	if(addr == NULL) addr = "127.0.0.1";
+	if(port == NULL) port = DEFAULT_PORT;
+
+	printf("addr %s port %s\n", addr,port);
+
 	int iResult;
 	struct addrinfo *result = NULL,
 					*ptr = NULL,
@@ -153,7 +160,7 @@ int init_connect_socket()
 	hints.ai_protocol = IPPROTO_TCP;
 
 	// Resolve the server address and port
-	iResult = getaddrinfo("127.0.0.1" /*argv[1]*/, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(addr, port, &hints, &result);
 	if (iResult != 0)
 	{
 		printf("getaddrinfo failed: %d\n", iResult);

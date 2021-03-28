@@ -257,15 +257,15 @@ void Emulator::stop()
 {
 	state = emu_state::IDLE;
 }
-void Emulator::listen_network()
+void Emulator::listen_network(const char* port)
 {
 	init_network();
-	init_listen_socket();
+	init_listen_socket(port);
 }
-void Emulator::connect_network()
+void Emulator::connect_network(const char* addr, const char* port)
 {
 	init_network();
-	init_connect_socket();
+	init_connect_socket(addr, port);
 }
 
 void Emulator::close_network()
