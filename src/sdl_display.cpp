@@ -236,13 +236,13 @@ bool SDL_Display::handle_events(Emulator &emu)
 					switch_size(4);
 					break;
 
-
 				case SDL_SCANCODE_0:
 					emu.listen_network();
 					break;
 				case SDL_SCANCODE_1:
 					emu.connect_network();
 					break;
+
 				default:
 					break;
 			}
