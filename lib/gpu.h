@@ -63,7 +63,7 @@ public:
 //#ifndef NDEBUG
 	void draw_full_bg(uint32_t *pixels) const;
 	void display_bg_tiles(uint32_t *pixels, bool bank) const;
-	uint32_t get_palette_color(bool bg, uint8_t palette, uint8_t col_id);
+	uint32_t get_palette_color(bool bg, uint8_t palette, uint8_t col_id) const;
 //#endif
 
 };

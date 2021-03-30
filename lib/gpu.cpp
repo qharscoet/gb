@@ -723,7 +723,7 @@ void GPU::display_bg_tiles(uint32_t* pixels, bool bank) const
 	}
 }
 
-uint32_t GPU::get_palette_color(bool bg, uint8_t palette, uint8_t col_id)
+uint32_t GPU::get_palette_color(bool bg, uint8_t palette, uint8_t col_id) const
 {
 	uint32_t color_u32;
 	if( memory->cgb_enabled())

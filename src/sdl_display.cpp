@@ -1,11 +1,7 @@
 #include "sdl_display.h"
-#include "options.h"
 
 #include "tinyfiledialogs/tinyfiledialogs.h"
 #include "hqx/hqx.h"
-
-
-extern emu_options options;
 
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
@@ -236,13 +232,13 @@ bool SDL_Display::handle_events(Emulator &emu)
 					switch_size(4);
 					break;
 
+
 				case SDL_SCANCODE_0:
 					emu.listen_network();
 					break;
 				case SDL_SCANCODE_1:
 					emu.connect_network();
 					break;
-
 				default:
 					break;
 			}

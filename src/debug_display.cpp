@@ -8,19 +8,15 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
 #else
 #include <arpa/inet.h>
 #endif
-
-#include "options.h"
-
 
 #include "hqx/hqx.h"
 
 #include <cstdio>
 #undef min
-
-extern emu_options options;
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW
 
@@ -234,8 +230,8 @@ void Debug_Display::draw_camera_outline(float base_x, float base_y, float size)
 {
 	static const uint16_t SCX = 0xFF43;
 	static const uint16_t SCY = 0xFF42;
-	const uint8_t scroll_x = emu.memory.read_8bits(SCX);
-	const uint8_t scroll_y = emu.memory.read_8bits(SCY);
+	const uint8_t scroll_x = emu.read_8bits(SCX);
+	const uint8_t scroll_y = emu.read_8bits(SCY);
 
 	const float ratio = size / 256.0f;
 
@@ -385,9 +381,9 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::SetNextWindowPos({0, ImGui::GetFrameHeight()}, ImGuiCond_Appearing);
 		ImGui::Begin("VRAM Viewer", &vram_viewer);
 
-		ImGui::Text("LCD_CONTROL : %02X", emu.memory.read_8bits(0xFF40));
+		ImGui::Text("LCD_CONTROL : %02X", emu.read_8bits(0xFF40));
 		uint32_t pixels[256 * 256];
-		emu.gpu.draw_full_bg(pixels);
+		emu.draw_full_bg(pixels);
 		LoadTextureFromPixels(pixels, &bg_full, 256, 256);
 
 		const ImVec2 bg_pos = ImGui::GetCursorScreenPos();
@@ -402,7 +398,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		for(uint8_t i = 0; i < bank_cnt; i++)
 		{
 			ImGui::SameLine();
-			emu.gpu.display_bg_tiles(pixels2, i);
+			emu.draw_bg_tiles(pixels2, i);
 			LoadTextureFromPixels(pixels2, &bg_tiles[i], 128, 192);
 			ImGui::Image((void *)(intptr_t)bg_tiles[i], ImVec2(size * 0.5f, size * 0.75f));
 		}
@@ -428,7 +424,7 @@ void Debug_Display::update(const uint32_t *pixels)
 							for (int color_id = 0; color_id < 4; color_id++)
 							{
 								/* Our colors are ARBG and somehow imgui wants ABGR */
-								ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.gpu.get_palette_color(column, palette_id, color_id));
+								ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.get_palette_color(column, palette_id, color_id));
 								float tmp = color.x;
 								color.x = color.z;
 								color.z = tmp;
@@ -446,7 +442,7 @@ void Debug_Display::update(const uint32_t *pixels)
 				for (int color_id = 0; color_id < 4; color_id++)
 				{
 					/* Our colors are ARBG and somehow imgui wants ABGR */
-					ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.gpu.get_palette_color(0, 0, color_id));
+					ImVec4 color = ImGui::ColorConvertU32ToFloat4(emu.get_palette_color(0, 0, color_id));
 					float tmp = color.x;
 					color.x = color.z;
 					color.z = tmp;
@@ -472,18 +468,18 @@ void Debug_Display::update(const uint32_t *pixels)
 			{
 				if (ImGui::BeginTabItem("BANK0"))
 				{
-					mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 0), 0x2000, 0x8000);
+					mem_edit.DrawContents(emu.get_vram_data(0x8000, 0), 0x2000, 0x8000);
 					ImGui::EndTabItem();
 				}
 				if (ImGui::BeginTabItem("BANK1"))
 				{
-					mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 1), 0x2000, 0x8000);
+					mem_edit.DrawContents(emu.get_vram_data(0x8000, 1), 0x2000, 0x8000);
 					ImGui::EndTabItem();
 				}
 				ImGui::EndTabBar();
 			}
 		} else {
-			mem_edit.DrawContents(emu.memory.get_vram_data(0x8000, 0), 0x2000, 0x8000);
+			mem_edit.DrawContents(emu.get_vram_data(0x8000, 0), 0x2000, 0x8000);
 		}
 
 		ImGui::End();
@@ -494,7 +490,7 @@ void Debug_Display::update(const uint32_t *pixels)
 		ImGui::Begin("Memory Editor", &memory_editor_open);
 		ImGui::InputInt("begin", &begin, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
 		ImGui::InputInt("size", &size, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
-		mem_edit2.DrawContents(emu.memory.get_data(begin), size, begin);
+		mem_edit2.DrawContents(emu.get_data(begin), size, begin);
 		ImGui::End();
 	}
 
@@ -550,7 +546,7 @@ void Debug_Display::update(const uint32_t *pixels)
 
 			if(ImGui::Button("Send to game"))
 			{
-				emu.memory.set_rtc(days, hours, minutes, seconds);
+				emu.set_rtc(days, hours, minutes, seconds);
 			}
 
 			ImGui::TreePop();
@@ -596,8 +592,8 @@ void Debug_Display::update(const uint32_t *pixels)
 				case 2 : ImGui::Text("Connected as server"); break;
 			}
 			ImGui::Text("serial_byte : %02X", emu.serial_byte);
-			ImGui::Text("serial_control : %02X", emu.memory.read_8bits(0xFF02));
-			ImGui::Text("SB : %02X", emu.memory.read_8bits(0xFF01));
+			ImGui::Text("serial_control : %02X", emu.read_8bits(0xFF02));
+			ImGui::Text("SB : %02X", emu.read_8bits(0xFF01));
 
 			ImGui::TreePop();
 		}
