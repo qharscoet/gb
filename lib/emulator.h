@@ -5,12 +5,26 @@
 #include "gpu.h"
 #include "sound.h"
 #include "network.h"
+#include "options.h"
 
 #include <string>
 #include <thread>
 #include <atomic>
 
-class Emulator
+#if defined(_WIN32)
+	#ifdef EMULATOR_EXPORTS
+		#define EMULATOR_API __declspec(dllexport)
+	#else
+		#define EMULATOR_API __declspec(dllimport)
+	#endif
+#else
+	#define EMULATOR_API
+#endif
+
+EMULATOR_API extern emu_options options;
+
+class Debug_Display;
+class EMULATOR_API Emulator
 {
 
 	friend class Debug_Display;
@@ -81,6 +95,18 @@ public:
 	void connect_network(const char* addr = nullptr, const char* port = nullptr);
 	void close_network();
 	enum network_state is_connected();
+
+	//Some access functions to interact that wraps emu components
+	//Memory
+	uint8_t read_8bits(uint16_t addr) const;
+	uint8_t *const get_data(uint16_t addr) const;
+	uint8_t *const get_vram_data(uint16_t addr, int bank) const;
+	void set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds);
+
+	//GPU
+	void draw_full_bg(uint32_t *pixels) const;
+	void draw_bg_tiles(uint32_t *pixels, bool bank) const;
+	uint32_t get_palette_color(bool bg, uint8_t palette, uint8_t col_id) const;
 };
 
 #endif

@@ -8,7 +8,6 @@
 #endif
 
 #include "emulator.h"
-#include "options.h"
 
 #define SDL_MAIN_HANDLED
 #include "display.h"
@@ -18,8 +17,6 @@
 
 #include "audio.h"
 #include "sdl_audio.h"
-
-emu_options options;
 
 
 void options_init()

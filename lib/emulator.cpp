@@ -1,12 +1,11 @@
 #include "emulator.h"
-#include "options.h"
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <filesystem>
 
-extern emu_options options;
+EMULATOR_API emu_options options;
 
 Emulator::Emulator()
 :cpu(&memory), gpu(&memory), apu(memory.get_data_span<0x30>(0xFF10)), state(emu_state::IDLE)
@@ -292,3 +291,21 @@ bool Emulator::receive_byte(uint8_t *byte, bool blocking)
 
 	return 0;
 }
+
+//Memory
+uint8_t Emulator::read_8bits(uint16_t addr) const
+{ return memory.read_8bits(addr); }
+uint8_t *const Emulator::get_data(uint16_t addr) const
+{ return memory.get_data(addr); }
+uint8_t *const Emulator::get_vram_data(uint16_t addr, int bank) const
+{ return memory.get_vram_data(addr, bank); }
+void Emulator::set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds)
+{ memory.set_rtc(days,hours, minutes, seconds); }
+
+//GPU
+void Emulator::draw_full_bg(uint32_t *pixels) const
+{ gpu.draw_full_bg(pixels); }
+void Emulator::draw_bg_tiles(uint32_t *pixels, bool bank) const
+{ gpu.display_bg_tiles(pixels, bank); }
+uint32_t Emulator::get_palette_color(bool bg, uint8_t palette, uint8_t col_id) const
+{ return gpu.get_palette_color(bg, palette, col_id); }
