@@ -109,4 +109,32 @@ public:
 	uint32_t get_palette_color(bool bg, uint8_t palette, uint8_t col_id) const;
 };
 
+
+// C API for bindings
+#ifdef EMULATOR_EXPORTS
+	extern "C" {
+		EMULATOR_API Emulator* emu_new() { return new Emulator(); }
+		EMULATOR_API void emu_delete(Emulator* emu) { delete emu; }
+
+		EMULATOR_API void emu_init(Emulator* emu){ emu->init(); }
+		EMULATOR_API void emu_reset(Emulator* emu){ emu->reset(); }
+		EMULATOR_API void emu_start(Emulator* emu){ emu->start(); }
+		EMULATOR_API void emu_stop(Emulator* emu){ emu->stop(); }
+
+		EMULATOR_API bool emu_load_rom(Emulator* emu){ return emu->load_rom(); }
+		EMULATOR_API bool emu_needs_reload(Emulator* emu){ return emu->needs_reload(); }
+		EMULATOR_API bool emu_is_running(Emulator* emu){ return emu->is_running(); }
+		EMULATOR_API bool emu_is_exiting(Emulator* emu){ return emu->is_exiting(); }
+		EMULATOR_API const char* emu_get_game_name(Emulator* emu) { return emu->get_game_name().c_str();}
+
+		EMULATOR_API void emu_set_rom_file(Emulator *emu, char *filename) { emu->set_rom_file(filename); }
+
+		EMULATOR_API uint8_t emu_step(Emulator* emu, uint8_t inputs) { return emu->step(inputs);}
+		EMULATOR_API const uint8_t* emu_get_pixel_data(Emulator* emu) { return (const uint8_t*)emu->get_pixel_data();}
+		EMULATOR_API const float* emu_get_audio_data(Emulator* emu) { return emu->get_audio_data();}
+		EMULATOR_API void emu_clear_audio(Emulator *emu) { emu->clear_audio(); }
+		EMULATOR_API void emu_update_rtc(Emulator *emu) { emu->update_rtc(); }
+	}
+#endif
+
 #endif
