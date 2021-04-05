@@ -47,6 +47,14 @@ private:
 	GPU gpu;
 	Sound apu;
 
+	struct save_state{
+		Memory::memory_state mem_state;
+		CPU::cpu_state cpu_state;
+		GPU::gpu_state gpu_state;
+	};
+
+	save_state quick_savestate;
+
 	uint8_t frame_count;
 
 	uint8_t serial_byte;
@@ -86,6 +94,9 @@ public:
 	void load_save();
 
 	void set_rom_file(std::string filename);
+
+	void save_state();
+	void load_state();
 
 	//state functions
 	bool is_running() const;

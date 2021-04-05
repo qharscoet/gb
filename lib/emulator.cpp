@@ -229,6 +229,20 @@ void Emulator::set_rom_file(std::string filename)
 	//reset();
 }
 
+void Emulator::save_state()
+{
+	memory.dump_state(&quick_savestate.mem_state);
+	cpu.dump_state(&quick_savestate.cpu_state);
+	gpu.dump_state(&quick_savestate.gpu_state);
+
+}
+
+void Emulator::load_state(){
+	memory.load_state(&quick_savestate.mem_state);
+	cpu.load_state(&quick_savestate.cpu_state);
+	gpu.load_state(&quick_savestate.gpu_state);
+}
+
 bool Emulator::is_running() const
 {
 	return state == emu_state::RUNNING;

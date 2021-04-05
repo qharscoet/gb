@@ -54,6 +54,16 @@ public:
 	GPU(Memory* memory);
 	~GPU();
 
+	struct gpu_state{
+		PaletteData cgb_palettes[2];
+		uint32_t pixels[LCD_HEIGHT][LCD_WIDTH];
+		uint16_t clock_counter;
+		uint8_t bg_color_prio_line[LCD_WIDTH];
+	};
+
+	void dump_state(gpu_state* state) const;
+	void load_state(const gpu_state* const state);
+
 	void step(uint8_t cycles);
 
 	const uint32_t* get_pixel_data() const;

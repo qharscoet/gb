@@ -66,6 +66,16 @@ public:
 
 	void reset();
 
+	struct memory_state{
+		uint8_t mmap[MEMSIZE];
+		bool is_cgb;
+		uint8_t vram_banks[2 * VRAM_BANK_SIZE];
+		uint8_t wram_banks[7 * VRAM_BANK_SIZE];
+	};
+
+	void dump_state(memory_state* state) const;
+	void load_state(const memory_state* const state);
+
 	void load_content(std::istream &file);
 	void load_content(const uint8_t* data, uint32_t size);
 

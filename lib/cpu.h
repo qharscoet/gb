@@ -266,6 +266,20 @@ public:
 	void init();
 	uint8_t step();
 
+	struct cpu_state {
+		uint16_t registers[6];
+		uint8_t divider_cycle_count;
+		uint16_t timer_cycle_count;
+
+		bool ime;
+		bool ime_scheduled;
+
+		bool halted;
+	};
+
+	void dump_state(cpu_state* state) const;
+	void load_state(const cpu_state* const state);
+
 	bool is_double_speed();
 };
 

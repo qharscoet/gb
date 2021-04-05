@@ -54,6 +54,22 @@ PaletteData* const GPU::get_palette_data()
 	return cgb_palettes;
 }
 
+void GPU::dump_state(gpu_state *state) const
+{
+	memcpy(state->cgb_palettes, this->cgb_palettes, 2* sizeof(PaletteData));
+	memcpy(state->pixels, this->pixels, sizeof(this->pixels));
+	memcpy(state->bg_color_prio_line, this->bg_color_prio_line, sizeof(this->bg_color_prio_line));
+	state->clock_counter = this->clock_counter;
+}
+
+void GPU::load_state(const gpu_state *const state)
+{
+	memcpy(this->cgb_palettes, state->cgb_palettes, 2 * sizeof(PaletteData));
+	memcpy(this->pixels, state->pixels, sizeof(this->pixels));
+	memcpy(this->bg_color_prio_line, state->bg_color_prio_line, sizeof(this->bg_color_prio_line));
+	this->clock_counter = state->clock_counter;
+}
+
 void GPU::step(uint8_t cycles)
 {
 	uint8_t stat_val = memory->read_8bits(STAT) | 0x80;
