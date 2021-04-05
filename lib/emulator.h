@@ -29,6 +29,14 @@ class EMULATOR_API Emulator
 
 	friend class Debug_Display;
 
+public:
+	struct save_state
+	{
+		Memory::memory_state mem_state;
+		CPU::cpu_state cpu_state;
+		GPU::gpu_state gpu_state;
+	};
+
 private:
 
 	enum class emu_state : uint8_t {
@@ -46,12 +54,6 @@ private:
 	CPU cpu;
 	GPU gpu;
 	Sound apu;
-
-	struct save_state{
-		Memory::memory_state mem_state;
-		CPU::cpu_state cpu_state;
-		GPU::gpu_state gpu_state;
-	};
 
 	save_state quick_savestate;
 
