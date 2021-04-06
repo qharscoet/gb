@@ -23,19 +23,15 @@ find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-if (UNIX)
-    target_link_libraries(gb PRIVATE pthread)
-endif (UNIX)
 
 if(DEFINED SDL2_INCLUDE_DIRS)
     target_include_directories(gb PRIVATE ${SDL2_INCLUDE_DIRS})
 endif()
 
-# According to docs SDL2::SDL2 is only an imported target for >3.19
-# Update : this was for SDL1, here SDL2::SDL2 seems to come from VCPKG
-# TODO: change this condition
-if(${CMAKE_VERSION} VERSION_LESS "3.19.0")
+# need to properly filter out if vcpkg or not
+if (UNIX)
     target_link_libraries(gb PRIVATE SDL2)
+    target_link_libraries(gb PRIVATE pthread)
 else()
     target_link_libraries(gb PRIVATE SDL2::SDL2 )
 endif()
