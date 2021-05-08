@@ -56,8 +56,8 @@ private:
 	uint8_t frame_count;
 
 	uint8_t serial_byte;
-	// std::thread serial_thread;
-	// std::atomic<bool> serial_stop;
+	std::thread serial_thread;
+	std::atomic<bool> serial_stop;
 	void step_serial();
 	void serial_run();
 
