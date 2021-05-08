@@ -7,6 +7,10 @@
 #include "network.h"
 #include "options.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 #include <string>
 #include <thread>
 #include <atomic>
@@ -17,6 +21,8 @@
 	#else
 		#define EMULATOR_API __declspec(dllimport)
 	#endif
+#elif defined(__EMSCRIPTEN__)
+	#define EMULATOR_API EMSCRIPTEN_KEEPALIVE
 #else
 	#define EMULATOR_API
 #endif
@@ -50,8 +56,8 @@ private:
 	uint8_t frame_count;
 
 	uint8_t serial_byte;
-	std::thread serial_thread;
-	std::atomic<bool> serial_stop;
+	// std::thread serial_thread;
+	// std::atomic<bool> serial_stop;
 	void step_serial();
 	void serial_run();
 
