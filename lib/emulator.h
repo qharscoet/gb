@@ -9,6 +9,7 @@
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
+#include <emscripten/bind.h>
 #endif
 
 #include <string>
@@ -21,8 +22,8 @@
 	#else
 		#define EMULATOR_API __declspec(dllimport)
 	#endif
-#elif defined(__EMSCRIPTEN__)
-	#define EMULATOR_API EMSCRIPTEN_KEEPALIVE
+// #elif defined(__EMSCRIPTEN__)
+// 	#define EMULATOR_API EMSCRIPTEN_KEEPALIVE
 #else
 	#define EMULATOR_API
 #endif
@@ -141,6 +142,35 @@ public:
 		EMULATOR_API void emu_clear_audio(Emulator *emu) { emu->clear_audio(); }
 		EMULATOR_API void emu_update_rtc(Emulator *emu) { emu->update_rtc(); }
 	}
+
+	#if defined(__EMSCRIPTEN__)
+		using namespace emscripten;
+		EMSCRIPTEN_BINDINGS(Emulator_module) {
+			function("emu_set_rom_file", &emu_set_rom_file, allow_raw_pointers());
+			class_<Emulator>("Emulator")
+				.constructor<>()
+				.function("init", &Emulator::init)
+				.function("is_gameboy_color", &Emulator::is_gameboy_color)
+				.function("init", &Emulator::init)
+				.function("reset", &Emulator::reset)
+				.function("start", &Emulator::start)
+				.function("stop", &Emulator::stop)
+				.function("load_rom", select_overload<bool()>(&Emulator::load_rom))
+				.function("needs_reload", &Emulator::needs_reload)
+				.function("is_running", &Emulator::is_running)
+				.function("is_exiting", &Emulator::is_exiting)
+				.function("get_game_name", &Emulator::get_game_name)
+				.function("set_rom_file", &Emulator::set_rom_file)
+				.function("step", &Emulator::step)
+				.function("get_pixel_data", &Emulator::get_pixel_data, allow_raw_pointers())
+				.function("draw_full_bg", &Emulator::draw_full_bg, allow_raw_pointers())
+				.function("draw_bg_tiles", &Emulator::draw_bg_tiles, allow_raw_pointers())
+				.function("get_audio_data", &Emulator::get_audio_data, allow_raw_pointers())
+				.function("clear_audio", &Emulator::clear_audio)
+				.function("update_rtc", &Emulator::update_rtc)
+				;
+		}
+	#endif
 #endif
 
 #endif
