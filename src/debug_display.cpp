@@ -90,9 +90,9 @@ bool LoadTextureFromPixels(const uint32_t* pixels, GLuint *out_texture, int w, i
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
 	if(update)
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
 
 	*out_texture = image_texture;
 	return true;

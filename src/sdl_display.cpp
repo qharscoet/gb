@@ -67,7 +67,7 @@ int SDL_Display::display_init()
 
 		SDL_SetWindowTitle(sdlWindow, "My swaggy emulato");
 
-		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH, LCD_HEIGHT);
+		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH, LCD_HEIGHT);
 
 		if (sdlTexture == NULL)
 		{

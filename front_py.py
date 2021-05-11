@@ -65,8 +65,7 @@ while 1:
                        LCD_WIDTH * LCD_HEIGHT * 4)
     # print(hex(addressof(buffer.contents)))
     # print(len(string_at(buffer, LCD_WIDTH * LCD_HEIGHT * 4)))
-    surface = pygame.image.frombuffer(buffer[::-1], (LCD_WIDTH, LCD_HEIGHT), 'ARGB')
-    surface = pygame.transform.flip(surface, True, True)
+    surface = pygame.image.frombuffer(buffer, (LCD_WIDTH, LCD_HEIGHT), 'RGBA')
     # surface = pygame.transform.scale(surface,(SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # screen.fill(black)
