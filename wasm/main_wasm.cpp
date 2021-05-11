@@ -118,7 +118,7 @@ int main(int argc, char const *argv[])
 	}
 
 	std::cout << "going to main loop" << std::endl;
-	emscripten_set_main_loop(loop, 60, 1);
+	emscripten_set_main_loop(loop, 0, 1);
 
 	// emscripten_request_animation_frame_loop(loop,0);
 
