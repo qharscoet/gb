@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "emulator.h"
+#include "../lib/emulator.h"
 
 class Display
 {

@@ -25,5 +25,6 @@ target_link_options(gb_wasm PRIVATE --bind)
 
 target_link_options(gb_wasm PRIVATE --preload-file zelda.gbc)
 target_link_options(gb_wasm PRIVATE -pthread)
+target_link_options(gb_wasm PRIVATE -s INITIAL_MEMORY=134217728)
 # target_link_options(gb_wasm PRIVATE -s)
 # target_link_options(gb_wasm PRIVATE --js-library ${WASM_LIB})

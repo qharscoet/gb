@@ -7,7 +7,7 @@
 #include <intrin.h>
 #endif
 
-#include "emulator.h"
+#include "../lib/emulator.h"
 #include <emscripten.h>
 
 #include "wasm_display.h"
