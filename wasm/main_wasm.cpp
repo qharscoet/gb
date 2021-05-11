@@ -29,6 +29,10 @@ Emulator emu;
 WASM_Display display;
 // Audio audio;
 
+extern "C" {
+    extern void play_samples(const float *samples);
+}
+
 int i = 0;
 
 void loop()
@@ -61,12 +65,12 @@ void loop()
 
 						cycles_total += emu.step(display.get_keystate());
 
-						// const float *samples = emu.get_audio_data();
-						// if (samples != nullptr)
-						// {
-						// 	audio->play_audio(samples);
-						// 	emu.clear_audio();
-						// }
+						const float *samples = emu.get_audio_data();
+						if (samples != nullptr)
+						{
+							play_samples(samples);
+							emu.clear_audio();
+						}
 					}
 
 					emu.update_rtc();
