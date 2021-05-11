@@ -31,7 +31,7 @@ inline uint32_t get_color_u32(uint16_t col)
 	green = (green << 3) | (green >> 2);
 	blue = (blue << 3) | (blue >> 2);
 
-	return (255 << 24) | (red << 16) | (green << 8) | blue;
+	return (255 << 24) | (blue << 16) | (green << 8) | red;
 }
 
 GPU::GPU(Memory* memory)
