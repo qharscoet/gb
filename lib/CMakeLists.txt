@@ -13,6 +13,6 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 
 file(GLOB LIB_SOURCES "./*.cpp")
 
-add_library(gb_lib SHARED ${LIB_SOURCES})
-target_compile_definitions(gb_lib PRIVATE EMULATOR_EXPORTS)
-target_compile_options(gb_lib PRIVATE -pthread -O3)
+add_library(libgb SHARED ${LIB_SOURCES})
+target_compile_definitions(libgb PRIVATE EMULATOR_EXPORTS)
+target_compile_options(libgb PRIVATE -pthread -O3)

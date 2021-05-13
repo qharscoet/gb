@@ -9,6 +9,7 @@
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
+#include <emscripten/bind.h>
 #endif
 
 #include <string>
@@ -21,8 +22,8 @@
 	#else
 		#define EMULATOR_API __declspec(dllimport)
 	#endif
-#elif defined(__EMSCRIPTEN__)
-	#define EMULATOR_API EMSCRIPTEN_KEEPALIVE
+// #elif defined(__EMSCRIPTEN__)
+// 	#define EMULATOR_API EMSCRIPTEN_KEEPALIVE
 #else
 	#define EMULATOR_API
 #endif
