@@ -10,15 +10,18 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 # file(GLOB LIB_SOURCES "./lib/*.cpp")
 file(GLOB SOURCES "./src/*.cpp")
 file(GLOB IMGUI "./src/imgui/*.cpp")
-file(GLOB HQX_S "./src/hqx/*.c")
+# file(GLOB HQX_S "./hqx/*.c")
 
 # add_subdirectory (hqx)
-add_subdirectory(lib)
+add_subdirectory(lib ./libgb)
+add_subdirectory(hqx)
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_LIBRARY_RUNTIME_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # add_library(gb_lib SHARED ${LIB_SOURCES})
 # target_compile_definitions(gb_lib PRIVATE EMULATOR_EXPORTS)
 
-add_executable(gb ${SOURCES} ${IMGUI} ${HQX_S} "./src/tinyfiledialogs/tinyfiledialogs.c")
+add_executable(gb ${SOURCES} ${IMGUI} "./src/tinyfiledialogs/tinyfiledialogs.c")
 
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -38,7 +41,7 @@ else()
 endif()
 
 target_include_directories(gb PRIVATE "./lib")
-target_link_libraries(gb PRIVATE gb_lib OpenGL::GL GLEW::GLEW)
+target_link_libraries(gb PRIVATE gb_lib hqx OpenGL::GL GLEW::GLEW)
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     if(MSVC)

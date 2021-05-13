@@ -80,10 +80,17 @@ void SDL_Audio::play_audio(const float *samples)
 {
 	if (audio_dev != 0)
 	{
+#ifndef __EMSCRIPTEN__
 		while ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)))
 		{
 			SDL_Delay(1);
 		}
+#else
+		if ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)))
+		{
+			SDL_ClearQueuedAudio(audio_dev);
+		}
+#endif
 
 		if (SDL_QueueAudio(audio_dev, samples, BUFFER_SIZE * 2 * sizeof(float)) == -1)
 		{

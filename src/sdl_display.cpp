@@ -1,7 +1,9 @@
 #include "sdl_display.h"
 
+#ifndef __EMSCRIPTEN__
 #include "tinyfiledialogs/tinyfiledialogs.h"
-#include "hqx/hqx.h"
+#endif
+#include <hqx.h>
 
 #define SCREEN_FPS 60
 #define TICKS_PER_FRAME 1000 / SCREEN_FPS
@@ -92,11 +94,14 @@ void SDL_Display::clear()
 
 void SDL_Display::update(const uint32_t* pixels)
 {
+#ifndef __EMSCRIPTEN__
 	while((curr_time = SDL_GetTicks()) - prev_time < TICKS_PER_FRAME)
 	{
 
 		SDL_Delay(TICKS_PER_FRAME - (curr_time - prev_time));
 	}
+
+#endif
 
 	{
 		void* argb_pixels;
@@ -201,6 +206,7 @@ bool SDL_Display::handle_events(Emulator &emu)
 					emu.reset();
 					break;
 				case SDL_SCANCODE_O: {
+#ifndef __EMSCRIPTEN__
 					char const *lFilterPatterns[2] = {"*.gb", "*.gbc"};
 					char const *selection = tinyfd_openFileDialog( // there is also a wchar_t version
 						"Open ROM",									// title
@@ -217,6 +223,7 @@ bool SDL_Display::handle_events(Emulator &emu)
 						emu.set_rom_file(selection);
 						emu.reset();
 					}
+#endif
 				}
 				break;
 				case SDL_SCANCODE_KP_1:
@@ -256,7 +263,7 @@ void SDL_Display::switch_size(int multiplier)
 	{
 		size_multiplier = multiplier;
 		SDL_DestroyTexture(sdlTexture);
-		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH * size_multiplier, LCD_HEIGHT * size_multiplier);
+		sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, LCD_WIDTH * size_multiplier, LCD_HEIGHT * size_multiplier);
 
 		if (sdlTexture == NULL)
 		{

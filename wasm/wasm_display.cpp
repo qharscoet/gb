@@ -1,4 +1,5 @@
 #include "wasm_display.h"
+#include <emscripten.h>
 
 // #include "tinyfiledialogs/tinyfiledialogs.h"
 // #include "hqx/hqx.h"
@@ -57,7 +58,27 @@ void WASM_Display::update(const uint32_t* pixels)
 		// 	}
 		// 	pixels = render_pixels;
 		// }
-        canvas_update(pixels);
+        // canvas_update(pixels);
+		EM_ASM_ARGS({
+			var ctx = Module['canvas'].getContext('2d');
+			ctx.canvas.height = 144 * 4;
+			ctx.canvas.width = 160 * 4;
+			;
+			ctx.imageSmoothingEnabled = false;
+
+			if (!this.emu_canvas)
+			{
+				this.emu_canvas = document.createElement("canvas");
+				emu_canvas.width = 160;
+				emu_canvas.height = 144;
+			}
+
+			const pixel_array = new Uint8ClampedArray(HEAPU8.buffer, $0, 160 * 144 * 4);
+			var image_data = new ImageData(new Uint8ClampedArray(pixel_array), 160, 144);
+			emu_canvas.getContext('2d').putImageData(image_data, 0, 0);
+
+			ctx.drawImage(emu_canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+		}, pixels);
 
 		// if(size_multiplier != 1){
 		// 	delete[] render_pixels;

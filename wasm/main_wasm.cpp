@@ -11,6 +11,8 @@
 #include <emscripten.h>
 
 #include "wasm_display.h"
+#include "../src/sdl_audio.h"
+#include "../src/sdl_display.h"
 
 // #define SDL_MAIN_HANDLED
 
@@ -26,8 +28,12 @@ void options_init()
 }
 
 Emulator emu;
+#if USE_SDL
+SDL_Display display;
+#else
 WASM_Display display;
-// Audio audio;
+#endif
+SDL_Audio audio;
 
 extern "C" {
     extern void play_samples(const float *samples);
@@ -68,7 +74,7 @@ void loop()
 						const float *samples = emu.get_audio_data();
 						if (samples != nullptr)
 						{
-							play_samples(samples);
+							audio.play_audio(samples);
 							emu.clear_audio();
 						}
 					}
@@ -95,12 +101,19 @@ int main(int argc, char const *argv[])
 {
 	options.debug_ui = false;
 
+// #if USE_SDL
+// 	display = new SDL_Display();
+// #else
+// 	display = new WASM_Display();
+// #endif
+// 	audio = new SDL_Audio();
+
 	options_init();
 	emu.init();
 	display.display_init();
-	// audio->audio_init();
+	audio.audio_init();
 
-	emu.set_rom_file("zelda.gbc");
+	// emu.set_rom_file("zelda.gbc");
 	emu.reset();
 
 	if (!emu.load_rom())
@@ -121,6 +134,9 @@ int main(int argc, char const *argv[])
 	emscripten_set_main_loop(loop, 0, 1);
 
 	// emscripten_request_animation_frame_loop(loop,0);
+
+	// delete display;
+	// delete audio;
 
 	return 0;
 }
