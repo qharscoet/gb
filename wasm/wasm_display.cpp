@@ -11,6 +11,8 @@
 
 extern "C" {
     extern void canvas_update(const uint32_t* pixels);
+	extern void set_event_callback();
+	extern uint8_t fetch_keystates();
 }
 
 WASM_Display::WASM_Display()
@@ -27,11 +29,12 @@ void WASM_Display::set_title(std::string str)
 	// SDL_SetWindowTitle(sdlWindow, str.c_str());
 }
 
+
 int WASM_Display::display_init()
 {
 
 	// hqxInit();
-	// init_audio();
+	set_event_callback();
 
 	return 1;
 }
@@ -92,6 +95,7 @@ void WASM_Display::render()
 
 void WASM_Display::update_keystate()
 {
+	keystate = fetch_keystates();
 	// const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 	// const uint8_t keys[8] = { SDL_SCANCODE_DOWN,SDL_SCANCODE_UP,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT,
