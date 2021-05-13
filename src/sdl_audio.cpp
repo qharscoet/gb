@@ -86,7 +86,9 @@ void SDL_Audio::play_audio(const float *samples)
 			SDL_Delay(1);
 		}
 #else
-		if ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)))
+		/* Can't Delay on wasm, so when the playback is getting late we clear the queue.
+			Can cause some jiterring so we allow the playback to have a full BUFFER_SIZE of delay */
+		if ((SDL_GetQueuedAudioSize(audio_dev)) > BUFFER_SIZE * 2 * (sizeof(float)) *2)
 		{
 			SDL_ClearQueuedAudio(audio_dev);
 		}
