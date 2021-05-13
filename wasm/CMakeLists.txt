@@ -26,9 +26,9 @@ add_executable(gb_wasm ${SOURCES} ${SDL_SRC})
 
 if(USE_SDL)
 	target_compile_definitions(gb_wasm PRIVATE USE_SDL)
-	target_compile_options(gb_wasm PRIVATE -s USE_SDL=2)
-	target_link_options(gb_wasm PRIVATE -sUSE_SDL=2)
 endif()
+target_compile_options(gb_wasm PRIVATE -s USE_SDL=2)
+target_link_options(gb_wasm PRIVATE -sUSE_SDL=2)
 
 target_include_directories(gb_wasm PUBLIC "../lib")
 target_link_libraries(gb_wasm libgb hqx)
