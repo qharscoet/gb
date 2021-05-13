@@ -41,7 +41,7 @@ else()
 endif()
 
 target_include_directories(gb PRIVATE "./lib")
-target_link_libraries(gb PRIVATE gb_lib hqx OpenGL::GL GLEW::GLEW)
+target_link_libraries(gb PRIVATE libgb hqx OpenGL::GL GLEW::GLEW)
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     if(MSVC)

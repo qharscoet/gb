@@ -14,6 +14,8 @@ option(USE_SDL "Use SDL wasm ports" ON)
 
 if(USE_SDL)
 	set(SDL_SRC "../src/sdl_audio.cpp" "../src/sdl_display.cpp")
+else()
+	set(SDL_SRC "../src/sdl_audio.cpp")
 endif()
 
 
@@ -34,7 +36,7 @@ target_compile_options(gb_wasm PRIVATE -pthread)
 
 em_link_js_library(gb_wasm ${WASM_LIB})
 target_link_options(gb_wasm PRIVATE --bind)
-target_link_options(gb_wasm PRIVATE --preload-file zelda.gbc)
+# target_link_options(gb_wasm PRIVATE --preload-file zelda.gbc)
 target_link_options(gb_wasm PRIVATE -pthread)
 target_link_options(gb_wasm PRIVATE -s INITIAL_MEMORY=134217728)
 target_link_options(gb_wasm PRIVATE -sEXPORTED_RUNTIME_METHODS=["ccall"])
