@@ -11,6 +11,7 @@ let emu_lib = {
                 keystate:0,
                 mapped_keys:['c','x','Backspace', 'Enter', 'ArrowRight', 'ArrowLeft','ArrowUp','ArrowDown'],
                 buttons_states: [false, false, false, false, false, false, false, false],
+                size_multiplier: 1,
             },
             print: function(str) {
                 console.log(str);
@@ -23,6 +24,9 @@ let emu_lib = {
                     {
                         Emu.events.buttons_states[Emu.events.mapped_keys.indexOf(e.key)] = down;
                     }
+
+                    if(e.key >= 1 && e.key <= 4)
+                        Emu.events.size_multiplier = parseInt(e.key);
                 }
             },
             process_audio: function(e){
@@ -55,6 +59,9 @@ let emu_lib = {
                     value |= (1 << i);
             }
            return value;
+        },
+        fetch_size_multiplier:function(){
+            return Emu.events.size_multiplier;
         },
         set_event_callback: function() {
             document.addEventListener("keydown", Emu.handle_events);
