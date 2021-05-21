@@ -37,6 +37,7 @@ SDL_Audio audio;
 
 extern "C" {
     extern void play_samples(const float *samples);
+	extern void init_js_lib();
 }
 
 int i = 0;
@@ -95,7 +96,18 @@ extern "C" {
 		emu.set_rom_file(filename);
 		emu.reset();
 	}
+
+	EMSCRIPTEN_KEEPALIVE void clear_audio()
+	{
+		emu.clear_audio();
+	}
 }
+
+Emulator* get_emulator_instance()
+{
+	return &emu;
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -113,7 +125,8 @@ int main(int argc, char const *argv[])
 	display.display_init();
 	audio.audio_init();
 
-	// emu.set_rom_file("zelda.gbc");
+	init_js_lib();
+	emu.set_rom_file("zelda.gbc");
 	emu.reset();
 
 	if (!emu.load_rom())
@@ -166,5 +179,7 @@ int main(int argc, char const *argv[])
 			.function("clear_audio", &Emulator::clear_audio)
 			.function("update_rtc", &Emulator::update_rtc)
 			;
+
+		function("get_emulator_instance", &get_emulator_instance, allow_raw_pointers());
 	}
 #endif
