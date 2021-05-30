@@ -2,6 +2,8 @@
 #include "options.h"
 
 #include <cstring>
+// #include <iostream>
+#include <thread>
 
 extern emu_options options;
 
@@ -13,7 +15,7 @@ inline bool get_bit(uint8_t val, uint8_t b)
 Sound::Sound(std::span<uint8_t, 0x30> regs)
 :registers(regs), wave(&regs[0xA], &regs[0x20]), square1(&regs[0x00]), square2(&regs[0x5]), noise(&regs[0xF]), sample_timer(CLOCKSPEED / SAMPLERATE)
 {
-	buffer.reserve(BUFFER_SIZE);
+	// buffer.reserve(BUFFER_SIZE);
 	buffer.clear();
 }
 
@@ -98,6 +100,12 @@ void Sound::step(uint8_t cycles)
 				sample.sample_l /= 32.0f;
 				sample.sample_r /= 32.0f;
 
+				while(buffer.size() > BUFFER_SIZE * 2)
+				{
+					std::this_thread::yield();
+				}
+
+				const std::lock_guard<std::mutex> lock(buffer_mutex);
 				buffer.push_back(sample);
 			}
 		}
@@ -114,8 +122,24 @@ const float* Sound::get_sound_data() const
 	return nullptr;
 }
 
+const size_t Sound::get_samples(float * const samples, size_t len)
+{
+	size_t i = 0;
+	const std::lock_guard<std::mutex> lock(buffer_mutex);
+	// std::cout << buffer.size() << std::endl;
+	for ( i = 0 ; i < len * 0.5f && buffer.size() > 0; i++)
+	{
+		sample s = buffer.front();
+		samples[i*2] = s.sample_l; //buffer[i].sample_l;
+		samples[i*2 +1] = s.sample_r;//buffer[i].sample_r;
+		buffer.pop_front();
+	}
+	return i;
+}
+
 void Sound::clear_data()
 {
+	const std::lock_guard<std::mutex> lock(buffer_mutex);
 	buffer.clear();
 }
 

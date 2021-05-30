@@ -14,7 +14,7 @@ public:
 	SDL_Audio(/* args */);
 	~SDL_Audio();
 
-	virtual int audio_init();
+	virtual int audio_init(void* emu);
 	virtual void play_audio(const float *samples);
 };
 

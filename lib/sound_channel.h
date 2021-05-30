@@ -2,8 +2,6 @@
 #define __SOUND_CHANNEL_H__
 
 #include <cstdint>
-#include <vector>
-
 #include <span>
 
 class Channel

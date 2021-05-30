@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
 	options_init();
 	emu.init();
 	display->display_init();
-	audio->audio_init();
+	audio->audio_init((void*)&emu);
 
 	if(argc > 1) {
 		emu.set_rom_file(argv[1]);
@@ -87,13 +87,6 @@ int main(int argc, char const *argv[])
 					{
 
 						cycles_total += emu.step(display->get_keystate());
-
-						const float *samples = emu.get_audio_data();
-						if (samples != nullptr)
-						{
-							audio->play_audio(samples);
-							emu.clear_audio();
-						}
 					}
 
 					emu.update_rtc();
@@ -124,7 +117,7 @@ int main(int argc, char const *argv[])
 			display->display_init();
 			display->set_title(emu.get_game_name());
 
-			audio->audio_init();
+			audio->audio_init((void*)&emu);
 
 			options.display_changed = false;
 		}

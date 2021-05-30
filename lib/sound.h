@@ -3,6 +3,8 @@
 #define __SOUND_H__
 
 #include "sound_channel.h"
+#include <deque>
+#include <mutex>
 
 class Sound
 {
@@ -36,7 +38,8 @@ private:
 	std::span<uint8_t, 0x30> registers;
 
 	uint32_t sample_timer;
-	std::vector<sample> buffer;
+	std::deque<sample> buffer;
+	std::mutex buffer_mutex;
 
 	// void channel_3(uint16_t values[32]);
 
@@ -48,6 +51,7 @@ public:
 	void step(uint8_t cycles);
 
 	const float* get_sound_data() const;
+	const size_t get_samples(float * const samples, size_t len);
 	void clear_data();
 
 	char* const get_data(uint16_t addr);

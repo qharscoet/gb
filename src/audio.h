@@ -7,7 +7,7 @@ private:
 public:
 	virtual ~Audio() {};
 
-	virtual int audio_init() = 0;
+	virtual int audio_init(void* emu) = 0;
 	virtual void play_audio(const float* samples) = 0;
 };
 

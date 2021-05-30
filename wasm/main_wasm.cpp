@@ -30,10 +30,10 @@ void options_init()
 Emulator emu;
 #if USE_SDL
 SDL_Display display;
+SDL_Audio audio;
 #else
 WASM_Display display;
 #endif
-SDL_Audio audio;
 
 extern "C" {
     extern void play_samples(const float *samples);
@@ -75,8 +75,9 @@ void loop()
 						const float *samples = emu.get_audio_data();
 						if (samples != nullptr)
 						{
-							audio.play_audio(samples);
-							emu.clear_audio();
+							// audio.play_audio(samples);
+							// play_samples(samples);
+							// emu.clear_audio();
 						}
 					}
 
@@ -95,6 +96,11 @@ extern "C" {
 		std::cout <<"Opening : " << filename << std::endl;
 		emu.set_rom_file(filename);
 		emu.reset();
+	}
+
+	EMSCRIPTEN_KEEPALIVE void fetch_samples(float * const samples, size_t len)
+	{
+		emu.fetch_audio_samples(samples, len);
 	}
 
 	EMSCRIPTEN_KEEPALIVE void clear_audio()
@@ -123,7 +129,7 @@ int main(int argc, char const *argv[])
 	options_init();
 	emu.init();
 	display.display_init();
-	audio.audio_init();
+	// audio.audio_init();
 
 	init_js_lib();
 	emu.set_rom_file("zelda.gbc");
@@ -176,9 +182,9 @@ int main(int argc, char const *argv[])
 			.function("draw_full_bg", &Emulator::draw_full_bg, allow_raw_pointers())
 			.function("draw_bg_tiles", &Emulator::draw_bg_tiles, allow_raw_pointers())
 			.function("get_audio_data", &Emulator::get_audio_data, allow_raw_pointers())
+			.function("fetch_audio_samples", &Emulator::fetch_audio_samples, allow_raw_pointers())
 			.function("clear_audio", &Emulator::clear_audio)
-			.function("update_rtc", &Emulator::update_rtc)
-			;
+			.function("update_rtc", &Emulator::update_rtc);
 
 		function("get_emulator_instance", &get_emulator_instance, allow_raw_pointers());
 	}

@@ -1,7 +1,9 @@
 #include "sdl_audio.h"
+#include <emulator.h>
+#include <iostream>
 
 #ifndef NDEBUG
-#define SDL_Log(fmt,...) SDL_Log(fmt __VA_OPT__(, ) __VA_ARGS__)
+#define SDL_Log(fmt,...) SDL_Log(fmt , __VA_ARGS__)
 #else
 #define SDL_Log(fmt,...)
 #endif
@@ -17,8 +19,16 @@ SDL_Audio::~SDL_Audio()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
+void func_callback(void *userdata, Uint8 *stream, int len)
+{
+	SDL_memset(stream, 0, len);
+	const size_t sample_count = len / sizeof(float);
+	Emulator *emu = (Emulator *)userdata;
+	emu->fetch_audio_samples((float*)stream, sample_count);
+	// emu->clear_audio();
+}
 
-int SDL_Audio::audio_init()
+int SDL_Audio::audio_init(void* emu)
 {
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
 	{
@@ -33,7 +43,8 @@ int SDL_Audio::audio_init()
 	want.format = AUDIO_F32;
 	want.channels = 2;
 	want.samples = BUFFER_SIZE;
-	want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+	want.userdata = emu;
+	want.callback = func_callback; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 
 	audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
 	if (audio_dev == 0)
@@ -69,6 +80,7 @@ int SDL_Audio::audio_init()
 		{ /* we let this one thing change. */
 			SDL_Log("We didn't get U8 audio format.");
 		}
+		// std::cout << "got samplerate :" <<  have.freq << std::endl;
 		SDL_PauseAudioDevice(audio_dev, 0); /* start audio playing. */
 											//SDL_Delay(5000);			  /* let the audio callback play some sound for 5 seconds. */
 	}
