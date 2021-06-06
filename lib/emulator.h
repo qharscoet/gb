@@ -88,6 +88,7 @@ public:
 
 	const float* get_audio_data() const;
 	const size_t fetch_audio_samples(float* const samples, size_t len);
+	const size_t fetch_audio_samples(float *const samples_l, float *const samples_r, size_t len);
 	void clear_audio();
 
 	void save() const;

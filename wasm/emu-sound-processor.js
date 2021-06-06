@@ -10,20 +10,21 @@ class EmuSoundWorklet extends AudioWorkletProcessor {
     this.readPos = 0;
     this.available = 0;
     this.heap_buffer = options.processorOptions.heap_buffer;
+    this.samples_ptr = options.processorOptions.ptr;
 
     this.port.onmessage = (e) => {
-      var samples_fbuffer = new Float32Array(this.heap_buffer, e.data, this.EMU_BUFFER_SIZE * 2);
+      const len = e.data;
+      var samples_fbuffer = new Float32Array(this.heap_buffer, this.samples_ptr, len * 2);
 
-      for (var i = 0; i < this.EMU_BUFFER_SIZE; i++) {
+      for (var i = 0; i < len; i++) {
         this.buffers[0][this.writePos + i] = samples_fbuffer[i * 2];
         this.buffers[1][this.writePos + i] = samples_fbuffer[i * 2 + 1];
       }
 
-      this.writePos += this.EMU_BUFFER_SIZE;
+      this.writePos += len;
       this.writePos %= this.BUFFER_SIZE;
 
-      this.available += this.EMU_BUFFER_SIZE;
-      this.port.postMessage("test");
+      this.available += len;
     }
   }
 
@@ -31,6 +32,8 @@ class EmuSoundWorklet extends AudioWorkletProcessor {
     /* using the inputs (or not, as needed), write the output
        into each of the outputs */
     const output = outputList[0];
+    const len = output[0].length;
+    this.port.postMessage(len);
 
     if (this.available > output[0].length) {
       for (let i = 0; i < output[0].length; i++) {

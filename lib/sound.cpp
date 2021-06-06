@@ -100,12 +100,13 @@ void Sound::step(uint8_t cycles)
 				sample.sample_l /= 32.0f;
 				sample.sample_r /= 32.0f;
 
-				while(buffer.size() > BUFFER_SIZE * 2)
-				{
-					std::this_thread::yield();
-				}
 
 				const std::lock_guard<std::mutex> lock(buffer_mutex);
+				while(buffer.size() > BUFFER_SIZE * 2)
+				{
+					// std::this_thread::yield();
+					buffer.pop_front();
+				}
 				buffer.push_back(sample);
 			}
 		}
@@ -132,6 +133,21 @@ const size_t Sound::get_samples(float * const samples, size_t len)
 		sample s = buffer.front();
 		samples[i*2] = s.sample_l; //buffer[i].sample_l;
 		samples[i*2 +1] = s.sample_r;//buffer[i].sample_r;
+		buffer.pop_front();
+	}
+	return i;
+}
+
+const size_t Sound::get_samples(float *const samples_l, float* const samples_r, size_t len)
+{
+	size_t i = 0;
+	const std::lock_guard<std::mutex> lock(buffer_mutex);
+	// std::cout << buffer.size() << std::endl;
+	for (i = 0; i < len  && buffer.size() > 0; i++)
+	{
+		sample s = buffer.front();
+		samples_l[i] = s.sample_l;	 //buffer[i].sample_l;
+		samples_r[i] = s.sample_r; //buffer[i].sample_r;
 		buffer.pop_front();
 	}
 	return i;

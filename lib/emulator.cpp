@@ -191,6 +191,11 @@ const size_t Emulator::fetch_audio_samples(float* const samples, size_t len)
 	return apu.get_samples(samples, len);
 }
 
+const size_t Emulator::fetch_audio_samples(float *const samples_l, float *const samples_r, size_t len)
+{
+	return apu.get_samples(samples_l, samples_r, len);
+}
+
 void Emulator::clear_audio()
 {
 	apu.clear_data();

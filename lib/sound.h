@@ -52,6 +52,7 @@ public:
 
 	const float* get_sound_data() const;
 	const size_t get_samples(float * const samples, size_t len);
+	const size_t get_samples(float *const samples_l, float* const samples_r, size_t len);
 	void clear_data();
 
 	char* const get_data(uint16_t addr);

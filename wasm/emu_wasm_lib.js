@@ -7,9 +7,13 @@ let emu_lib = {
             process_audio: function(e){
                 Emu.init_audio();
 
+
+                let samples_ptr = Module.ccall('fetch_samples', 'number', [], []);
+                let samples_array = new Float32Array(Module["HEAPF32"].buffer, samples_ptr, Emu.BUFFER_SIZE * 2);
+
                 for(let i = 0; i < Emu.BUFFER_SIZE; i++){
-                    e.outputBuffer.getChannelData(0)[i] = Emu.audio.buffers[0][i];
-                    e.outputBuffer.getChannelData(1)[i] = Emu.audio.buffers[1][i];
+                    e.outputBuffer.getChannelData(0)[i] = samples_array[i*2];
+                    e.outputBuffer.getChannelData(1)[i] = samples_array[i*2 + 1];
                 }
             },
             init_audio: async function() {
@@ -23,13 +27,13 @@ let emu_lib = {
                     // Emu.audio.processorNode.onaudioprocess = Emu.process_audio;
                     // Emu.audio.processorNode.connect(Emu.audio.ctx.destination);
 
-                    await Emu.audio.ctx.audioWorklet.addModule('../emu-sound-processor.js');
-                    Emu.audio.workletNode = new AudioWorkletNode(Emu.audio.ctx, "emu-sound-processor", {processorOptions:{ heap_buffer: HEAPF32.buffer}, outputChannelCount:[2]});
-                    // Emu.audio.workletNode.port.onmessage = (e) => {
-                    //     Module.ccall("clear_audio", null, [], []);
-                    // };
-                    Emu.audio.workletNode.connect(Emu.audio.ctx.destination);
-                    console.log("wesh");
+                    try{
+                        await Emu.audio.ctx.audioWorklet.addModule('../emu-sound-processor.js');
+
+                    } catch(e) {
+                        console.log("Error addModule");
+                        console.log(e);
+                    }
 
 
                     Emu.audio.buffer = Emu.audio.ctx.createBuffer(2, Emu.BUFFER_SIZE, Emu.SAMPLERATE);
@@ -39,7 +43,17 @@ let emu_lib = {
         init_js_lib : async function() {
             Emu.instance = Module.get_emulator_instance();
             console.log(Emu.instance);
+            // fetch_audio_samples = Module.cwrap('fetch_samples', 'void', [],[])
+            let samples_ptr =  Module.ccall('fetch_samples', 'number', ['number'], [0])
             await Emu.init_audio();
+
+            Emu.audio.workletNode = new AudioWorkletNode(Emu.audio.ctx, "emu-sound-processor", { processorOptions: { heap_buffer: HEAPF32.buffer, ptr:samples_ptr}, outputChannelCount: [2] });
+            Emu.audio.workletNode.port.onmessage = (e) => {
+                // console.log(e.data);
+                Module.ccall('fetch_samples', 'number', ['number'], [e.data]);
+                Emu.audio.workletNode.port.postMessage(e.data);
+            };
+            Emu.audio.workletNode.connect(Emu.audio.ctx.destination);
         },
         play_samples: async function(samples){
             if(!Emu.audio)

@@ -11,8 +11,8 @@
 #include <emscripten.h>
 
 #include "wasm_display.h"
-#include "../src/sdl_audio.h"
-#include "../src/sdl_display.h"
+// #include "../src/sdl_audio.h"
+// #include "../src/sdl_display.h"
 
 // #define SDL_MAIN_HANDLED
 
@@ -90,6 +90,7 @@ void loop()
 		display.render();
 }
 
+float samples[2048];
 extern "C" {
 	EMSCRIPTEN_KEEPALIVE void wasm_load_file(const char *filename)
 	{
@@ -98,9 +99,12 @@ extern "C" {
 		emu.reset();
 	}
 
-	EMSCRIPTEN_KEEPALIVE void fetch_samples(float * const samples, size_t len)
+
+	EMSCRIPTEN_KEEPALIVE float* fetch_samples(size_t len)
 	{
-		emu.fetch_audio_samples(samples, len);
+		emu.fetch_audio_samples(samples, len * 2);
+		// printf("%f\n", samples[0]);
+		return samples;
 	}
 
 	EMSCRIPTEN_KEEPALIVE void clear_audio()
@@ -182,7 +186,7 @@ int main(int argc, char const *argv[])
 			.function("draw_full_bg", &Emulator::draw_full_bg, allow_raw_pointers())
 			.function("draw_bg_tiles", &Emulator::draw_bg_tiles, allow_raw_pointers())
 			.function("get_audio_data", &Emulator::get_audio_data, allow_raw_pointers())
-			.function("fetch_audio_samples", &Emulator::fetch_audio_samples, allow_raw_pointers())
+			// .function("fetch_audio_samples", &Emulator::fetch_audio_samples, allow_raw_pointers())
 			.function("clear_audio", &Emulator::clear_audio)
 			.function("update_rtc", &Emulator::update_rtc);
 
