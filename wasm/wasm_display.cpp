@@ -11,6 +11,7 @@
 
 extern "C" {
     extern void canvas_update(const uint32_t* pixels);
+	extern void audio_visualizer_draw();
 }
 
 WASM_Display::WASM_Display()
@@ -79,6 +80,8 @@ void WASM_Display::update(const uint32_t* pixels)
 
 			ctx.drawImage(emu_canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
 		}, pixels);
+
+		audio_visualizer_draw();
 
 		// if(size_multiplier != 1){
 		// 	delete[] render_pixels;

@@ -53,7 +53,14 @@ let emu_lib = {
                 Module.ccall('fetch_samples', 'number', ['number'], [e.data]);
                 Emu.audio.workletNode.port.postMessage(e.data);
             };
-            Emu.audio.workletNode.connect(Emu.audio.ctx.destination);
+
+            Emu.audio.analyser = Emu.audio.ctx.createAnalyser();
+            Emu.audio.workletNode.connect(Emu.audio.analyser);
+            Emu.audio.analyser.connect(Emu.audio.ctx.destination);
+
+            Emu.audio.analyser.fftSize = 2048;
+            var bufferLength = Emu.audio.analyser.fftSize;
+            Emu.audio.analyse_data = new Uint8Array(bufferLength);
         },
         play_samples: async function(samples){
             if(!Emu.audio)
@@ -81,6 +88,48 @@ let emu_lib = {
 
 
             ctx.drawImage(emu_canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+        },
+        audio_visualizer_draw : function() {
+            if(Emu.audio.analyser){
+
+                const audio_canvas = document.getElementById("audio_canvas");
+                const WIDTH = 500;
+                const HEIGHT = 200;
+                const bufferLength = Emu.audio.analyser.fftSize;
+
+                audio_canvas.width = WIDTH;
+                audio_canvas.height = HEIGHT;
+                canvasCtx = audio_canvas.getContext('2d');
+                Emu.audio.analyser.getByteTimeDomainData(Emu.audio.analyse_data);
+
+                canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+                canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+
+                canvasCtx.beginPath();
+
+                var sliceWidth = WIDTH * 1.0 / bufferLength;
+                var x = 0;
+
+                for (var i = 0; i < bufferLength; i++) {
+
+                    var v = Emu.audio.analyse_data[i] / 128.0;
+                    var y = v * HEIGHT / 2;
+
+                    if (i === 0) {
+                        canvasCtx.moveTo(x, y);
+                    } else {
+                        canvasCtx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                canvasCtx.lineTo(audio_canvas.width, audio_canvas.height / 2);
+                canvasCtx.stroke();
+            }
         }
 }
 
