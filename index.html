@@ -22,6 +22,10 @@
         margin: 0;
       }
 
+      #custom-controls div {
+        margin-bottom: 15px;
+      }
+
       .spinner {
         height: 30px;
         width: 30px;
@@ -1238,6 +1242,16 @@
       </div>
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
       <div style="width: 25%;">
+        <div>
+          <label for="hqx-select">Scaling mode</label>
+          <select name="hqx" id="hqx-select">
+            <option value="1">Default</option>
+            <option value="2">hq2x</option>
+            <option value="3">hq3x</option>
+            <option value="4">hq4x</option>
+          </select>
+        </div>
+        <canvas id="audio_canvas"></canvas>
       </div>
     </div>
     <textarea id="output" rows="8"></textarea>

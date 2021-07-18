@@ -14,7 +14,6 @@ const readFromBlobOrFile = (blob) => (
 
 const transcode = async ({ target: { files } }) => {
 	const { name } = files[0];
-	// await ffmpeg.load();
 	console.log(files);
 	const file_array = await readFromBlobOrFile(files[0]);
 	FS.writeFile(name, new Uint8Array(file_array));
@@ -23,6 +22,7 @@ const transcode = async ({ target: { files } }) => {
 	get_save();
 	Module.ccall("wasm_load_file", null, ["string"], [name]);
 }
+
 function get_save() {
 	emu = Module.get_emulator_instance();
 	const gamename = emu.get_game_name();
@@ -61,14 +61,14 @@ function display_save() {
 		row.insertCell().appendChild(button);
 	}
 
-	// await ffmpeg.run('-i', name, 'output.mp4');
-	// const data = ffmpeg.FS('readFile', 'output.mp4');
-	// const video = document.getElementById('player');
-	// video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+}
 
+function update_hqx(size) {
+	Emu.events.size_multiplier = size;
 }
 
 document.getElementById('uploader').addEventListener('change', transcode);
 document.getElementById('save_button').addEventListener('click', get_save);
+document.getElementById('hqx-select').addEventListener('change', (event) => update_hqx(event.target.value));
 window.addEventListener('beforeunload', get_save);
 display_save();
