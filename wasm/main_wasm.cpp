@@ -10,10 +10,14 @@
 #include "../lib/emulator.h"
 #include <emscripten.h>
 
-#include "wasm_display.h"
-#include "../src/sdl_audio.h"
-#include "../src/sdl_display.h"
 
+#include "../src/sdl_audio.h"
+
+#if USE_SDL
+#include "../src/sdl_display.h"
+#else
+#include "wasm_display.h"
+#endif
 // #define SDL_MAIN_HANDLED
 
 void options_init()
