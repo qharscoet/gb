@@ -1209,9 +1209,36 @@
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
-    <div class="emscripten_border">
-      <span><input type="file" id="uploader"></span>
+    <div class="emscripten_border" style="display:flex;">
+      <div id="custom-controls" style="width: 25%;">
+        <div><input type="file" id="uploader"></div>
+        <div><button type="button" id="save_button">Save</button></div>
+        <div>
+          <table id="local_saves">
+            <thead><tr><th colspan="2">Saved Games:</th></tr></thead>
+            <tr></tr>
+          </table>
+        </div>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Controls</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Arrows</td><td>Arrow keys</td></tr>
+              <tr><td>A</td><td>C</td></tr>
+              <tr><td>B</td><td>X</td></tr>
+              <tr><td>Start</td><td>Enter</td></tr>
+              <tr><td>Select</td><td>Backspace</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+      <div style="width: 25%;">
+      </div>
     </div>
     <textarea id="output" rows="8"></textarea>
 

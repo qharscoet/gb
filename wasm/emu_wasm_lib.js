@@ -17,12 +17,13 @@ let emu_lib = {
                 console.log(str);
             },
             handle_events: function(e) {
+                e.preventDefault();
                 let down = e.type == "keydown";
                 if(!e.repeat){
-                    console.log(e.key + " " + e.type + " repeat : " + e.repeat);
                     if(Emu.events.mapped_keys.includes(e.key))
                     {
                         Emu.events.buttons_states[Emu.events.mapped_keys.indexOf(e.key)] = down;
+
                     }
 
                     if(e.key >= 1 && e.key <= 4)
@@ -117,6 +118,16 @@ let emu_lib = {
 
 
             ctx.drawImage(emu_canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+        },
+        fetch_save: function(game_name_ptr) {
+            const game_name = UTF8ToString(game_name_ptr);
+            console.log("fetching save from" + game_name );
+            if(localStorage.getItem(game_name))
+            {
+                console.log("found save");
+                const data = localStorage.getItem(game_name);
+                FS.writeFile(game_name + ".sav", Uint8Array.from(data.split(','), Number));
+            }
         }
 }
 
