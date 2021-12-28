@@ -202,6 +202,12 @@ bool SDL_Display::handle_events(Emulator &emu)
 					options.debug_ui = !options.debug_ui;
 					options.display_changed = true;
 					break;
+				case SDL_SCANCODE_F2:
+					emu.save_state();
+					break;
+				case SDL_SCANCODE_F3:
+					emu.load_state();
+					break;
 				case SDL_SCANCODE_R:
 					emu.reset();
 					break;

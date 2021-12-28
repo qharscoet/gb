@@ -54,6 +54,7 @@ static uint16_t sample_offset = 0;
 static GLuint bg_full;
 static GLuint bg_tiles[2];
 static GLuint screen;
+static GLuint quicksave_preview;
 
 static MemoryEditor mem_edit;
 static MemoryEditor mem_edit2;
@@ -118,6 +119,7 @@ Debug_Display::Debug_Display(Emulator &emu)
 	bg_tiles[0] = 0;
 	bg_tiles[1]= 0;
 	screen = 0;
+	quicksave_preview = 0;
 
 	hqxInit();
 }
@@ -597,6 +599,25 @@ void Debug_Display::update(const uint32_t *pixels)
 
 			ImGui::TreePop();
 		}
+
+		if(ImGui::TreeNode("Quick Save")){
+			if(ImGui::Button("Save"))
+			{
+				emu.save_state();
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("Restore"))
+			{
+				emu.load_state();
+			}
+
+			LoadTextureFromPixels((const uint32_t*)&emu.quick_savestate.gpu_state.pixels[0], &quicksave_preview, LCD_WIDTH, LCD_HEIGHT);
+			float ratio = (ImGui::GetWindowWidth() * 0.8f)/LCD_WIDTH;
+			ImGui::Image((void *)(intptr_t)quicksave_preview, ImVec2(LCD_WIDTH * ratio, LCD_HEIGHT * ratio));
+
+			ImGui::TreePop();
+		}
+
 
 		ImGui::End();
 	}

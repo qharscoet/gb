@@ -22,6 +22,28 @@ CPU::CPU(Memory* memory)
 	this->memory = memory;
 }
 
+void CPU::dump_state(cpu_state* state) const
+{
+	memcpy(state->registers, this->registers, 6*sizeof(uint16_t));
+	state->halted = this->halted;
+	state->divider_cycle_count = this->divider_cycle_count;
+	state->timer_cycle_count = this->timer_cycle_count;
+
+	state->ime = this->ime;
+	state->ime_scheduled = this->ime_scheduled;
+}
+
+void CPU::load_state(const cpu_state* const state)
+{
+	memcpy(this->registers, state->registers, 6 * sizeof(uint16_t));
+	this->halted = state->halted ;
+	this->divider_cycle_count = state->divider_cycle_count ;
+	this->timer_cycle_count = state->timer_cycle_count ;
+
+	this->ime = state->ime ;
+	this->ime_scheduled = state->ime_scheduled;
+}
+
 void CPU::reset()
 {
 	memset(registers, 0, 12);

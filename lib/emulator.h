@@ -36,6 +36,14 @@ class EMULATOR_API Emulator
 
 	friend class Debug_Display;
 
+public:
+	struct save_state
+	{
+		Memory::memory_state mem_state;
+		CPU::cpu_state cpu_state;
+		GPU::gpu_state gpu_state;
+	};
+
 private:
 
 	enum class emu_state : uint8_t {
@@ -53,6 +61,8 @@ private:
 	CPU cpu;
 	GPU gpu;
 	Sound apu;
+
+	save_state quick_savestate;
 
 	uint8_t frame_count;
 
@@ -93,6 +103,9 @@ public:
 	void load_save();
 
 	void set_rom_file(std::string filename);
+
+	void save_state();
+	void load_state();
 
 	//state functions
 	bool is_running() const;

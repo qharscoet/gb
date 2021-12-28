@@ -186,6 +186,29 @@ void Memory::load_content(std::istream &file)
 	}
 }
 
+void Memory::dump_state(memory_state *state) const
+{
+	memcpy(state->mmap, this->mmap, MEMSIZE);
+	state->is_cgb = this->is_cgb;
+
+	if(this->is_cgb){
+		memcpy(state->vram_banks, this->vram_banks, 2* VRAM_BANK_SIZE);
+		memcpy(state->wram_banks, this->wram_banks, 7* WRAM_BANK_SIZE);
+	}
+}
+
+void Memory::load_state(const memory_state *const state)
+{
+	memcpy(this->mmap, state->mmap, MEMSIZE);
+	this->is_cgb = state->is_cgb;
+
+	if (this->is_cgb)
+	{
+		memcpy(this->vram_banks, state->vram_banks, 2 * VRAM_BANK_SIZE);
+		memcpy(this->wram_banks, state->wram_banks, 7 * WRAM_BANK_SIZE);
+	}
+}
+
 void Memory::load_content(const uint8_t* data, uint32_t size)
 {
 	memcpy(mmap, data, size);
