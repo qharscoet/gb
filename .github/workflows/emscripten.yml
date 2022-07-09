@@ -21,7 +21,6 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install python3 cmake
         sudo apt install libsdl2-dev libglew-dev
 
     - name: Install emsdk
