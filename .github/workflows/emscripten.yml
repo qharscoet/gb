@@ -39,9 +39,7 @@ jobs:
       working-directory: ${{github.workspace}}/wasm/
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: |
-        ${{ env.EMSDK }}/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        cat ${{github.workspace}}/wasm/build/CMakeFiles/CMakeOutput.log >> $GITHUB_STEP_SUMMARY
+      run: ${{ env.EMSDK }}/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
       working-directory: ${{github.workspace}}/wasm/build
@@ -51,9 +49,9 @@ jobs:
     - name: Deploy to Github Pages
       working-directory: ${{github.workspace}}/wasm
       run: |
-        git config --global user.name "Quentin Harscoët"
+        git config --global user.name "GitHub Actions"
         git config --global user.email "harscoet.quentin@gmail.com"
-        git checkout -b "test-auto-push"
+        git checkout -B "gh-pages"
         git add ./build/gb_wasm*
         git commit -m "Build & Push wasm files"
-        git push --set-upstream origin test-auto-push
+        git push
