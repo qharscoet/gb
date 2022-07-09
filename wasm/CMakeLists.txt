@@ -10,7 +10,7 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 file(GLOB SOURCES "./*.cpp")
 set(WASM_LIB emu_wasm_lib.js)
 
-option(USE_SDL "Use SDL wasm ports" ON)
+option(USE_SDL "Use SDL wasm ports" OFF)
 
 if(USE_SDL)
 	set(SDL_SRC "../src/sdl_audio.cpp" "../src/sdl_display.cpp")
@@ -26,13 +26,13 @@ add_executable(gb_wasm ${SOURCES} ${SDL_SRC})
 
 if(USE_SDL)
 	target_compile_definitions(gb_wasm PRIVATE USE_SDL)
-	target_compile_options(gb_wasm PRIVATE -s USE_SDL=2)
-	target_link_options(gb_wasm PRIVATE -sUSE_SDL=2)
 endif()
+target_compile_options(gb_wasm PRIVATE -s USE_SDL=2)
+target_link_options(gb_wasm PRIVATE -sUSE_SDL=2)
 
 target_include_directories(gb_wasm PUBLIC "../lib")
 target_link_libraries(gb_wasm libgb hqx)
-target_compile_options(gb_wasm PRIVATE -pthread)
+target_compile_options(gb_wasm PRIVATE -pthread -O3)
 
 em_link_js_library(gb_wasm ${WASM_LIB})
 target_link_options(gb_wasm PRIVATE --bind)

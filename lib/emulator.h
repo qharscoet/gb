@@ -130,6 +130,9 @@ public:
 		EMULATOR_API void emu_start(Emulator* emu){ emu->start(); }
 		EMULATOR_API void emu_stop(Emulator* emu){ emu->stop(); }
 
+		EMULATOR_API void emu_save(Emulator *emu) { emu->save(); }
+		EMULATOR_API void emu_load_save(Emulator* emu){ emu->load_save(); }
+
 		EMULATOR_API bool emu_load_rom(Emulator* emu){ return emu->load_rom(); }
 		EMULATOR_API bool emu_needs_reload(Emulator* emu){ return emu->needs_reload(); }
 		EMULATOR_API bool emu_is_running(Emulator* emu){ return emu->is_running(); }

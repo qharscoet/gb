@@ -1,9 +1,35 @@
 let emu_lib = {
         $Emu: {
-            BUFFER_SIZE : 1024,
-            SAMPLERATE : 48000,
-            DURATION : this.BUFFER_SIZE/this.SAMPLERATE,
-            DELAY : 50 / 1000,
+            audio:{
+                BUFFER_SIZE : 1024,
+                SAMPLERATE : 48000,
+                DURATION : this.BUFFER_SIZE/this.SAMPLERATE,
+                DELAY : 50 / 1000,
+                init:false,
+            },
+            events:{
+                keystate:0,
+                mapped_keys:['c','x','Backspace', 'Enter', 'ArrowRight', 'ArrowLeft','ArrowUp','ArrowDown'],
+                buttons_states: [false, false, false, false, false, false, false, false],
+                size_multiplier: 1,
+            },
+            print: function(str) {
+                console.log(str);
+            },
+            handle_events: function(e) {
+                e.preventDefault();
+                let down = e.type == "keydown";
+                if(!e.repeat){
+                    if(Emu.events.mapped_keys.includes(e.key))
+                    {
+                        Emu.events.buttons_states[Emu.events.mapped_keys.indexOf(e.key)] = down;
+
+                    }
+
+                    if(e.key >= 1 && e.key <= 4)
+                        Emu.events.size_multiplier = parseInt(e.key);
+                }
+            },
             process_audio: function(e){
                 Emu.init_audio();
 
@@ -65,7 +91,7 @@ let emu_lib = {
         play_samples: async function(samples){
             if(!Emu.audio)
                 await Emu.init_audio();
-            
+
 
             if(Emu.audio.workletNode)
                 Emu.audio.workletNode.port.postMessage(samples);
@@ -129,6 +155,14 @@ let emu_lib = {
 
                 canvasCtx.lineTo(audio_canvas.width, audio_canvas.height / 2);
                 canvasCtx.stroke();
+        fetch_save: function(game_name_ptr) {
+            const game_name = UTF8ToString(game_name_ptr);
+            console.log("fetching save from" + game_name );
+            if(localStorage.getItem(game_name))
+            {
+                console.log("found save");
+                const data = localStorage.getItem(game_name);
+                FS.writeFile(game_name + ".sav", Uint8Array.from(data.split(','), Number));
             }
         }
 }

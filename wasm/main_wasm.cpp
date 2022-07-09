@@ -14,6 +14,11 @@
 // #include "../src/sdl_audio.h"
 // #include "../src/sdl_display.h"
 
+#if USE_SDL
+#include "../src/sdl_display.h"
+#else
+#include "wasm_display.h"
+#endif
 // #define SDL_MAIN_HANDLED
 
 void options_init()
@@ -38,6 +43,7 @@ WASM_Display display;
 extern "C" {
     extern void play_samples(const float *samples);
 	extern void init_js_lib();
+    extern void fetch_save(const char *game_name);
 }
 
 int i = 0;
@@ -55,6 +61,8 @@ void loop()
 			}
 			else
 			{
+				fetch_save(emu.get_game_name().c_str());
+				emu.load_save();
 				emu.start();
 				display.set_title(emu.get_game_name());
 			}
@@ -110,6 +118,10 @@ extern "C" {
 	EMSCRIPTEN_KEEPALIVE void clear_audio()
 	{
 		emu.clear_audio();
+	}
+	EMSCRIPTEN_KEEPALIVE Emulator *get_emulator_instance()
+	{
+		return &emu;
 	}
 }
 
@@ -175,6 +187,8 @@ int main(int argc, char const *argv[])
 			.function("reset", &Emulator::reset)
 			.function("start", &Emulator::start)
 			.function("stop", &Emulator::stop)
+			.function("save", &Emulator::save)
+			.function("load_save", &Emulator::load_save)
 			.function("load_rom", select_overload<bool()>(&Emulator::load_rom))
 			.function("needs_reload", &Emulator::needs_reload)
 			.function("is_running", &Emulator::is_running)
