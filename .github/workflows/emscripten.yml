@@ -38,7 +38,9 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: ${{ env.EMSDK }}/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: |
+        ${{ env.EMSDK }}/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cat ${{github.workspace}}/wasm/build/CMakeFiles/CMakeOutput.log >> $GITHUB_STEP_SUMMARY
 
     - name: Build
       working-directory: ${{github.workspace}}/wasm/build
