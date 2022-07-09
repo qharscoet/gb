@@ -53,7 +53,7 @@ jobs:
       run: |
         git config --global user.name "Quentin Harscoët"
         git config --global user.email "harscoet.quentin@gmail.com"
-        git checkout -b "test auto push"
+        git checkout -b "test-auto-push"
         git add ./build/gb_wasm*
         git commit -m "Build & Push wasm files"
         git push
