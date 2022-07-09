@@ -56,4 +56,4 @@ jobs:
         git checkout -b "test-auto-push"
         git add ./build/gb_wasm*
         git commit -m "Build & Push wasm files"
-        git push
+        git push --set-upstream origin test-auto-push
