@@ -54,4 +54,4 @@ jobs:
         git checkout -B "gh-pages"
         git add ./build/gb_wasm*
         git commit -m "Build & Push wasm files"
-        git push
+        git push --set-upstream origin gh-pages
