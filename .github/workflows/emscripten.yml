@@ -51,7 +51,8 @@ jobs:
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "harscoet.quentin@gmail.com"
-        git checkout -B "gh-pages"
+        git pull
+        git checkout gh-pages
         git add ./build/gb_wasm*
         git commit -m "Build & Push wasm files"
         git push --set-upstream origin gh-pages
