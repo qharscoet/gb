@@ -1,4 +1,4 @@
-name: CMake
+name: Wasm with Emscripten
 
 on:
   push:
@@ -28,19 +28,19 @@ jobs:
         ./emsdk install latest
         ./emsdk activate latest
         source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+        echo "EM_CONFIG=$EM_CONFIG" >> $GITHUB_ENV
+        echo "EMSDK_NODE =$EMSDK_NODE " >> $GITHUB_ENV
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: |
-        echo $EMSDK
-        echo $PATH
-        $EMSK/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: ${{ env.EMSDK }}/upstream/emscripten/emcmake cmake -B ${{github.workspace}}/wasm/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
       working-directory: ${{github.workspace}}/wasm/build
       # Build your program with the given configuration
-      run: emmake make
+      run: ${{ env.EMSDK }}/upstream/emscripten/emmake make
 
     - name: Deploy to Github Pages
       working-directory: ${{github.workspace}}/wasm
