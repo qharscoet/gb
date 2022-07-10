@@ -21,6 +21,7 @@ const transcode = async ({ target: { files } }) => {
 	//Save before switching game
 	get_save();
 	Module.ccall("wasm_load_file", null, ["string"], [name]);
+	Emu.audio.ctx.resume();
 }
 
 function get_save() {
@@ -28,23 +29,21 @@ function get_save() {
 	const gamename = emu.get_game_name();
 
 	//This is the default name that the emulator returns
-	if(gamename !== "GameBoy Emulator")
-	{
+	if (gamename !== "GameBoy Emulator") {
 		const filename = gamename + ".sav";
 		emu.save();
-		console.log("saved");
-		const savefile = FS.readFile(filename, {encoding:"binary"});
+		console.log("saved " + filename);
+		const savefile = FS.readFile(filename, { encoding: "binary" });
 		localStorage.setItem(gamename, savefile);
 		display_save();
-	} else
-	{
+	} else {
 		console.log("no rom loaded");
 	}
 }
 
 function display_save() {
 	const table = document.querySelector("#local_saves tbody");
-	table.innerHTML="";
+	table.innerHTML = "";
 	for (let i = 0; i < localStorage.length; i++) {
 		const keyname = localStorage.key(i);
 

@@ -10,12 +10,10 @@
 #include "../lib/emulator.h"
 #include <emscripten.h>
 
-#include "wasm_display.h"
-// #include "../src/sdl_audio.h"
-// #include "../src/sdl_display.h"
 
 #if USE_SDL
 #include "../src/sdl_display.h"
+#include "../src/sdl_audio.h"
 #else
 #include "wasm_display.h"
 #endif
@@ -98,7 +96,7 @@ void loop()
 		display.render();
 }
 
-float samples[2048];
+static float samples[4096];
 extern "C" {
 	EMSCRIPTEN_KEEPALIVE void wasm_load_file(const char *filename)
 	{
@@ -107,12 +105,15 @@ extern "C" {
 		emu.reset();
 	}
 
-
-	EMSCRIPTEN_KEEPALIVE float* fetch_samples(size_t len)
+	EMSCRIPTEN_KEEPALIVE float* get_samples_ptr()
 	{
-		emu.fetch_audio_samples(samples, len * 2);
-		// printf("%f\n", samples[0]);
 		return samples;
+	}
+
+	EMSCRIPTEN_KEEPALIVE size_t fetch_samples(size_t len)
+	{
+		const size_t fetched = emu.fetch_audio_samples(samples, len * 2);
+		return fetched;
 	}
 
 	EMSCRIPTEN_KEEPALIVE void clear_audio()
@@ -123,11 +124,6 @@ extern "C" {
 	{
 		return &emu;
 	}
-}
-
-Emulator* get_emulator_instance()
-{
-	return &emu;
 }
 
 
@@ -148,7 +144,7 @@ int main(int argc, char const *argv[])
 	// audio.audio_init();
 
 	init_js_lib();
-	emu.set_rom_file("zelda.gbc");
+	//emu.set_rom_file("zelda.gbc");
 	emu.reset();
 
 	if (!emu.load_rom())

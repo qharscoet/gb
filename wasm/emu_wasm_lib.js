@@ -1,12 +1,12 @@
 let emu_lib = {
         $Emu: {
-            audio:{
+            // audio:{
                 BUFFER_SIZE : 1024,
                 SAMPLERATE : 48000,
                 DURATION : this.BUFFER_SIZE/this.SAMPLERATE,
                 DELAY : 50 / 1000,
                 init:false,
-            },
+            // },
             events:{
                 keystate:0,
                 mapped_keys:['c','x','Backspace', 'Enter', 'ArrowRight', 'ArrowLeft','ArrowUp','ArrowDown'],
@@ -54,7 +54,7 @@ let emu_lib = {
                     // Emu.audio.processorNode.connect(Emu.audio.ctx.destination);
 
                     try{
-                        await Emu.audio.ctx.audioWorklet.addModule('../emu-sound-processor.js');
+                        await Emu.audio.ctx.audioWorklet.addModule('/wasm/emu-sound-processor.js');
 
                     } catch(e) {
                         console.log("Error addModule");
@@ -66,21 +66,39 @@ let emu_lib = {
                 }
             },
         },
+        fetch_keystates: function () {
+            let value = 0;
+            for (let i = 0; i < 8; i++) {
+                if (Emu.events.buttons_states[i] == true)
+                    value |= (1 << i);
+            }
+            return value;
+        },
+        fetch_size_multiplier: function () {
+            return Emu.events.size_multiplier;
+        },
+        set_event_callback: function () {
+            document.addEventListener("keydown", Emu.handle_events);
+            document.addEventListener("keyup", Emu.handle_events);
+            // document.addEventListener("keypress", Emu.handle_events);
+        },
         init_js_lib : async function() {
             Emu.instance = Module.get_emulator_instance();
             console.log(Emu.instance);
             // fetch_audio_samples = Module.cwrap('fetch_samples', 'void', [],[])
-            let samples_ptr =  Module.ccall('fetch_samples', 'number', ['number'], [0])
+            let samples_ptr =  Module.ccall('get_samples_ptr', 'number', ['void'], [])
             await Emu.init_audio();
 
             Emu.audio.workletNode = new AudioWorkletNode(Emu.audio.ctx, "emu-sound-processor", { processorOptions: { heap_buffer: HEAPF32.buffer, ptr:samples_ptr}, outputChannelCount: [2] });
             Emu.audio.workletNode.port.onmessage = (e) => {
                 // console.log(e.data);
-                Module.ccall('fetch_samples', 'number', ['number'], [e.data]);
-                Emu.audio.workletNode.port.postMessage(e.data);
+                var len = Module.ccall('fetch_samples', 'number', ['number'], [e.data]);
+                Emu.audio.workletNode.port.postMessage(len);
             };
 
             Emu.audio.analyser = Emu.audio.ctx.createAnalyser();
+            // Emu.audio.workletNode.connect(Emu.audio.ctx.destination);
+
             Emu.audio.workletNode.connect(Emu.audio.analyser);
             Emu.audio.analyser.connect(Emu.audio.ctx.destination);
 
@@ -155,6 +173,8 @@ let emu_lib = {
 
                 canvasCtx.lineTo(audio_canvas.width, audio_canvas.height / 2);
                 canvasCtx.stroke();
+            }
+        },
         fetch_save: function(game_name_ptr) {
             const game_name = UTF8ToString(game_name_ptr);
             console.log("fetching save from" + game_name );
