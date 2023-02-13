@@ -3,6 +3,24 @@ Simple Gameboy Emulator
 
 This is a simple self-teaching project
 
+Controls
+---------
+
+Gameboy controls mapping:
+
+- Arrows : D-pad
+- X/C : A/B Buttons
+- Enter/Backspace : Start/Select
+
+Misc controls:
+- O to open a ROM file in the default display
+- P to Pause
+- R to Reset
+- Press F1 to open the debug UI
+
+
+![emu_screenshot](https://user-images.githubusercontent.com/6672352/218345596-6e626f31-7c9c-4182-a864-976357de42d0.png)
+
 WHAT WORKS
 ----------
 
@@ -12,6 +30,7 @@ WHAT WORKS
 - MBC 1/3/5
 - Sound
 - GameBoy Color
+- Link Cable (somewhat)
 
 TODO :
 -----------
@@ -23,12 +42,14 @@ TODO :
 IN PROGRESS
 ------------
 - Cleaning up stuff
-- Looking up how Link Cable works
+- Wasm frontend improvements
+- Save States
 
 Missing:
 --------
 
-- Link Cable support
+- Link Cable still has some glitches on games like Pokémon
+- Gameboy peripherals
 - Lots of undiscovered bugs
 
 Compile Dependencies:
