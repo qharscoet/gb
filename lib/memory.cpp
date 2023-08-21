@@ -138,6 +138,7 @@ void Memory::load_content(std::istream &file)
 		case 0x01: ramsize = 2048; break;
 		case 0x02: ramsize = 8192; break;
 		case 0x03: ramsize = kilobytes(32); break;
+		case 0x05: ramsize = kilobytes(64); break;
 		default:break;
 	}
 

@@ -302,6 +302,10 @@ uint8_t *const Emulator::get_vram_data(uint16_t addr, int bank) const
 void Emulator::set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds)
 { memory.set_rtc(days,hours, minutes, seconds); }
 
+//CPU
+uint16_t Emulator::get_pc() const
+{return cpu.get_pc();}
+
 //GPU
 void Emulator::draw_full_bg(uint32_t *pixels) const
 { gpu.draw_full_bg(pixels); }

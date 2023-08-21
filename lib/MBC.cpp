@@ -203,14 +203,14 @@ void MBC3::write_ram(uint16_t addr, uint8_t value)
 {
 	if (current_ram >= 0x08 && current_ram <= 0x0C)
 		RTC_reg[current_ram - 0x08] = value;
-	else if (current_ram <= 0x03)
+	else if (current_ram <= 0x07)
 		MBC::write_ram(addr, value);
 }
 uint8_t MBC3::read_ram(uint16_t addr) const
 {
 	if (current_ram >= 0x08 && current_ram <= 0x0C)
 		return is_latched ? latched_reg[current_ram - 0x08] : RTC_reg[current_ram - 0x08];
-	else if (current_ram <= 0x03)
+	else if (current_ram <= 0x07)
 		return MBC::read_ram(addr);
 	else
 		return 0;

@@ -110,6 +110,9 @@ public:
 	uint8_t *const get_vram_data(uint16_t addr, int bank) const;
 	void set_rtc(uint16_t days, uint8_t hours, uint8_t minutes, uint8_t seconds);
 
+	//CPU
+	uint16_t get_pc() const;
+	
 	//GPU
 	void draw_full_bg(uint32_t *pixels) const;
 	void draw_bg_tiles(uint32_t *pixels, bool bank) const;

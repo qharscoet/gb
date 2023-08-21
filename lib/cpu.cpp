@@ -175,9 +175,14 @@ bool CPU::get_flag(flag_id f)
 	return (*flags) & (1 << bit);
 }
 
-bool CPU::is_double_speed()
+bool CPU::is_double_speed() const
 {
 	return memory->read_8bits(0xFF4D) & (1 <<  7);
+}
+
+uint16_t CPU::get_pc() const
+{
+	return *pc;
 }
 
 uint8_t CPU::step()

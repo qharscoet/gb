@@ -504,6 +504,8 @@ void Debug_Display::update(const uint32_t *pixels)
 			emu.reset();
 		}
 
+		ImGui::Text("PC : %04X", emu.get_pc());
+
 		ImGui::Checkbox("Pause", &options.pause);
 		if(ImGui::Checkbox("Debug UI", &options.debug_ui)){
 			options.display_changed = true;
